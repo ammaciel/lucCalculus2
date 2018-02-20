@@ -20,7 +20,7 @@ file
 timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
 timeline
 
-# create timeline with classified data from SVM method
+# create label with classified data from SVM method
 #label <- as.character(c("Double_cropping", "Forest", "Pasture", "Single_cropping"))
 label <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_Area", "Water"))
 label
@@ -36,18 +36,21 @@ class(raster.tb$r_obj[[1]])
 # new variable
 rb_sits <- raster.tb$r_obj[[1]]
 
+# resolution
 raster::res(rb_sits)
 
 #raster::plot(rb_sits)
-
 names(rb_sits)
 
+#-------------
 # alter attributes using labels
 rb_sits@data@attributes <- lapply(rb_sits@data@attributes, function(x)  {x <- data.frame(ID = c(1:length(label)), category = label)} )
 
 colors <- c("#b3cc33", "#8ddbec", "#228b22", "#afe3c8", "#b6a896", "#e1cdb6", "#e5c6a0", "#b69872", "#b68549", "#dec000", "#cc18b4", "#0000f1" )
 rasterVis::levelplot(rb_sits, col.regions=colors) # par.settings=rasterVis::RdBuTheme
 
+
+#------------- tests - intervals before, meets and follows
 library(sits.LUC.Calculus)
 
 first_raster.df <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
@@ -55,14 +58,11 @@ first_raster.df <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest"
                   relation_interval = "contains", label = label, timeline = timeline)
 first_raster.df
 
-#lucC_plot_bar_events(second_rater.df)
-
 second_raster.df <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
                        time_interval = c("2005-09-01","2014-09-01"),
                        relation_interval = "contains", label = label, timeline = timeline)
 
 second_raster.df
-
 
 # before
 a <- lucC_relation_before(first_raster = first_raster.df, second_raster = second_raster.df)
@@ -70,6 +70,7 @@ a
 a1 <- lucC_result_format(a)
 a1
 lucC_plot_sequence_events(a1, custom_palette = FALSE, show_y_index = FALSE)
+lucC_plot_bar_events(a1, custom_palette = FALSE)
 
 
 b <- lucC_relation_meets(first_raster = first_raster.df, second_raster = second_raster.df)
@@ -77,118 +78,52 @@ b
 b1 <- lucC_result_format(b)
 b1
 lucC_plot_sequence_events(b1, custom_palette = FALSE, show_y_index = FALSE)
+lucC_plot_bar_events(b1, custom_palette = FALSE)
+
+c <- lucC_relation_follows(first_raster = first_raster.df, second_raster = second_raster.df)
+c
+c1 <- lucC_result_format(d)
+c1
+lucC_plot_sequence_events(c1, custom_palette = FALSE, show_y_index = FALSE)
+lucC_plot_bar_events(c1, custom_palette = FALSE)
 
 
-d <- lucC_relation_follows(first_raster = first_raster.df, second_raster = second_raster.df)
-d
-d1 <- lucC_result_format(d)
-d1
-lucC_plot_sequence_events(d1, custom_palette = FALSE, show_y_index = FALSE)
-
-# visualize plot with data
-#lucC_plot_bar_events(c, custom_palette = FALSE, pixel_resolution = 231.656)
-
+#------------- tests - recur, evolve, convert
 third_raster.df <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
                                     time_interval1 = c("2001-09-01","2001-09-01"),
                                     time_interval2 = c("2002-09-01","2007-09-01"),
                                     label = label, timeline = timeline)
-e1 <- lucC_result_format(third_raster.df)
-e1
+third_raster.df
+
+######-------------
+# verify is time_interval1 is < time_interval2 in luc_pred_recur
+######-------------
+
+d1 <- lucC_result_format(third_raster.df)
+d1
+lucC_plot_sequence_events(d1, custom_palette = FALSE, show_y_index = FALSE)
+lucC_plot_bar_events(d1, custom_palette = FALSE)
+
+#---------------
+
+fourth_raster.df <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = "Forest",
+                                   time_interval1 = c("2001-09-01","2001-09-01"),
+                                   raster_class2 = "Cerrado",
+                                   time_interval2 = c("2002-09-01","2016-09-01"),
+                                   label = label, timeline = timeline)
+fourth_raster.df
+
+e1 <- lucC_result_format(fourth_raster.df)
 lucC_plot_sequence_events(e1, custom_palette = FALSE, show_y_index = FALSE)
 lucC_plot_bar_events(e1, custom_palette = FALSE)
 
 
 
-#---------------
-
-x <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
-                                   time_interval = c("2001-09-01","2010-09-01"),
-                                   relation_interval = "contains", label = label, timeline = timeline)
-x
-
-# create a subset
-x[x=='NA'] <- NA
-
-# isolate only rows with NA
-x3 <- x[!complete.cases(x),]
-nrow(x3)
-head(x3)
-
-# get rows with NA before a
-x4 <- x3[rowSums(is.na(x3[,c(3:(ncol(x3)-1))]) * !is.na(x3[,4:ncol(x3)])) > 0, ]
-nrow(x4)
-head(x4)
-
-x5 <- lucC_result_format(x4)
-x5
-
-head(x4)
-x3[x3[,c(3:(ncol(x3)))] > which(is.na(x), arr.ind = TRUE), ]
-
-x5[which(ev1.in2$start_date > min(
-  ev2.in2$start_date, ev3.in2$start_date,
-  ev4.in2$start_date, ev5.in2$start_date,
-  ev6.in2$start_date, na.rm=TRUE) |
-    (ev1.in2$label != head(data.tb$label,1))),]
 
 
-
-nrow(x6 <- x5[which(ev1.in2$start_date > min(
-  ev2.in2$start_date, ev3.in2$start_date,
-  ev4.in2$start_date, ev5.in2$start_date,
-  ev6.in2$start_date, na.rm=TRUE) |
-    (ev1.in2$label != head(data.tb$label,1))),]) >=1
-
-
-
-
-
-
-df[which(df$number1 < df$number2), ]
-
-
-
-
-a <- c(1, 'S06.4', 6.7, 7.0, 6.5, 7.0, 7.2, NA, NA, 6.6,6.7)
-b <- c(2 ,'S06.2' ,5.0, NA, 4.9, 7.8, 9.3, 8.0, 7.8, 8.0,NA)
-c <- c(3, 'S06.5', 7.0, 5.5, NA, NA, 7.2, 8.0, 7.6, NA,6.7)
-d <- c(4, 'S06.5', 7.0, 7.0, 7.0, 6.9, 6.8, 9.0, 6.0, 6.6,6.7)
-e <- c(5, 'S06.1', 6.7, NA, NA, NA, NA, NA, NA, NA,NA)
-
-df <- data.frame(rbind(a,b,c,d,e))
-colnames(df) <- c('id','dx','dia01','dia02','dia03','dia04','dia05','dia06','dia07','dia08','dia09')
-
-df[rowSums(is.na(df[,3:10]) * !is.na(df[,4:11])) > 0,]
-
-
-
-
-Df[Df=='NA'] <- NA
-
-x2
-
-
-
-# before
-x1 <- lucC_result_format(x)
-x1
-lucC_plot_sequence_events(x1[c(1:149),], custom_palette = FALSE, show_y_index = FALSE)
-
-summary(x)
-
-
-which(is.na(x), arr.ind = TRUE)
-
-which(is.na())
-
-head()
-
-
-
-
-
-  Subs1<-subset(DATA, (!is.na(DATA[,2])) & (!is.na(DATA[,3])))
-
+.
+.
+.
 
 
 

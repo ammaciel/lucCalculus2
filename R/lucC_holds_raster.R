@@ -163,7 +163,7 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
 #'
 #' @usage lucC_pred_recur (raster_obj = NULL, raster_class = NULL,
 #' time_interval1 = c("2001-01-01", "2001-01-01"),
-#' time_interval2 = c("2003-01-01", "2004-01-01"),
+#' time_interval2 = c("2002-01-01", "2005-01-01"),
 #' label = NULL, timeline = NULL)
 #'
 #' @param raster_obj        Raster. A raster stack with classified images
@@ -171,6 +171,117 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
 #' @param time_interval1    Interval. A interval of time to verify if class is over or
 #'                          not in character format. Given a tibble with values, will be asserts if that
 #'                          class of locations holds during a time interval
+#' @param time_interval2    Interval. A interval of time to verify if class is over or
+#'                          not in character format. Given a tibble with values, will be asserts if that
+#'                          class of locations holds during a time interval
+#' @param label             Character. All labels of each value of pixel of classified raster
+#' @param timeline          Date. A list with all end_dates of classified raster
+#'
+#' @keywords datasets
+#' @return Tibble with all events hold during a time interval
+#' @import magrittr
+#' @importFrom lubridate int_standardize int_start int_end as_date ymd years
+#' @importFrom tibble as_tibble
+#' @importFrom raster subset rasterToPoints
+#' @importFrom tidyr drop_na
+#' @importFrom stats complete.cases
+#' @export
+#'
+#' @examples \dontrun{
+#'
+#' library(lucC)
+#'
+#'}
+#'
+
+# RECUR(location, class1, interval1, interval2)
+lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interval1 = c("2001-01-01", "2001-01-01"), time_interval2 = c("2002-01-01", "2005-01-01"), label = NULL, timeline = NULL){
+
+  if (!is.null(raster_obj) & !is.null(raster_class) & !is.null(label) & !is.null(timeline)) {
+    rasterStack_obj <- raster_obj
+    class_name <- as.character(raster_class)
+    label <- label
+    timeline <- timeline
+  } else {
+    stop("\nParameters:\n raster_obj (raster.stack),\n
+         raster_class ('Forest') and must be defined!\n
+         final_result = TRUE or FALSE\n")
+  }
+
+  # first time interval
+  if (!is.null(time_interval1) & !is.null(time_interval2) & time_interval1 < time_interval2) {
+    # checking if first or second interval values are correct
+    time_interval1 <- time_interval1
+    time_interval2 <- time_interval2
+   } else {
+    stop("\nParameters:\n
+         time_interval1 must be (<) less than time_interval2 \n
+         time_interval1 and time_interval2, as in the format \n
+         time_interval1 = c('2000-01-01', '2004-01-01') must be defined!\n")
+  }
+
+  # apply holds in both temporal intervals
+  res1 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name,
+                          time_interval = c(time_interval1[1],time_interval1[2]), relation_interval = "contains",
+                          label = label, timeline = timeline)
+  res2 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name,
+                          time_interval = c(time_interval2[1],time_interval2[2]), relation_interval = "contains",
+                          label = label, timeline = timeline)
+
+  # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
+  if( (nrow(res1) > 0)  & (nrow(res2) > 0) ) {
+    # 1. isolate only rows with NA
+    # all differents of this -> F F F F F F F
+    # 2. isolate rows with NA occurs after a sequence of same classes
+    # all differents of this -> F F F F NA NA NA, F F NA NA NA NA or F NA NA NA NA
+    res2.1 <- res2[!stats::complete.cases(res2),] %>%
+      .[rowSums(is.na(.[,c(3:(ncol(.)-1))]) * !is.na(.[,4:ncol(.)])) > 0, ]
+
+    # 3. isolate elements that occurs before of the first NA by row, changed them by NA
+    # all differents of this -> F NA NA F F F -> NA NA NA F F F; F F NA NA F NA -> NA NA NA NA F NA
+    .different_class <- function(x){
+      idna <- which(is.na(x))
+      idnonna <- which(!is.na(x))
+      if (idnonna[1] < idna[1])
+        x[idnonna[idnonna < idna[1]]] <- NA
+      else
+        x
+      return(x)
+    }
+
+    res2.out <- cbind(res2.1[,c(1:2)], t(apply(res2.1[,c(3:ncol(res2.1))], 1, .different_class)))
+
+    result <- merge(res1 , res2.out, by=c("x","y"))
+    result <- result[!duplicated(result), ]
+
+    return(result)
+  } else {
+    stop("\nRelation RECUR cannot be applied!\n")
+  }
+
+}
+
+
+#' @title Predicate Allen Holds
+#' @name lucC_pred_evolve
+#' @aliases lucC_pred_evolve
+#' @author Adeline M. Maciel
+#' @docType data
+#'
+#' @description Provide a predicate of Allen's which asserts that a class holds
+#' during a time interval. Return a tibble with value within defined interval
+#'
+#' @usage lucC_pred_evolve (raster_obj = NULL, raster_class1 = NULL,
+#' time_interval1 = c("2001-01-01", "2001-01-01"), raster_class2 = NULL,
+#' time_interval2 = c("2002-01-01", "2005-01-01"), label = NULL,
+#' timeline = NULL)
+#'
+#' @param raster_obj        Raster. A raster stack with classified images
+#' @param raster_class1     Character. Name of the first class present in a row of the tibble, such as 'Forest' or other value
+#' @param time_interval1    Interval. A interval of time to verify if class is over or
+#'                          not in character format. Given a tibble with values, will be asserts if that
+#'                          class of locations holds during a time interval
+#' @param raster_class2     Character. Name of the second class present in a row of the tibble, such as 'Forest' or other value
 #' @param time_interval2    Interval. A interval of time to verify if class is over or
 #'                          not in character format. Given a tibble with values, will be asserts if that
 #'                          class of locations holds during a time interval
@@ -193,17 +304,14 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
 #'}
 #'
 
-# HOLDS(property, time)
-# Asserts that a class holds during a time interval
-# version: 3
-# format: holds(o,c,t)
-# parameters: o = locations, c = class of locations and t = time intervals
+# EVOLVE(location, class1, interval1, class2, interval2) - USE BEFORE AND MEETS RELATIONS
+lucC_pred_evolve <- function(raster_obj = NULL, raster_class1 = NULL, time_interval1 = c("2001-01-01", "2001-01-01"), raster_class2 = NULL, time_interval2 = c("2002-01-01", "2005-01-01"), label = NULL, timeline = NULL){
 
-lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interval1 = c("2001-01-01", "2001-01-01"), time_interval2 = c("2003-01-01", "2004-01-01"), label = NULL, timeline = NULL){
-
-  if (!is.null(raster_obj) & !is.null(raster_class) & !is.null(label) & !is.null(timeline)) {
+  if (!is.null(raster_obj) & !is.null(raster_class1) & !is.null(raster_class2)
+      & !is.null(label) & !is.null(timeline)) {
     rasterStack_obj <- raster_obj
-    class_name <- as.character(raster_class)
+    class_name1 <- as.character(raster_class1)
+    class_name2 <- as.character(raster_class2)
     label <- label
     timeline <- timeline
   } else {
@@ -213,31 +321,130 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
   }
 
   # first time interval
-  if (!is.null(time_interval1) & !is.null(time_interval2)) {
+  if (!is.null(time_interval1) & !is.null(time_interval2) & time_interval1 < time_interval2) {
     # checking if first or second interval values are correct
     time_interval1 <- time_interval1
     time_interval2 <- time_interval2
-   } else {
+  } else {
     stop("\nParameters:\n
+         time_interval1 must be (<) less than time_interval2 \n
+         time_interval1 and time_interval2, as in the format \n
          time_interval1 = c('2000-01-01', '2004-01-01') must be defined!\n")
   }
 
   # apply holds in both temporal intervals
-  res1 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name,
+  res1 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name1,
                           time_interval = c(time_interval1[1],time_interval1[2]), relation_interval = "contains",
                           label = label, timeline = timeline)
-  res2 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name,
+  res2 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name2,
                           time_interval = c(time_interval2[1],time_interval2[2]), relation_interval = "contains",
                           label = label, timeline = timeline)
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
-  if( nrow(res1) > 0  & nrow(res2) > 0  & nrow(result <- lucC_relation_before(res1, res2)) > 0 ) {
+  if( (nrow(res1) > 0)  & (nrow(res2) > 0) ) {
+
+    result <- lucC_relation_follows(res1, res2)
+
     result <- result[!duplicated(result), ]
+
     return(result)
   } else {
-    stop("\nRelation RECUR cannot be applied!\n")
+    stop("\nRelation EVOLVE cannot be applied!\n")
   }
 
+}
+
+
+
+#' @title Predicate Allen Holds
+#' @name lucC_pred_convert
+#' @aliases lucC_pred_convert
+#' @author Adeline M. Maciel
+#' @docType data
+#'
+#' @description Provide a predicate of Allen's which asserts that a class holds
+#' during a time interval. Return a tibble with value within defined interval
+#'
+#' @usage lucC_pred_convert (raster_obj = NULL, raster_class1 = NULL,
+#' time_interval1 = c("2001-01-01", "2001-01-01"), raster_class2 = NULL,
+#' time_interval2 = c("2002-01-01", "2005-01-01"), label = NULL,
+#' timeline = NULL)
+#'
+#' @param raster_obj        Raster. A raster stack with classified images
+#' @param raster_class1     Character. Name of the first class present in a row of the tibble, such as 'Forest' or other value
+#' @param time_interval1    Interval. A interval of time to verify if class is over or
+#'                          not in character format. Given a tibble with values, will be asserts if that
+#'                          class of locations holds during a time interval
+#' @param raster_class2     Character. Name of the second class present in a row of the tibble, such as 'Forest' or other value
+#' @param time_interval2    Interval. A interval of time to verify if class is over or
+#'                          not in character format. Given a tibble with values, will be asserts if that
+#'                          class of locations holds during a time interval
+#' @param label             Character. All labels of each value of pixel of classified raster
+#' @param timeline          Date. A list with all end_dates of classified raster
+#'
+#' @keywords datasets
+#' @return Tibble with all events hold during a time interval
+#' @import magrittr
+#' @importFrom lubridate int_standardize int_start int_end as_date ymd years
+#' @importFrom tibble as_tibble
+#' @importFrom raster subset rasterToPoints
+#' @importFrom tidyr drop_na
+#' @export
+#'
+#' @examples \dontrun{
+#'
+#' library(lucC)
+#'
+#'}
+#'
+
+# CONVERT(location, class1, interval1, class2, interval2) - USE ONLY MEETS RELATION
+lucC_pred_convert <- function(raster_obj = NULL, raster_class1 = NULL, time_interval1 = c("2001-01-01", "2001-01-01"), raster_class2 = NULL, time_interval2 = c("2002-01-01", "2005-01-01"), label = NULL, timeline = NULL){
+
+  if (!is.null(raster_obj) & !is.null(raster_class1) & !is.null(raster_class2)
+      & !is.null(label) & !is.null(timeline)) {
+    rasterStack_obj <- raster_obj
+    class_name1 <- as.character(raster_class1)
+    class_name2 <- as.character(raster_class2)
+    label <- label
+    timeline <- timeline
+  } else {
+    stop("\nParameters:\n raster_obj (raster.stack),\n
+         raster_class ('Forest') and must be defined!\n
+         final_result = TRUE or FALSE\n")
+  }
+
+  # first time interval
+  if (!is.null(time_interval1) & !is.null(time_interval2) & time_interval1 < time_interval2) {
+    # checking if first or second interval values are correct
+    time_interval1 <- time_interval1
+    time_interval2 <- time_interval2
+  } else {
+    stop("\nParameters:\n
+         time_interval1 must be (<) less than time_interval2 \n
+         time_interval1 and time_interval2, as in the format \n
+         time_interval1 = c('2000-01-01', '2004-01-01') must be defined!\n")
+  }
+
+  # apply holds in both temporal intervals
+  res1 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name1,
+                          time_interval = c(time_interval1[1],time_interval1[2]), relation_interval = "equals",
+                          label = label, timeline = timeline)
+  res2 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name2,
+                          time_interval = c(time_interval2[1],time_interval2[2]), relation_interval = "equals",
+                          label = label, timeline = timeline)
+
+  # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
+  if( (nrow(res1) > 0)  & (nrow(res2) > 0) ) {
+
+    result <- lucC_relation_meets(res1, res2)
+
+    result <- result[!duplicated(result), ]
+
+    return(result)
+  } else {
+    stop("\nRelation CONVERT cannot be applied!\n")
+  }
 }
 
 
