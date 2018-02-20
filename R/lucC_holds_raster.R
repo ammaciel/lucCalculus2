@@ -213,23 +213,16 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
   }
 
   # first time interval
-  if (!is.null(time_interval1)) {
+  if (!is.null(time_interval1) & !is.null(time_interval2)) {
     # checking if first or second interval values are correct
     time_interval1 <- time_interval1
+    time_interval2 <- time_interval2
    } else {
     stop("\nParameters:\n
          time_interval1 = c('2000-01-01', '2004-01-01') must be defined!\n")
   }
 
-  # second time interval
-  if (!is.null(time_interval2)) {
-    # checking if first or second interval values are correct
-    time_interval2 <- time_interval2
-   } else {
-    stop("\nParameters:\n
-         time_interval2 = c('2000-01-01', '2004-01-01') must be defined!\n")
-  }
-
+  # apply holds in both temporal intervals
   res1 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name,
                           time_interval = c(time_interval1[1],time_interval1[2]), relation_interval = "contains",
                           label = label, timeline = timeline)

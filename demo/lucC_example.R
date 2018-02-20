@@ -99,6 +99,108 @@ lucC_plot_bar_events(e1, custom_palette = FALSE)
 
 
 
+#---------------
+
+x <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+                                   time_interval = c("2001-09-01","2010-09-01"),
+                                   relation_interval = "contains", label = label, timeline = timeline)
+x
+
+# create a subset
+x[x=='NA'] <- NA
+
+# isolate only rows with NA
+x3 <- x[!complete.cases(x),]
+nrow(x3)
+head(x3)
+
+# get rows with NA before a
+x4 <- x3[rowSums(is.na(x3[,c(3:(ncol(x3)-1))]) * !is.na(x3[,4:ncol(x3)])) > 0, ]
+nrow(x4)
+head(x4)
+
+x5 <- lucC_result_format(x4)
+x5
+
+head(x4)
+x3[x3[,c(3:(ncol(x3)))] > which(is.na(x), arr.ind = TRUE), ]
+
+x5[which(ev1.in2$start_date > min(
+  ev2.in2$start_date, ev3.in2$start_date,
+  ev4.in2$start_date, ev5.in2$start_date,
+  ev6.in2$start_date, na.rm=TRUE) |
+    (ev1.in2$label != head(data.tb$label,1))),]
+
+
+
+nrow(x6 <- x5[which(ev1.in2$start_date > min(
+  ev2.in2$start_date, ev3.in2$start_date,
+  ev4.in2$start_date, ev5.in2$start_date,
+  ev6.in2$start_date, na.rm=TRUE) |
+    (ev1.in2$label != head(data.tb$label,1))),]) >=1
+
+
+
+
+
+
+df[which(df$number1 < df$number2), ]
+
+
+
+
+a <- c(1, 'S06.4', 6.7, 7.0, 6.5, 7.0, 7.2, NA, NA, 6.6,6.7)
+b <- c(2 ,'S06.2' ,5.0, NA, 4.9, 7.8, 9.3, 8.0, 7.8, 8.0,NA)
+c <- c(3, 'S06.5', 7.0, 5.5, NA, NA, 7.2, 8.0, 7.6, NA,6.7)
+d <- c(4, 'S06.5', 7.0, 7.0, 7.0, 6.9, 6.8, 9.0, 6.0, 6.6,6.7)
+e <- c(5, 'S06.1', 6.7, NA, NA, NA, NA, NA, NA, NA,NA)
+
+df <- data.frame(rbind(a,b,c,d,e))
+colnames(df) <- c('id','dx','dia01','dia02','dia03','dia04','dia05','dia06','dia07','dia08','dia09')
+
+df[rowSums(is.na(df[,3:10]) * !is.na(df[,4:11])) > 0,]
+
+
+
+
+Df[Df=='NA'] <- NA
+
+x2
+
+
+
+# before
+x1 <- lucC_result_format(x)
+x1
+lucC_plot_sequence_events(x1[c(1:149),], custom_palette = FALSE, show_y_index = FALSE)
+
+summary(x)
+
+
+which(is.na(x), arr.ind = TRUE)
+
+which(is.na())
+
+head()
+
+
+
+
+
+  Subs1<-subset(DATA, (!is.na(DATA[,2])) & (!is.na(DATA[,3])))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

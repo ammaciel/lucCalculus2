@@ -2,7 +2,7 @@
 # Secondary_vegetation
 #*********************************
 
-## Question - Which "Forest" areas have been turned in secondary-vegetation after anyclass? 
+## Question - Which "Forest" areas have been turned in secondary-vegetation after anyclass?
 # o = geo-objects, the own df_input data.frame
 library(lucC)
 
@@ -13,11 +13,11 @@ df_new <- get(load("~/Desktop/Sinop_TWDTW_label_3_new_names.tb.RData"))
 df_new
 
 # preparing data
-data_tb <- df_new %>% 
-  lucC_standard_date_events(data_tb = ., month_year = "09", day_month = "01") %>% 
+data_tb <- df_new %>%
+  lucC_standard_date_events(data_tb = ., month_year = "09", day_month = "01") %>%
   dplyr::select(longitude, latitude, start_date, end_date, label, id, index)
 
-data_tb <- data_tb[order(data_tb$index),] 
+data_tb <- data_tb[order(data_tb$index),]
 data_tb
 
 data.frame(table(data_tb$label))
@@ -31,8 +31,8 @@ data.frame(table(data_tb$label))
 ptm <- proc.time()
 ptm1 <- Sys.time()
 
-# p = properties of objects 
-p1 <- "Forest" 
+# p = properties of objects
+p1 <- "Forest"
 
 p2 <- "Cerrado"
 p3 <- "Pasture"
@@ -50,35 +50,34 @@ question_holds <- function(data.tb){
   #  data.tb <- tem$`3`
   aux.df = NULL
   temp.df = NULL
-  
-  if ((nrow(ev1.in1 <- lucC_predicate_holds(data.tb, p1, t1)) >= 1 | #forest in first interval
-       
+
+  if ((nrow(ev1.in1 <- lucC_predicate_holds(data.tb, p1, t1)) >= 1 | # forest in first interval
+
        nrow(ev2.in1 <- lucC_predicate_holds(data.tb, p2, t1)) >= 1 | # other classes in first interval
        nrow(ev3.in1 <- lucC_predicate_holds(data.tb, p3, t1)) >= 1 |
        nrow(ev4.in1 <- lucC_predicate_holds(data.tb, p4, t1)) >= 1 |
        nrow(ev5.in1 <- lucC_predicate_holds(data.tb, p5, t1)) >= 1 |
        nrow(ev6.in1 <- lucC_predicate_holds(data.tb, p6, t1)) >= 1
-       
-  ) 
+
+  )
   &
   (	  nrow(ev2.in2 <- lucC_predicate_holds(data.tb, p2, t2)) >= 1 | # other classes in second interval
       nrow(ev3.in2 <- lucC_predicate_holds(data.tb, p3, t2)) >= 1 |
       nrow(ev4.in2 <- lucC_predicate_holds(data.tb, p4, t2)) >= 1 |
       nrow(ev5.in2 <- lucC_predicate_holds(data.tb, p5, t2)) >= 1 |
       nrow(ev6.in2 <- lucC_predicate_holds(data.tb, p6, t2)) >= 1
-  ) 
+  )
   &
-  nrow(ev1.in2 <- lucC_predicate_holds(data.tb, p1, t2)) >= 1 # if occur forest in second interval 
-  & 
-  # verify if forest discovered in interval 2 occur after start_date other classes. 
-  # Or f is different from first year 
-  # If it is TRUE, this forest is a secondary_vegetation  
+  nrow(ev1.in2 <- lucC_predicate_holds(data.tb, p1, t2)) >= 1 # if occur forest in second interval
+  &
+  # verify if forest discovered in interval 2 occur after start_date other classes.
+  # Or f is different from first year
+  # If it is TRUE, this forest is a secondary_vegetation
   nrow(event3 <- ev1.in2[which(ev1.in2$start_date > min(
     ev2.in2$start_date, ev3.in2$start_date,
     ev4.in2$start_date, ev5.in2$start_date,
-    ev6.in2$start_date, na.rm=TRUE) | 
-    (ev1.in2$label != head(data.tb$label,1))),]) >=1 
-  
+    ev6.in2$start_date, na.rm=TRUE) |
+    (ev1.in2$label != head(data.tb$label,1))),]) >=1
   ){
     # temp.df <- rbind(ev1.in1, ev2.in1, ev3.in1, ev4.in1, ev5.in1,
     #                ev2.in2, ev3.in2, ev4.in2, ev5.in2,
@@ -91,9 +90,9 @@ question_holds <- function(data.tb){
   }
   # remove duplicated rows
   aux.df <- aux.df[!duplicated(aux.df),]
-  
+
   data.frame(aux.df)
-  
+
 }
 
 temp.tb <- data_tb
@@ -102,7 +101,7 @@ temp.tb <- data_tb
 # temp.tb
 # question_holds(temp.tb)
 
-output_sec_veg_df = data.frame(do.call("rbind", parallel::mclapply(X = split(temp.tb, temp.tb$index), 
+output_sec_veg_df = data.frame(do.call("rbind", parallel::mclapply(X = split(temp.tb, temp.tb$index),
                                                                    mc.cores=2, #parallel::detectCores(),
                                                                    FUN = question_holds)))
 output_sec_veg_df
@@ -138,7 +137,7 @@ df_posProc$label[df_posProc$label == "Forest"] <- "Secondary_vegetation"
 df_pos <- dplyr::bind_rows(df_first_line,df_posProc)
 
 # original data
-df_temp2 <- df_input 
+df_temp2 <- df_input
 
 # temp3 dataframe with only id lines not in pos dataframe
 df_temp3 <- df_temp2[!(df_temp2$id %in% df_pos$id),]
@@ -148,7 +147,7 @@ df_new_sv <- dplyr::bind_rows(df_pos,df_temp3)
 df_new_sv <- data.frame(df_new_sv[order(df_new_sv$id),]) # order
 #rownames(df_new_sv) <- 1:nrow(df_new_sv)
 
-# return as tibble 
+# return as tibble
 df_new_sv <- tibble::as_tibble(df_new_sv)
 rownames(df_new_sv) <- NULL # don't jump this
 
