@@ -5,7 +5,7 @@
 \alias{lucC_interval}
 \title{lucC Intervals}
 \usage{
-lucC_interval(first_date , second_date)
+lucC_interval(first_date = NULL, second_date = NULL)
 }
 \arguments{
 \item{first_date}{Date. An date value like '2012-03-02'.}
@@ -22,8 +22,6 @@ Provide a lucC_interval, an input pattern format used by Allen's relations. And 
 \dontrun{
 
 library(lucC)
-
-lucC_starting_point()
 
 # create some examples of intervals
 time1 <- lucC_interval("2011-09-01","2011-10-01")

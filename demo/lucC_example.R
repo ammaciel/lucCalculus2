@@ -87,63 +87,84 @@ c1
 lucC_plot_sequence_events(c1, custom_palette = FALSE, show_y_index = FALSE)
 lucC_plot_bar_events(c1, custom_palette = FALSE)
 
-
-#------------- tests - recur, evolve, convert
+#------------- tests - recur
 third_raster.df <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
-                                    time_interval1 = c("2001-09-01","2003-09-01"),
+                                    time_interval1 = c("2001-09-01","2001-09-01"),
                                     time_interval2 = c("2002-09-01","2007-09-01"),
                                     label = label, timeline = timeline)
 third_raster.df
-
-######-------------
-# verify is time_interval1 is < time_interval2 in luc_pred_recur
-######-------------
 
 d1 <- lucC_result_format(third_raster.df)
 d1
 lucC_plot_sequence_events(d1, custom_palette = FALSE, show_y_index = FALSE)
 lucC_plot_bar_events(d1, custom_palette = FALSE)
 
-#---------------
 
-fourth_raster.df <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = "Forest",
+
+
+#------------- tests - evolve
+fifth_raster.df <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = "Forest",
                                    time_interval1 = c("2001-09-01","2001-09-01"),
                                    raster_class2 = "Cerrado",
-                                   time_interval2 = c("2002-09-01","2016-09-01"),
+                                   time_interval2 = c("2003-09-01","2007-09-01"),
                                    label = label, timeline = timeline)
-fourth_raster.df
+fifth_raster.df
 
-e1 <- lucC_result_format(fourth_raster.df)
+e1 <- lucC_result_format(fifth_raster.df)
 lucC_plot_sequence_events(e1, custom_palette = FALSE, show_y_index = FALSE)
 lucC_plot_bar_events(e1, custom_palette = FALSE)
 
 
-c <- c("20000-09-32")
+#------------- tests - convert
+sixth_raster.df <- lucC_pred_convert(raster_obj = rb_sits, raster_class1 = "Forest",
+                                     time_interval1 = c("2001-09-01","2001-09-01"),
+                                     raster_class2 = "Cerrado",
+                                     time_interval2 = c("2002-09-01","2016-09-01"),
+                                     label = label, timeline = timeline)
+sixth_raster.df
 
-c <- lucC_interval("2002-12-1","2006-10-3")
+f1 <- lucC_result_format(sixth_raster.df)
+lucC_plot_sequence_events(f1, custom_palette = FALSE, show_y_index = FALSE)
+lucC_plot_bar_events(f1, custom_palette = FALSE)
+
+
+
+
+
+a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+                                    time_interval = c("2005-09-01","2007-09-01"),
+                                    relation_interval = "equals", label = label, timeline = timeline)
+a
+
+
+b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+                                    time_interval = c("2005-09-01","2007-09-01"),
+                                    relation_interval = "equals", label = label, timeline = timeline)
+b
+
+# before
+#c <- lucC_relation_before(first_raster = a, second_raster = b)
+#c <- lucC_relation_after(first_raster = b, second_raster = a)
+#c <- lucC_relation_meets(first_raster = a, second_raster = b)
+#c <- lucC_relation_met_by(first_raster = a, second_raster = b) # C c("2008-09-01","2010-09-01"), F c("2002-09-01","2007-09-01")
+#c <- lucC_relation_starts(a,b)
+#c <- lucC_relation_started_by(b,a)
+#c <- lucC_relation_finishes(b,a)
+#c <- lucC_relation_finished_by(a,b)
+#c <- lucC_relation_during(a,b)
+c <- lucC_relation_equals(a,b)
 c
-#.check_date_format <- function(time_interval = NULL){
-
-  date <- try( as.Date( c, format= "%Y-%m-%d " ))
-  if( class( date ) == "try-error" || is.na( date ) )
-    stop( "\nDate format incorrect! -> YYYY-MM-DD\n" )
- # return(date)
-#}
-
-  .dateFormat <- function(date, format = "%Y-%m-%d") {
-    tryCatch(!is.na(as.Date(date, format)), error = function(err) {FALSE})
-  }
-
-.dateFormat(c)
-
-lubridate::is.interval(c)
-
-.check_date_format(date)
+c1 <- lucC_result_format(c)
+c1
+lucC_plot_sequence_events(c1, custom_palette = FALSE, show_y_index = FALSE)
+lucC_plot_bar_events(c1, custom_palette = FALSE)
 
 
+DF <- data.frame(x = c(1, 2, 3), y = c(0, 10, NA), z=c(NA, 33, 22))
+DF[!is.na(DF$y),]
 
 
-
+!isTRUE(lubridate::int_overlaps(first_interval,second_interval))
 
 
 lubridate::is.interval(c)

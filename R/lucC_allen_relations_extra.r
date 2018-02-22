@@ -130,15 +130,40 @@ lucC_relation_follows <- function (first_raster = NULL, second_raster = NULL) {
   # build intervals for each raster data set
   rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
 
+  # # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
+  # if( nrow(out1 <- lucC_relation_before(first_raster, second_raster)) > 0 |
+  #     nrow(out2 <- lucC_relation_meets(first_raster, second_raster)) > 0) {
+  #   result <- merge(out1, out2, by = c("x","y"), all = TRUE)
+  #   result <- result[!duplicated(result), ]
+  #   return(result)
+  # } else {
+  #   stop("\nRelation FOLLOWS cannot be applied!\n")
+  # }
+
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
-  if( nrow(out1 <- lucC_relation_before(first_raster, second_raster)) > 0 |
-      nrow(out2 <- lucC_relation_meets(first_raster, second_raster)) > 0) {
+  if( !is.null(nrow(out1 <- lucC_relation_before(first_raster, second_raster)) > 0) &
+      !is.null(nrow(out2 <- lucC_relation_meets(first_raster, second_raster)) > 0)) {
     result <- merge(out1, out2, by = c("x","y"), all = TRUE)
     result <- result[!duplicated(result), ]
     return(result)
+
+  } else if( !is.null(nrow(out1 <- lucC_relation_before(first_raster, second_raster)) > 0) &
+             is.null(out2 <- lucC_relation_meets(first_raster, second_raster))) {
+    result <- out1
+    result <- result[!duplicated(result), ]
+    return(result)
+
+  } else if( is.null(out1 <- lucC_relation_before(first_raster, second_raster)) &
+             !is.null(nrow(out2 <- lucC_relation_meets(first_raster, second_raster)) > 0)) {
+    result <- out2
+    result <- result[!duplicated(result), ]
+    return(result)
+
   } else {
     stop("\nRelation FOLLOWS cannot be applied!\n")
   }
+
+
 }
 
 

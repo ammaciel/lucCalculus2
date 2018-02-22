@@ -73,7 +73,7 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
          final_result = TRUE or FALSE\n")
   }
 
-  if (!is.null(time_interval)) {
+  if (!is.null(time_interval) & isTRUE(time_interval[1] < time_interval[2])) {
 
     # checking if first or second interval values are correct
     t <- lucC_interval(time_interval[1],time_interval[2]) %>%
@@ -87,7 +87,8 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
 
   } else {
     stop("\nParameters:\n
-         time_interval = c('2000-01-01', '2004-01-01') must be defined!\n")
+         First date needs to be less than second.\n
+         Date format of time_interval = c('2000-01-01', '2004-01-01') must be defined!\n")
   }
 
   # relation Allen CONTAINS or EQUALS
@@ -138,8 +139,18 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
   timeline_holds = timeline[ timeline >= timeline[date_start] & timeline <= timeline[date_end]]
 
   # alter column names of data.frame
-  colnames(longLatFromRaster.df)[c(3:ncol(longLatFromRaster.df))] <- as.character(timeline_holds)
-  longLatFromRaster.df
+  if( NCOL(longLatFromRaster.df) == 1 & is.null(ncol(longLatFromRaster.df))){
+    # case there is only one value
+    longLatFromRaster.df <- base::as.matrix(t(longLatFromRaster.df))
+    colnames(longLatFromRaster.df)[c(3:ncol(longLatFromRaster.df))] <- as.character(timeline_holds)
+  } else if( nrow(longLatFromRaster.df) == 0){
+    # case there is no values
+    longLatFromRaster.df <- NULL
+    return(longLatFromRaster.df)
+  } else {
+    # case more than one value
+    colnames(longLatFromRaster.df)[c(3:ncol(longLatFromRaster.df))] <- as.character(timeline_holds)
+  }
 
   # alter label for original value in character
   longLatFromRaster.df[,c(3:ncol(longLatFromRaster.df))] <-
@@ -172,31 +183,22 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
 
 .lucC_check_intervals <- function (first_int = NULL, second_int = NULL) {
 
-  # checking if first or second interval values are valide
-  # first time interval
-  if (!is.null(first_int) & !is.null(second_int) & all(first_int < second_int)) {
-    # checking if first or second interval values are correct
-    time_int1 <- lucC_interval(first_int)
-    time_int2 <- lucC_interval(second_int)
+    # check if they are intervals and not overlaped
+    time_int1 <- lucC_interval(first_int[1],first_int[2])
+    time_int2 <- lucC_interval(second_int[1],second_int[2])
 
     if (!isTRUE(lubridate::int_overlaps(time_int1,time_int2))) {
       first_interval <- first_int
       second_interval <- second_int
+      # return a list with two valid values
+      output <- list(first_interval, second_interval)
+
+      return(output)
     }
     else {
       stop("\nParameters:\n
          time_interval1 can not overlap time_interval2! \n\n")
     }
-  } else {
-    stop("\nParameters:\n
-         time_interval1 must be (<) less than time_interval2 \n
-         time_interval1 and time_interval2, as in the format \n
-         time_interval1 = c('2000-01-01', '2004-01-01') must be defined!\n\n")
-  }
-
-  output <- list(first_interval, second_interval)
-
-  return(output)
 
 }
 
@@ -257,39 +259,31 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
          final_result = TRUE or FALSE\n")
   }
 
-  # # first time interval
-  # if (!is.null(time_interval1) & !is.null(time_interval2) & all(time_interval1 < time_interval2)) {
-  #   # checking if first or second interval values are correct
-  #   time_int1 <- lucC_interval(time_interval1)
-  #   time_int2 <- lucC_interval(time_interval2)
-  #
-  #   if (!isTRUE(lubridate::int_overlaps(time_int1,time_int2))) {
-  #     time_interval1 <- time_interval1
-  #     time_interval2 <- time_interval2
-  #   }
-  #   else {
-  #     stop("\nParameters:\n
-  #        time_interval1 can not overlap time_interval2!\n")
-  #   }
-  # } else {
-  #   stop("\nParameters:\n
-  #        time_interval1 must be (<) less than time_interval2 \n
-  #        time_interval1 and time_interval2, as in the format \n
-  #        time_interval1 = c('2000-01-01', '2004-01-01') must be defined!\n")
-  # }
+  # first time interval
+  if (!is.null(time_interval1) & !is.null(time_interval2) & all(time_interval1 < time_interval2)) {
+    # checking if first or second interval values are valid
+    time_intervals <- .lucC_check_intervals(first_int = time_interval1, second_int = time_interval2)
 
-  time_intervals <- .lucC_check_intervals(first_int = time_interval1, second_int = time_interval2)
+  } else {
+    stop("\nParameters:\n
+         time_interval1 must be (<) less than time_interval2 \n
+         time_interval1 and time_interval2, as in the format \n
+         time_interval1 = c('2000-01-01', '2004-01-01') must be defined!\n")
+  }
 
   # apply holds in both temporal intervals
   res1 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name,
-                          time_interval = c(time_intervals[[1]][1], time_intervals[[1]][2]), relation_interval = "contains",
+                          time_interval = c(time_intervals[[1]][1], time_intervals[[1]][2]), relation_interval = "equals",
                           label = label, timeline = timeline)
   res2 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name,
-                          time_interval = c(time_intervals[[2]][1], time_intervals[[1]][2]), relation_interval = "contains",
+                          time_interval = c(time_intervals[[2]][1], time_intervals[[2]][2]), relation_interval = "contains",
                           label = label, timeline = timeline)
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
-  if( (nrow(res1) > 0)  & (nrow(res2) > 0) ) {
+  if (length(res1) == 0 | length(res2) == 0){
+    stop("\nRelation RECUR cannot be applied!\n
+         This class does not exist in the defined interval.\n")
+  } else if( nrow(res1) > 0 & nrow(res2) > 0 & ncol(res2) > 4 ) {
     # 1. isolate only rows with NA
     # all differents of this -> F F F F F F F
     # 2. isolate rows with NA occurs after a sequence of same classes
@@ -316,7 +310,8 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
 
     return(result)
   } else {
-    stop("\nRelation RECUR cannot be applied!\n")
+    stop("\nRelation RECUR cannot be applied!\n
+         Second time interval must have more than two dates, i.e, 2002-2004.\n")
   }
 
 }
@@ -380,20 +375,11 @@ lucC_pred_evolve <- function(raster_obj = NULL, raster_class1 = NULL, time_inter
          final_result = TRUE or FALSE\n")
   }
 
-   # first time interval
+  # first time interval
   if (!is.null(time_interval1) & !is.null(time_interval2) & all(time_interval1 < time_interval2)) {
-    # checking if first or second interval values are correct
-    time_int1 <- lucC_interval(time_interval1)
-    time_int2 <- lucC_interval(time_interval2)
+    # checking if first or second interval values are valid
+    time_intervals <- .lucC_check_intervals(first_int = time_interval1, second_int = time_interval2)
 
-    if (!isTRUE(lubridate::int_overlaps(time_int1,time_int2))) {
-      time_interval1 <- time_interval1
-      time_interval2 <- time_interval2
-    }
-    else {
-      stop("\nParameters:\n
-         time_interval1 can not overlap time_interval2!\n")
-    }
   } else {
     stop("\nParameters:\n
          time_interval1 must be (<) less than time_interval2 \n
@@ -403,10 +389,10 @@ lucC_pred_evolve <- function(raster_obj = NULL, raster_class1 = NULL, time_inter
 
   # apply holds in both temporal intervals
   res1 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name1,
-                          time_interval = c(time_interval1[1],time_interval1[2]), relation_interval = "contains",
+                          time_interval = c(time_intervals[[1]][1], time_intervals[[1]][2]), relation_interval = "contains",
                           label = label, timeline = timeline)
   res2 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name2,
-                          time_interval = c(time_interval2[1],time_interval2[2]), relation_interval = "contains",
+                          time_interval = c(time_intervals[[2]][1], time_intervals[[2]][2]), relation_interval = "contains",
                           label = label, timeline = timeline)
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
@@ -418,6 +404,8 @@ lucC_pred_evolve <- function(raster_obj = NULL, raster_class1 = NULL, time_inter
 
     return(result)
   } else {
+    result <- NULL
+    return(result)
     stop("\nRelation EVOLVE cannot be applied!\n")
   }
 
@@ -485,18 +473,9 @@ lucC_pred_convert <- function(raster_obj = NULL, raster_class1 = NULL, time_inte
 
   # first time interval
   if (!is.null(time_interval1) & !is.null(time_interval2) & all(time_interval1 < time_interval2)) {
-    # checking if first or second interval values are correct
-    time_int1 <- lucC_interval(time_interval1)
-    time_int2 <- lucC_interval(time_interval2)
+    # checking if first or second interval values are valid
+    time_intervals <- .lucC_check_intervals(first_int = time_interval1, second_int = time_interval2)
 
-    if (!isTRUE(lubridate::int_overlaps(time_int1,time_int2))) {
-      time_interval1 <- time_interval1
-      time_interval2 <- time_interval2
-    }
-    else {
-      stop("\nParameters:\n
-         time_interval1 can not overlap time_interval2!\n")
-    }
   } else {
     stop("\nParameters:\n
          time_interval1 must be (<) less than time_interval2 \n
@@ -506,10 +485,10 @@ lucC_pred_convert <- function(raster_obj = NULL, raster_class1 = NULL, time_inte
 
   # apply holds in both temporal intervals
   res1 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name1,
-                          time_interval = c(time_interval1[1],time_interval1[2]), relation_interval = "equals",
+                          time_interval = c(time_intervals[[1]][1], time_intervals[[1]][2]), relation_interval = "equals",
                           label = label, timeline = timeline)
   res2 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name2,
-                          time_interval = c(time_interval2[1],time_interval2[2]), relation_interval = "equals",
+                          time_interval = c(time_intervals[[2]][1], time_intervals[[2]][2]), relation_interval = "equals",
                           label = label, timeline = timeline)
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
@@ -521,6 +500,8 @@ lucC_pred_convert <- function(raster_obj = NULL, raster_class1 = NULL, time_inte
 
     return(result)
   } else {
+    result <- NULL
+    return(result)
     stop("\nRelation CONVERT cannot be applied!\n")
   }
 }
