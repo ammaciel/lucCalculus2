@@ -90,7 +90,7 @@ lucC_plot_bar_events(c1, custom_palette = FALSE)
 
 #------------- tests - recur, evolve, convert
 third_raster.df <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
-                                    time_interval1 = c("2001-09-01","2001-09-01"),
+                                    time_interval1 = c("2001-09-01","2003-09-01"),
                                     time_interval2 = c("2002-09-01","2007-09-01"),
                                     label = label, timeline = timeline)
 third_raster.df
@@ -118,7 +118,35 @@ lucC_plot_sequence_events(e1, custom_palette = FALSE, show_y_index = FALSE)
 lucC_plot_bar_events(e1, custom_palette = FALSE)
 
 
+c <- c("20000-09-32")
 
+c <- lucC_interval("2002-12-1","2006-10-3")
+c
+#.check_date_format <- function(time_interval = NULL){
+
+  date <- try( as.Date( c, format= "%Y-%m-%d " ))
+  if( class( date ) == "try-error" || is.na( date ) )
+    stop( "\nDate format incorrect! -> YYYY-MM-DD\n" )
+ # return(date)
+#}
+
+  .dateFormat <- function(date, format = "%Y-%m-%d") {
+    tryCatch(!is.na(as.Date(date, format)), error = function(err) {FALSE})
+  }
+
+.dateFormat(c)
+
+lubridate::is.interval(c)
+
+.check_date_format(date)
+
+
+
+
+
+
+
+lubridate::is.interval(c)
 
 
 .

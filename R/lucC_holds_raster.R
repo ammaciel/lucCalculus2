@@ -151,6 +151,55 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
 }
 
 
+#' @title Build Intervals of Data with Raster
+#' @name .lucC_check_intervals
+#' @aliases .lucC_check_intervals
+#' @author Adeline M. Maciel
+#' @docType data
+#'
+#' @description Provide an valide interval from data set input.
+#' And return a list with two intervals.
+#'
+#' @usage .lucC_check_intervals(first_int = NULL, second_int = NULL)
+#'
+#' @param first_int    Date. An interval between two dates.
+#' @param second_int   Date. An interval between two dates.
+#'
+#' @keywords datasets
+#' @return A list with value of interval for each data set
+#' @importFrom lubridate int_standardize years ymd
+#'
+
+.lucC_check_intervals <- function (first_int = NULL, second_int = NULL) {
+
+  # checking if first or second interval values are valide
+  # first time interval
+  if (!is.null(first_int) & !is.null(second_int) & all(first_int < second_int)) {
+    # checking if first or second interval values are correct
+    time_int1 <- lucC_interval(first_int)
+    time_int2 <- lucC_interval(second_int)
+
+    if (!isTRUE(lubridate::int_overlaps(time_int1,time_int2))) {
+      first_interval <- first_int
+      second_interval <- second_int
+    }
+    else {
+      stop("\nParameters:\n
+         time_interval1 can not overlap time_interval2! \n\n")
+    }
+  } else {
+    stop("\nParameters:\n
+         time_interval1 must be (<) less than time_interval2 \n
+         time_interval1 and time_interval2, as in the format \n
+         time_interval1 = c('2000-01-01', '2004-01-01') must be defined!\n\n")
+  }
+
+  output <- list(first_interval, second_interval)
+
+  return(output)
+
+}
+
 
 #' @title Predicate Allen Holds
 #' @name lucC_pred_recur
@@ -208,24 +257,35 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
          final_result = TRUE or FALSE\n")
   }
 
-  # first time interval
-  if (!is.null(time_interval1) & !is.null(time_interval2) & time_interval1 < time_interval2) {
-    # checking if first or second interval values are correct
-    time_interval1 <- time_interval1
-    time_interval2 <- time_interval2
-   } else {
-    stop("\nParameters:\n
-         time_interval1 must be (<) less than time_interval2 \n
-         time_interval1 and time_interval2, as in the format \n
-         time_interval1 = c('2000-01-01', '2004-01-01') must be defined!\n")
-  }
+  # # first time interval
+  # if (!is.null(time_interval1) & !is.null(time_interval2) & all(time_interval1 < time_interval2)) {
+  #   # checking if first or second interval values are correct
+  #   time_int1 <- lucC_interval(time_interval1)
+  #   time_int2 <- lucC_interval(time_interval2)
+  #
+  #   if (!isTRUE(lubridate::int_overlaps(time_int1,time_int2))) {
+  #     time_interval1 <- time_interval1
+  #     time_interval2 <- time_interval2
+  #   }
+  #   else {
+  #     stop("\nParameters:\n
+  #        time_interval1 can not overlap time_interval2!\n")
+  #   }
+  # } else {
+  #   stop("\nParameters:\n
+  #        time_interval1 must be (<) less than time_interval2 \n
+  #        time_interval1 and time_interval2, as in the format \n
+  #        time_interval1 = c('2000-01-01', '2004-01-01') must be defined!\n")
+  # }
+
+  time_intervals <- .lucC_check_intervals(first_int = time_interval1, second_int = time_interval2)
 
   # apply holds in both temporal intervals
   res1 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name,
-                          time_interval = c(time_interval1[1],time_interval1[2]), relation_interval = "contains",
+                          time_interval = c(time_intervals[[1]][1], time_intervals[[1]][2]), relation_interval = "contains",
                           label = label, timeline = timeline)
   res2 <- lucC_pred_holds(raster_obj = rasterStack_obj, raster_class = class_name,
-                          time_interval = c(time_interval2[1],time_interval2[2]), relation_interval = "contains",
+                          time_interval = c(time_intervals[[2]][1], time_intervals[[1]][2]), relation_interval = "contains",
                           label = label, timeline = timeline)
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
@@ -320,11 +380,20 @@ lucC_pred_evolve <- function(raster_obj = NULL, raster_class1 = NULL, time_inter
          final_result = TRUE or FALSE\n")
   }
 
-  # first time interval
-  if (!is.null(time_interval1) & !is.null(time_interval2) & time_interval1 < time_interval2) {
+   # first time interval
+  if (!is.null(time_interval1) & !is.null(time_interval2) & all(time_interval1 < time_interval2)) {
     # checking if first or second interval values are correct
-    time_interval1 <- time_interval1
-    time_interval2 <- time_interval2
+    time_int1 <- lucC_interval(time_interval1)
+    time_int2 <- lucC_interval(time_interval2)
+
+    if (!isTRUE(lubridate::int_overlaps(time_int1,time_int2))) {
+      time_interval1 <- time_interval1
+      time_interval2 <- time_interval2
+    }
+    else {
+      stop("\nParameters:\n
+         time_interval1 can not overlap time_interval2!\n")
+    }
   } else {
     stop("\nParameters:\n
          time_interval1 must be (<) less than time_interval2 \n
@@ -415,10 +484,19 @@ lucC_pred_convert <- function(raster_obj = NULL, raster_class1 = NULL, time_inte
   }
 
   # first time interval
-  if (!is.null(time_interval1) & !is.null(time_interval2) & time_interval1 < time_interval2) {
+  if (!is.null(time_interval1) & !is.null(time_interval2) & all(time_interval1 < time_interval2)) {
     # checking if first or second interval values are correct
-    time_interval1 <- time_interval1
-    time_interval2 <- time_interval2
+    time_int1 <- lucC_interval(time_interval1)
+    time_int2 <- lucC_interval(time_interval2)
+
+    if (!isTRUE(lubridate::int_overlaps(time_int1,time_int2))) {
+      time_interval1 <- time_interval1
+      time_interval2 <- time_interval2
+    }
+    else {
+      stop("\nParameters:\n
+         time_interval1 can not overlap time_interval2!\n")
+    }
   } else {
     stop("\nParameters:\n
          time_interval1 must be (<) less than time_interval2 \n
