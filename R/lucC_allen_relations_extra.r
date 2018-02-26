@@ -57,14 +57,30 @@
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
+#' @importFrom dplyr bind_rows
 #' @export
 #'
 #' @examples \dontrun{
 #'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2001-09-01","2003-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2001-09-01","2007-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # in
+#' c <- lucC_relation_in(first_raster = a, second_raster = b)
+#'
 #'}
 #'
 
-# 14. The 'lucC_relation_in' relation = lucC_relation_during v lucC_relation_starts v lucC_relation_finishes
+# 14. The 'lucC_relation_in' relation = lucC_relation_during | lucC_relation_starts | lucC_relation_finishes
 lucC_relation_in <- function (first_raster = NULL, second_raster = NULL) {
 
   # check is data set are empty
@@ -73,21 +89,33 @@ lucC_relation_in <- function (first_raster = NULL, second_raster = NULL) {
     first_raster <- first_raster
     second_raster <- second_raster
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
   # build intervals for each raster data set
   rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
 
+  out1 <- lucC_relation_during(first_raster, second_raster)
+  out2 <- lucC_relation_starts(first_raster, second_raster)
+  out3 <- lucC_relation_finishes(first_raster, second_raster)
+
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
-  if( nrow(out1 <- lucC_relation_during(first_raster, second_raster)) > 0 |
-      nrow(out2 <- lucC_relation_starts(first_raster, second_raster)) > 0 |
-      nrow(out3 <- lucC_relation_finishes(first_raster, second_raster)) > 0) {
-    result <- merge(out1, out2, out3, by = c("x","y"), all = TRUE)
-    result <- result[!duplicated(result), ]
-    return(result)
+  if( isTRUE(nrow(out1) > 0) & isTRUE(nrow(out2) > 0) & isTRUE(nrow(out3) > 0)) {
+    result <- dplyr::bind_rows(out1, out2, out3) # merge(out1, out2, out3, by = c("x","y"), all = TRUE)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
+  } else if( isTRUE(nrow(out1) > 0) | isTRUE(nrow(out2) > 0) | isTRUE(nrow(out3) > 0)) {
+    result <- dplyr::bind_rows(out1, out2, out3)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
   } else {
-    stop("\nRelation IN cannot be applied!\n")
+    message("\nRelation IN cannot be applied!\n")
+    return(result <- NULL)
   }
 }
 
@@ -108,9 +136,25 @@ lucC_relation_in <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
+#' @importFrom dplyr bind_rows
 #' @export
 #'
 #' @examples \dontrun{
+#'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2001-09-01","2003-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2004-09-01","2007-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # follows
+#' c <- lucC_relation_follows(first_raster = a, second_raster = b)
 #'
 #'}
 #'
@@ -124,46 +168,30 @@ lucC_relation_follows <- function (first_raster = NULL, second_raster = NULL) {
     first_raster <- first_raster
     second_raster <- second_raster
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
   # build intervals for each raster data set
   rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
 
-  # # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
-  # if( nrow(out1 <- lucC_relation_before(first_raster, second_raster)) > 0 |
-  #     nrow(out2 <- lucC_relation_meets(first_raster, second_raster)) > 0) {
-  #   result <- merge(out1, out2, by = c("x","y"), all = TRUE)
-  #   result <- result[!duplicated(result), ]
-  #   return(result)
-  # } else {
-  #   stop("\nRelation FOLLOWS cannot be applied!\n")
-  # }
+  out1 <- lucC_relation_before(first_raster, second_raster)
+  out2 <- lucC_relation_meets(first_raster, second_raster)
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
-  if( !is.null(nrow(out1 <- lucC_relation_before(first_raster, second_raster)) > 0) &
-      !is.null(nrow(out2 <- lucC_relation_meets(first_raster, second_raster)) > 0)) {
-    result <- merge(out1, out2, by = c("x","y"), all = TRUE)
-    result <- result[!duplicated(result), ]
+  if( isTRUE(nrow(out1) > 0) & isTRUE(nrow(out2) > 0)) {
+    result <- dplyr::bind_rows(out1, out2)   # merge(out1, out2, by = c("x","y"), all = TRUE)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
+  } else if( isTRUE(nrow(out1) > 0) | isTRUE(nrow(out2) > 0)) {
+    result <- dplyr::bind_rows(out1, out2)
     return(result)
-
-  } else if( !is.null(nrow(out1 <- lucC_relation_before(first_raster, second_raster)) > 0) &
-             is.null(out2 <- lucC_relation_meets(first_raster, second_raster))) {
-    result <- out1
-    result <- result[!duplicated(result), ]
-    return(result)
-
-  } else if( is.null(out1 <- lucC_relation_before(first_raster, second_raster)) &
-             !is.null(nrow(out2 <- lucC_relation_meets(first_raster, second_raster)) > 0)) {
-    result <- out2
-    result <- result[!duplicated(result), ]
-    return(result)
-
   } else {
-    stop("\nRelation FOLLOWS cannot be applied!\n")
+    message("\nRelation FOLLOWS cannot be applied!\n")
+    return(result <- NULL)
   }
-
-
 }
 
 
@@ -184,9 +212,25 @@ lucC_relation_follows <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
+#' @importFrom dplyr bind_rows
 #' @export
 #'
 #' @examples \dontrun{
+#'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2004-09-01","2007-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2001-09-01","2003-09-01"),
+#'                      relation_interval = "contains", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # precedes
+#' c <- lucC_relation_precedes(first_raster = a, second_raster = b)
 #'
 #'}
 #'
@@ -201,20 +245,28 @@ lucC_relation_precedes <- function (first_raster = NULL, second_raster = NULL) {
     first_raster <- first_raster
     second_raster <- second_raster
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
   # build intervals for each raster data set
   rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
 
+  out1 <- lucC_relation_after(first_raster, second_raster)
+  out2 <- lucC_relation_met_by(first_raster, second_raster)
+
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
-  if( nrow(out1 <- lucC_relation_after(first_raster, second_raster)) > 0 |
-      nrow(out2 <- lucC_relation_met_by(first_raster, second_raster)) > 0 ) {
-    result <- merge(out1, out2, by = c("x","y"), all = TRUE)
-    result <- result[!duplicated(result), ]
+  if( isTRUE(nrow(out1) > 0) & isTRUE(nrow(out2) > 0)) {
+    result <- dplyr::bind_rows(out1, out2) # merge(out1, out2, by = c("x","y"), all = TRUE)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
+  } else if( isTRUE(nrow(out1) > 0) | isTRUE(nrow(out2) > 0)) {
+    result <- dplyr::bind_rows(out1, out2)
     return(result)
   } else {
-    stop("\nRelation PRECEDES cannot be applied!\n")
+    message("\nRelation PRECEDES cannot be applied!\n")
+    return(result <- NULL)
   }
-
 }

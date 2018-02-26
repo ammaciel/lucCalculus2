@@ -5,9 +5,9 @@
 \alias{lucC_plot_sequence_events}
 \title{Plot Sequence Maps with lucC Events}
 \usage{
-lucC_plot_sequence_events (data_tb = NULL, custom_palette = FALSE, 
-RGB_color = NULL, show_y_index = TRUE, start_date = "2000-01-01", 
-end_date = "2016-12-31", relabel = FALSE, original_labels = NULL, 
+lucC_plot_sequence_events (data_tb = NULL, custom_palette = FALSE,
+RGB_color = NULL, show_y_index = TRUE, start_date = "2000-01-01",
+end_date = "2016-12-31", relabel = FALSE, original_labels = NULL,
 new_labels = NULL)
 }
 \arguments{
@@ -51,26 +51,26 @@ input_tb_raw_json <- file_json \%>\%
 input_tb_raw_json
 
 # plot maps input data
-lucC_plot_maps_input(input_tb_raw_json, EPSG_WGS84 = TRUE, 
-custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f", 
+lucC_plot_maps_input(input_tb_raw_json, EPSG_WGS84 = TRUE,
+custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f",
 "#929e6e", "#f5e7a1"))
 
 # define interval
 time_ex1 <- lucC_interval("2002-01-01", "2014-01-01")
 
 # apply predicate occur
-ts_occur1 <- lucC_predicate_holds(geo_objects = input_tb_raw_json, 
+ts_occur1 <- lucC_predicate_holds(geo_objects = input_tb_raw_json,
 object_properties = "Forest", event_time_intervals = time_ex1)
 ts_occur1
 
 # events over input map
-lucC_plot_maps_events(ts_occur1, EPSG_WGS84 = TRUE, 
-custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f", 
-"#929e6e", "#f5e7a1"), shape_point = 0, colour_point = "black", 
+lucC_plot_maps_events(ts_occur1, EPSG_WGS84 = TRUE,
+custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f",
+"#929e6e", "#f5e7a1"), shape_point = 0, colour_point = "black",
 size_point = 2.3)
 
-lucC_plot_sequence_events(ts_occur1, show_y_index = FALSE, 
-end_date = "2017-03-01", custom_palette = TRUE, RGB_color = "#929e6e") 
+lucC_plot_sequence_events(ts_occur1, show_y_index = FALSE,
+end_date = "2017-03-01", custom_palette = TRUE, RGB_color = "#929e6e")
 
 }
 

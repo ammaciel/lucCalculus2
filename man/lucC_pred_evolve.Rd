@@ -6,9 +6,9 @@
 \title{Predicate Allen Holds}
 \usage{
 lucC_pred_evolve (raster_obj = NULL, raster_class1 = NULL,
-time_interval1 = c("2001-01-01", "2001-01-01"), raster_class2 = NULL,
-time_interval2 = c("2002-01-01", "2005-01-01"), label = NULL,
-timeline = NULL)
+time_interval1 = c("2001-01-01", "2001-01-01"), relation_interval1 = "equals",
+raster_class2 = NULL, time_interval2 = c("2002-01-01", "2005-01-01"),
+relation_interval2 = "contains", label = NULL, timeline = NULL)
 }
 \arguments{
 \item{raster_obj}{Raster. A raster stack with classified images}
@@ -19,11 +19,17 @@ timeline = NULL)
 not in character format. Given a tibble with values, will be asserts if that
 class of locations holds during a time interval}
 
+\item{relation_interval1}{Character. If a location holds during all time interval 'equals' or can be appear in any
+times 'contains'. Default is 'equals'}
+
 \item{raster_class2}{Character. Name of the second class present in a row of the tibble, such as 'Forest' or other value}
 
 \item{time_interval2}{Interval. A interval of time to verify if class is over or
 not in character format. Given a tibble with values, will be asserts if that
 class of locations holds during a time interval}
+
+\item{relation_interval2}{Character. If a location holds during all time interval 'equals' or can be appear in any
+times 'contains'. Default is 'contains'}
 
 \item{label}{Character. All labels of each value of pixel of classified raster}
 

@@ -8,7 +8,7 @@
 ##                                                             ##
 ##   R script with thirteen Allen's relationships              ##
 ##                                                             ##
-##                                             2018-02-22      ##
+##                                             2018-02-26      ##
 ##                                                             ##
 ##  J. F. Allen.  Towards a general theory of action and       ##
 ##  time. Artificial Intelligence, 23(2): 123--154, 1984.      ##
@@ -59,7 +59,6 @@
 
 .lucC_build_intervals <- function (first_ras = NULL, second_ras = NULL) {
 
-  # checking if first or second interval values are correct
   first_interval <- lucC_interval(
     lubridate::ymd(min(colnames(first_ras)[c(3:ncol(first_ras))])) - lubridate::years(1),
     max(colnames(first_ras)[c(3:ncol(first_ras))])) %>%
@@ -92,10 +91,25 @@
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
-#' @importFrom lubridate int_end int_start
+#' @importFrom lubridate int_end int_start int_overlaps
 #' @export
 #'
 #' @examples \dontrun{
+#'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2001-09-01","2003-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2004-09-01","2007-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # before
+#' c <- lucC_relation_before(first_raster = a, second_raster = b)
 #'
 #'}
 #'
@@ -107,42 +121,75 @@ lucC_relation_before <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
+    # case mastrix have only one columns
+    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+      # case there is only one value
+      first_raster <- base::as.matrix(t(first_raster))
+    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+      # case there is only one value
+      second_raster <- base::as.matrix(t(second_raster))
+    else {
+      first_raster <- first_raster
+      second_raster <- second_raster
+    }
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
-  # build intervals for each raster data set
-  rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+    # build intervals for each raster data set
+    rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  else {
+    message("\nRelation BEFORE cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+    return(result <- NULL)
+  }
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_end(rasters_intervals[[1]]) < lubridate::int_start(rasters_intervals[[2]])) &
       !isTRUE(lubridate::int_overlaps(rasters_intervals[[1]],rasters_intervals[[2]]))){
     result <- merge(first_raster, second_raster, by=c("x","y"))
-    return(result)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
 
     # remove first column of second raster - jump one year
   } else if (isTRUE(lubridate::int_end(rasters_intervals[[1]]) < (lubridate::int_start(rasters_intervals[[2]]) + lubridate::years(1)))) {
     second_raster <- second_raster[,-3]
-    second_raster <- second_raster[rowSums(is.na(second_raster[,c(3:ncol(second_raster))]))
+    second_raster <- second_raster[base::rowSums(is.na(second_raster[,c(3:ncol(second_raster))]))
                                    != ncol(second_raster[,c(3:ncol(second_raster))]), ]
-    # build intervals for each raster data set
-    rasters_intervals2 <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+    if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+      # build intervals for each raster data set
+      rasters_intervals2 <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+    else {
+      message("\nRelation BEFORE cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+      return(result <- NULL)
+    }
 
     if (isTRUE(lubridate::int_end(rasters_intervals2[[1]]) < lubridate::int_start(rasters_intervals2[[2]])) &
         !isTRUE(lubridate::int_overlaps(rasters_intervals2[[1]],rasters_intervals2[[2]]))){
-      result <- merge(first_raster, second_raster, by=c("x","y"))
-      return(result)
+      result <- merge(first_raster, second_raster, by = c("x","y"))
+      if (nrow(result) > 0)
+        return(result)
+      else
+        return(result <- NULL)
     } else {
-      stop("\nRelation BEFORE cannot be applied!\n
+      message("\nRelation BEFORE cannot be applied!\n
               end time interval from raster 1 must be (<) less than start time interval from raster 2 \n
               time interval from raster 1 can not overlap time interval from raster 2!\n ")
+      return(result <- NULL)
     }
   } else {
-    stop("\nRelation BEFORE cannot be applied!\n
+    message("\nRelation BEFORE cannot be applied!\n
           end time interval from raster 1 must be (<) less than start time interval from raster 2 \n
           time interval from raster 1 can not overlap time interval from raster 2!\n ")
+    return(result <- NULL)
   }
 }
+
 
 #' @title Allen Relation After
 #' @name lucC_relation_after
@@ -165,6 +212,21 @@ lucC_relation_before <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @examples \dontrun{
 #'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2004-09-01","2007-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2001-09-01","2003-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # after
+#' c <- lucC_relation_after(first_raster = a, second_raster = b)
+#'
 #'}
 #'
 #'
@@ -176,18 +238,39 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
+    # case mastrix have only one columns
+    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+      # case there is only one value
+      first_raster <- base::as.matrix(t(first_raster))
+    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+      # case there is only one value
+      second_raster <- base::as.matrix(t(second_raster))
+    else {
+      first_raster <- first_raster
+      second_raster <- second_raster
+    }
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
-  # build intervals for each raster data set
-  rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+    # build intervals for each raster data set
+    rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  else {
+    message("\nRelation MEETS cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+    return(result <- NULL)
+  }
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) > lubridate::int_end(rasters_intervals[[2]])) &
       !isTRUE(lubridate::int_overlaps(rasters_intervals[[1]],rasters_intervals[[2]]))){
     result <- merge(first_raster, second_raster, by=c("x","y"))
-    return(result)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
 
     # remove first column of second raster
   } else if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) > (lubridate::int_end(rasters_intervals[[2]])) - lubridate::years(1))) {
@@ -196,22 +279,33 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
     first_raster <- first_raster[rowSums(is.na(first_raster[,c(3:ncol(first_raster))]))
                                    != ncol(first_raster[,c(3:ncol(first_raster))]), ]
 
-    # build intervals for each raster data set
-    rasters_intervals2 <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+    if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+      # build intervals for each raster data set
+      rasters_intervals2 <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+    else {
+      message("\nRelation AFTER cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+      return(result <- NULL)
+    }
 
     if (isTRUE(lubridate::int_start(rasters_intervals2[[1]]) > lubridate::int_end(rasters_intervals2[[2]])) &
         !isTRUE(lubridate::int_overlaps(rasters_intervals2[[1]],rasters_intervals2[[2]]))){
       result <- merge(first_raster, second_raster, by=c("x","y"))
-      return(result)
+      if (nrow(result) > 0)
+        return(result)
+      else
+        return(result <- NULL)
     } else {
-      stop("\nRelation AFTER cannot be applied!\n
+      message("\nRelation AFTER cannot be applied!\n
               start time interval from raster 1 must be (>) greater than end time interval from raster 2 \n
               time interval from raster 1 can not overlap time interval from raster 2!\n ")
+      return(result <- NULL)
     }
   } else {
-    stop("\nRelation AFTER cannot be applied!\n
+    message("\nRelation AFTER cannot be applied!\n
           start time interval from raster 1 must be (>) greater than end time interval from raster 2 \n
           time interval from raster 1 can not overlap time interval from raster 2!\n ")
+    return(result <- NULL)
   }
 
 }
@@ -238,6 +332,21 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @examples \dontrun{
 #'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2001-09-01","2003-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2004-09-01","2007-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # meets
+#' c <- lucC_relation_meets(first_raster = a, second_raster = b)
+#'
 #'}
 #'
 
@@ -249,21 +358,44 @@ lucC_relation_meets <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster[!(is.na(first_raster[,ncol(first_raster)]) | first_raster[,ncol(first_raster)] == ""), ]
     second_raster <- second_raster[!(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
+
+    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+      # case there is only one value
+      first_raster <- base::as.matrix(t(first_raster))
+    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+      # case there is only one value
+      second_raster <- base::as.matrix(t(second_raster))
+    else {
+      first_raster <- first_raster
+      second_raster <- second_raster
+    }
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
-  # build intervals for each raster data set
-  rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+    # build intervals for each raster data set
+    rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  else {
+    message("\nRelation MEETS cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+    return(result <- NULL)
+  }
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_end(rasters_intervals[[1]]) == lubridate::int_start(rasters_intervals[[2]]))){
-    result <- merge(first_raster, second_raster, by=c("x","y"))
-    return(result)
+    # first_raster, second_raster from rasters
+    result <- merge(first_raster, second_raster, by = c("x","y"))
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
   } else{
-    stop("\nRelation MEETS cannot be applied!\n
+    message("\nRelation MEETS cannot be applied!\n
           end time interval from raster 1 must be (=) equal the start time interval from raster 2 \n
           time interval from raster 1 can not overlap time interval from raster 2!\n ")
+    return(result <- NULL)
   }
 
 }
@@ -289,6 +421,21 @@ lucC_relation_meets <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @examples \dontrun{
 #'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2008-09-01","2010-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2002-09-01","2007-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # met by
+#' c <- lucC_relation_met_by(first_raster = a, second_raster = b)
+#'
 #'}
 #'
 
@@ -300,19 +447,40 @@ lucC_relation_met_by <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster[!(is.na(first_raster[, 3]) | first_raster[, 3] == ""), ]
     second_raster <- second_raster[!(is.na(second_raster[, ncol(second_raster)]) | second_raster[, ncol(second_raster)] == ""), ]
+    # case mastrix have only one columns
+    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+      # case there is only one value
+      first_raster <- base::as.matrix(t(first_raster))
+    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+      # case there is only one value
+      second_raster <- base::as.matrix(t(second_raster))
+    else {
+      first_raster <- first_raster
+      second_raster <- second_raster
+    }
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
-  # build intervals for each raster data set
-  rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+    # build intervals for each raster data set
+    rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  else {
+    message("\nRelation MET BY cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+    return(result <- NULL)
+  }
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_end(rasters_intervals[[2]]) == lubridate::int_start(rasters_intervals[[1]]))){
     result <- merge(first_raster, second_raster, by=c("x","y"))
-    return(result)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
   } else{
-    stop("\nRelation MET BY cannot be applied!\n
+    message("\nRelation MET BY cannot be applied!\n
          end time interval from raster 2 must be (=) equal the start time interval from raster 1 \n
          time interval from raster 1 can not overlap time interval from raster 2!\n")
   }
@@ -341,6 +509,21 @@ lucC_relation_met_by <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @examples \dontrun{
 #'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2001-09-01","2007-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2001-09-01","2011-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # starts
+#' c <- lucC_relation_starts(first_raster = a, second_raster = b)
+#'
 #'}
 #'
 
@@ -355,23 +538,45 @@ lucC_relation_starts <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
+    # case mastrix have only one columns
+    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+      # case there is only one value
+      first_raster <- base::as.matrix(t(first_raster))
+    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+      # case there is only one value
+      second_raster <- base::as.matrix(t(second_raster))
+    else {
+      first_raster <- first_raster
+      second_raster <- second_raster
+    }
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
-  # build intervals for each raster data set
-  rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+    # build intervals for each raster data set
+    rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  else {
+    message("\nRelation STARTS cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+    return(result <- NULL)
+  }
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) == lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) < lubridate::int_end(rasters_intervals[[2]]))){
 
     result <- merge(first_raster, second_raster, by=c("x","y"), all = TRUE)
-    return(result)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
   } else{
-    stop("\nRelation STARTS cannot be applied!\n
+    message("\nRelation STARTS cannot be applied!\n
          start time interval from raster 1 must be (=) equals the start time interval from raster 2 and \n
          end time interval from raster 1 must be (<) less than the end time interval from raster 2 and!\n")
+    return(result <- NULL)
   }
 }
 
@@ -397,6 +602,21 @@ lucC_relation_starts <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @examples \dontrun{
 #'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2001-09-01","2010-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2001-09-01","2008-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # started by
+#' c <- lucC_relation_started_by(first_raster = a, second_raster = b)
+#'
 #'}
 #'
 
@@ -411,22 +631,44 @@ lucC_relation_started_by <- function (first_raster = NULL, second_raster = NULL)
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
+    # case mastrix have only one columns
+    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+      # case there is only one value
+      first_raster <- base::as.matrix(t(first_raster))
+    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+      # case there is only one value
+      second_raster <- base::as.matrix(t(second_raster))
+    else {
+      first_raster <- first_raster
+      second_raster <- second_raster
+    }
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
-  # build intervals for each raster data set
-  rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+    # build intervals for each raster data set
+    rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  else {
+    message("\nRelation STARTED BY cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+    return(result <- NULL)
+  }
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) == lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) > lubridate::int_end(rasters_intervals[[2]]))){
     result <- merge(first_raster, second_raster, by=c("x","y"), all = TRUE)
-    return(result)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
   } else{
-    stop("\nRelation STARTED BY cannot be applied!\n
+    message("\nRelation STARTED BY cannot be applied!\n
          start time interval from raster 1 must be (=) equals the start time interval from raster 2 and \n
          end time interval from raster 1 must be (>) greater than the end time interval from raster 2 and!\n")
+    return(result <- NULL)
   }
 
 }
@@ -453,6 +695,21 @@ lucC_relation_started_by <- function (first_raster = NULL, second_raster = NULL)
 #'
 #' @examples \dontrun{
 #'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2003-09-01","2007-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2001-09-01","2011-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # during
+#' c <- lucC_relation_starts(first_raster = a, second_raster = b)
+#'
 #'}
 #'
 
@@ -463,22 +720,44 @@ lucC_relation_during <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
+    # case mastrix have only one columns
+    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+      # case there is only one value
+      first_raster <- base::as.matrix(t(first_raster))
+    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+      # case there is only one value
+      second_raster <- base::as.matrix(t(second_raster))
+    else {
+      first_raster <- first_raster
+      second_raster <- second_raster
+    }
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
-  # build intervals for each raster data set
-  rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+    # build intervals for each raster data set
+    rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  else {
+    message("\nRelation DURING cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+    return(result <- NULL)
+  }
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) > lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) < lubridate::int_end(rasters_intervals[[2]])) ){
     result <- merge(first_raster , second_raster, by=c("x","y"), all = TRUE)
-    return(result)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
   } else{
-    stop("\nRelation DURING cannot be applied!\n
+    message("\nRelation DURING cannot be applied!\n
          start time interval from raster 1 must be (>) greater than the start time interval from raster 2 and \n
          end time interval from raster 1 must be (<) less than the end time interval from raster 2 and!\n")
+    return(result <- NULL)
   }
 
 }
@@ -504,6 +783,21 @@ lucC_relation_during <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @examples \dontrun{
 #'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2001-09-01","2015-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2003-09-01","2011-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # contains
+#' c <- lucC_relation_contains(first_raster = a, second_raster = b)
+#'
 #'}
 #'
 
@@ -514,22 +808,44 @@ lucC_relation_contains <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
+    # case mastrix have only one columns
+    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+      # case there is only one value
+      first_raster <- base::as.matrix(t(first_raster))
+    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+      # case there is only one value
+      second_raster <- base::as.matrix(t(second_raster))
+    else {
+      first_raster <- first_raster
+      second_raster <- second_raster
+    }
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
-  # build intervals for each raster data set
-  rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+    # build intervals for each raster data set
+    rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  else {
+    message("\nRelation CONTAINS cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+    return(result <- NULL)
+  }
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) < lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) > lubridate::int_end(rasters_intervals[[2]]))){
     result <- merge(first_raster , second_raster, by=c("x","y"), all = TRUE)
-    return(result)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
   } else{
-    stop("\nRelation CONTAINS cannot be applied!\n
+    message("\nRelation CONTAINS cannot be applied!\n
          start time interval from raster 1 must be (<) less than the start time interval from raster 2 and \n
          end time interval from raster 1 must be (>) greater than the end time interval from raster 2 and!")
+    return(result <- NULL)
   }
 
 }
@@ -556,6 +872,21 @@ lucC_relation_contains <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @examples \dontrun{
 #'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2003-09-01","2015-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2002-09-01","2015-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # finishes
+#' c <- lucC_relation_finishes(first_raster = a, second_raster = b)
+#'
 #'}
 #'
 
@@ -570,22 +901,44 @@ lucC_relation_finishes <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
+    # case mastrix have only one columns
+    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+      # case there is only one value
+      first_raster <- base::as.matrix(t(first_raster))
+    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+      # case there is only one value
+      second_raster <- base::as.matrix(t(second_raster))
+    else {
+      first_raster <- first_raster
+      second_raster <- second_raster
+    }
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
-  # build intervals for each raster data set
-  rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+    # build intervals for each raster data set
+    rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  else {
+    message("\nRelation FINISHES cannot be applied!\n
+         raster 1 and raster 2 has no relation!")
+    return(result <- NULL)
+  }
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) > lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) == lubridate::int_end(rasters_intervals[[2]]))){
     result <- merge(first_raster, second_raster, by=c("x","y"), all = TRUE)
-    return(result)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
   } else{
-    stop("\nRelation FINISHES cannot be applied!\n
+    message("\nRelation FINISHES cannot be applied!\n
          start time interval from raster 1 must be (>) greater than the start time interval from raster 2 and \n
          end time interval from raster 1 must be (=) equals the end time interval from raster 2 and!\n")
+    return(result <- NULL)
   }
 
 }
@@ -612,6 +965,21 @@ lucC_relation_finishes <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @examples \dontrun{
 #'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2001-09-01","2015-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2003-09-01","2015-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # finished by
+#' c <- lucC_relation_finished_by(first_raster = a, second_raster = b)
+#'
 #'}
 #'
 
@@ -626,22 +994,44 @@ lucC_relation_finished_by <- function (first_raster = NULL, second_raster = NULL
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
+    # case mastrix have only one columns
+    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+      # case there is only one value
+      first_raster <- base::as.matrix(t(first_raster))
+    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+      # case there is only one value
+      second_raster <- base::as.matrix(t(second_raster))
+    else {
+      first_raster <- first_raster
+      second_raster <- second_raster
+    }
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
-  # build intervals for each raster data set
-  rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+    # build intervals for each raster data set
+    rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  else {
+    message("\nRelation FINISHED BY cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+    return(result <- NULL)
+  }
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) < lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) == lubridate::int_end(rasters_intervals[[2]])) ){
     result <- merge(first_raster, second_raster, by=c("x","y"), all = TRUE)
-    return(result)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
   } else{
-    stop("\nRelation FINISHED BY cannot be applied!\n
+    message("\nRelation FINISHED BY cannot be applied!\n
          start time interval from raster 1 must be (<) less than the start time interval from raster 2 and \n
          end time interval from raster 1 must be (=) equals the end time interval from raster 2 and!\n")
+    return(result <- NULL)
   }
 
 }
@@ -667,6 +1057,21 @@ lucC_relation_finished_by <- function (first_raster = NULL, second_raster = NULL
 #'
 #' @examples \dontrun{
 #'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2003-09-01","2005-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+#'                      time_interval = c("2003-09-01","2005-09-01"),
+#'                      relation_interval = "equals", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # equals
+#' c <- lucC_relation_equals(first_raster = a, second_raster = b)
+#'
 #'}
 #'
 
@@ -681,21 +1086,43 @@ lucC_relation_equals <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster) & identical(colnames(first_raster), colnames(second_raster))) {
     first_raster <- first_raster
     second_raster <- second_raster
+    # case mastrix have only one columns
+    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+      # case there is only one value
+      first_raster <- base::as.matrix(t(first_raster))
+    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+      # case there is only one value
+      second_raster <- base::as.matrix(t(second_raster))
+    else {
+      first_raster <- first_raster
+      second_raster <- second_raster
+    }
   } else {
-    stop("\nData with raster cannot be empty!\n")
+    message("\nData with raster cannot be empty!\n")
+    return(result <- NULL)
   }
 
-  # build intervals for each raster data set
-  rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+    # build intervals for each raster data set
+    rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+  else {
+    message("\nRelation EQUALS cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+    return(result <- NULL)
+  }
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) == lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) == lubridate::int_end(rasters_intervals[[2]]))){
     result <- merge(first_raster , second_raster, by=c("x","y"), all = TRUE )
-    return(result)
+    if (nrow(result) > 0)
+      return(result)
+    else
+      return(result <- NULL)
   } else{
-    stop("\nRelation EQUALS cannot be applied!\n
+    message("\nRelation EQUALS cannot be applied!\n
          start and end time interval from raster 1 must be (=) to the start and end time interval from raster 2!\n")
+    return(result <- NULL)
   }
 
 }

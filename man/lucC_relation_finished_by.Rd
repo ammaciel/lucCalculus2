@@ -22,6 +22,21 @@ And return data set with raster data sets merged
 \examples{
 \dontrun{
 
+a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+                     time_interval = c("2001-09-01","2015-09-01"),
+                     relation_interval = "equals", label = label,
+                     timeline = timeline)
+a
+
+b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+                     time_interval = c("2003-09-01","2015-09-01"),
+                     relation_interval = "equals", label = label,
+                     timeline = timeline)
+b
+
+# finished by
+c <- lucC_relation_finished_by(first_raster = a, second_raster = b)
+
 }
 
 }
