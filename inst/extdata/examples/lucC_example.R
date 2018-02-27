@@ -1,18 +1,18 @@
 library(magrittr)
 
-MT_samples <- "~/Desktop/Classi_MT_SVM/raster_sample_mt"
-#MT_samples <- "~/Desktop/raster"
-
-# create a rasterBrick with data
-MT_samples_brick <- list.files(MT_samples,
-                             full.names = TRUE,
-                             pattern = ".tif$") %>%
-  raster::stack(.) %>%
-  raster::brick(.) %>%
-  raster::writeRaster(., "~/Desktop/Classi_MT_SVM/sample_MT.tif", overwrite=TRUE)
+# MT_samples <- "~/Desktop/Classi_MT_SVM/raster_sample_mt"
+# #MT_samples <- "~/Desktop/raster"
+#
+# # create a rasterBrick with data
+# MT_samples_brick <- list.files(MT_samples,
+#                              full.names = TRUE,
+#                              pattern = ".tif$") %>%
+#   raster::stack(.) %>%
+#   raster::brick(.) %>%
+#   raster::writeRaster(., "~/Desktop/Classi_MT_SVM/sample_MT.tif", overwrite=TRUE)
 
 # open files
-file <- c("~/Desktop/Classi_MT_SVM/sample_MT.tif")
+file <- c("inst/extdata/raster/sample_MT.tif")
 file
 
 # create timeline with classified data from SVM method
@@ -26,14 +26,16 @@ label
 
 #library(sits)
 # create a raster metadata file based on the information about the files
-raster.tb <- sits::sits_coverage(service = "RASTER", product = "MOD13Q1", name = "Sample_region",
-                                 timeline = timeline, bands = "NULL", files = file)
+# raster.tb <- sits::sits_coverage(service = "RASTER", product = "MOD13Q1", name = "Sample_region", timeline = timeline, bands = "NULL", files = file) # OLD sits
+raster.tb <- sits::sits_coverage(files = file, name = "Sample_region", timeline = timeline, bands = "ndvi")
 raster.tb
 
-class(raster.tb$r_obj[[1]])
+raster.tb$r_objs[[1]][[1]]
+
+class(raster.tb$r_objs[[1]][[1]])
 
 # new variable
-rb_sits <- raster.tb$r_obj[[1]]
+rb_sits <- raster.tb$r_objs[[1]][[1]]
 
 # resolution
 raster::res(rb_sits)
@@ -47,6 +49,7 @@ rb_sits@data@attributes <- lapply(rb_sits@data@attributes, function(x)  {x <- da
 
 colors <- c("#b3cc33", "#8ddbec", "#228b22", "#afe3c8", "#b6a896", "#e1cdb6", "#e5c6a0", "#b69872", "#b68549", "#dec000", "#cc18b4", "#0000f1" )
 rasterVis::levelplot(rb_sits, col.regions=colors) # par.settings=rasterVis::RdBuTheme
+
 
 
 #------------- tests - intervals before, meets and follows -- Allen's relations
