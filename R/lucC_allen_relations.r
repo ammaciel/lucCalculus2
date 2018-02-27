@@ -566,8 +566,7 @@ lucC_relation_starts <- function (first_raster = NULL, second_raster = NULL) {
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) == lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) < lubridate::int_end(rasters_intervals[[2]]))){
-
-    result <- merge(first_raster, second_raster, by=c("x","y"), all = TRUE)
+    result <- merge(first_raster, second_raster, all.x = TRUE, all.y = TRUE)
     if (nrow(result) > 0)
       return(result)
     else
@@ -659,7 +658,7 @@ lucC_relation_started_by <- function (first_raster = NULL, second_raster = NULL)
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) == lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) > lubridate::int_end(rasters_intervals[[2]]))){
-    result <- merge(first_raster, second_raster, by=c("x","y"), all = TRUE)
+    result <- merge(first_raster, second_raster, all.x = TRUE, all.y = TRUE)
     if (nrow(result) > 0)
       return(result)
     else
@@ -748,7 +747,7 @@ lucC_relation_during <- function (first_raster = NULL, second_raster = NULL) {
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) > lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) < lubridate::int_end(rasters_intervals[[2]])) ){
-    result <- merge(first_raster , second_raster, by=c("x","y"), all = TRUE)
+    result <- merge(first_raster , second_raster, all.x = TRUE, all.y = TRUE)
     if (nrow(result) > 0)
       return(result)
     else
@@ -836,7 +835,7 @@ lucC_relation_contains <- function (first_raster = NULL, second_raster = NULL) {
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) < lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) > lubridate::int_end(rasters_intervals[[2]]))){
-    result <- merge(first_raster , second_raster, by=c("x","y"), all = TRUE)
+    result <- merge(first_raster , second_raster, all.x = TRUE, all.y = TRUE)
     if (nrow(result) > 0)
       return(result)
     else
@@ -929,7 +928,7 @@ lucC_relation_finishes <- function (first_raster = NULL, second_raster = NULL) {
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) > lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) == lubridate::int_end(rasters_intervals[[2]]))){
-    result <- merge(first_raster, second_raster, by=c("x","y"), all = TRUE)
+    result <- merge(first_raster, second_raster, all.x = TRUE, all.y = TRUE)
     if (nrow(result) > 0)
       return(result)
     else
@@ -1022,7 +1021,7 @@ lucC_relation_finished_by <- function (first_raster = NULL, second_raster = NULL
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) < lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) == lubridate::int_end(rasters_intervals[[2]])) ){
-    result <- merge(first_raster, second_raster, by=c("x","y"), all = TRUE)
+    result <- merge(first_raster, second_raster, all.x = TRUE, all.y = TRUE)
     if (nrow(result) > 0)
       return(result)
     else
@@ -1114,7 +1113,7 @@ lucC_relation_equals <- function (first_raster = NULL, second_raster = NULL) {
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) == lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) == lubridate::int_end(rasters_intervals[[2]]))){
-    result <- merge(first_raster , second_raster, by=c("x","y"), all = TRUE )
+    result <- merge(first_raster , second_raster, by=c("x","y"), all.x = TRUE, all.y = TRUE)
     if (nrow(result) > 0)
       return(result)
     else

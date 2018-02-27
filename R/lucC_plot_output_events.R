@@ -6,9 +6,9 @@
 ##       National Institute for Space Research (INPE), Brazil  ##
 ##                                                             ##
 ##                                                             ##
-##  R script to plot events: sequence, area, frequency and bar ##
+##  R script to plot events: sequence, frequency and bar       ##
 ##                                                             ##
-##                                             2017-08-11      ##
+##                                             2018-02-27      ##
 ##                                                             ##
 ##                                                             ##
 #################################################################
@@ -203,6 +203,7 @@ lucC_plot_sequence_events <- function(data_tb = NULL, custom_palette = FALSE, RG
 #' @importFrom ensurer ensure_that
 #' @importFrom lubridate year
 #' @importFrom scales hue_pal
+#' @importFrom reshape2 melt
 #' @export
 #'
 #' @examples \dontrun{
@@ -254,11 +255,11 @@ lucC_plot_bar_events <- function(data_tb = NULL, custom_palette = FALSE, RGB_col
   ensurer::ensure_that(pixel_resolution, !is.null(pixel_resolution),
                        err_desc = "pixel_resolution must be defined! Default is 250 meters on basis of MODIS image")
 
-  input_data <- data_tb
-  input_data <- input_data[order(input_data$index),] # order by index
+  # to data frame
+  input_data <- reshape2::melt(data_tb, id = c("x","y"))
 
-  #mapBar <- data.frame(table(input_data$w, input_data$z))
-  mapBar <- data.frame(table(lubridate::year(input_data$end_date), input_data$label))
+  # count number of values
+  mapBar <- data.frame(table(lubridate::year(input_data$variable), input_data$value))
 
   # insert own colors palette
   if(custom_palette == TRUE){
@@ -354,6 +355,7 @@ lucC_plot_bar_events <- function(data_tb = NULL, custom_palette = FALSE, RGB_col
 #' @importFrom ensurer ensure_that
 #' @importFrom lubridate year
 #' @importFrom scales hue_pal
+#' @importFrom reshape2 melt
 #' @export
 #'
 #' @examples \dontrun{
@@ -405,11 +407,11 @@ lucC_plot_frequency_events <- function(data_tb = NULL, custom_palette = FALSE, R
   ensurer::ensure_that(pixel_resolution, !is.null(pixel_resolution),
                        err_desc = "pixel_resolution must be defined! Default is 250 meters on basis of MODIS image")
 
-  input_data <- data_tb
-  input_data <- input_data[order(input_data$index),] # order by index
+  # to data frame
+  input_data <- reshape2::melt(data_tb, id = c("x","y"))
 
-  #mapFreq <- data.frame(table(input_data$w, input_data$z))
-  mapFreq <- data.frame(table(lubridate::year(input_data$end_date), input_data$label))
+  # count number of values
+  mapFreq <- data.frame(table(lubridate::year(input_data$variable), input_data$value))
 
   # insert own colors palette
   if(custom_palette == TRUE){

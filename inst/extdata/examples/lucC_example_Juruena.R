@@ -1,4 +1,5 @@
 library(magrittr)
+library(sits.LUC.Calculus)
 
 # MT_samples <- "~/Desktop/rasterJuruena"
 # #MT_samples <- "~/Desktop/raster"
@@ -20,8 +21,6 @@ timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004
 timeline
 
 # create label with classified data from SVM method
-#label <- as.character(c("Double_cropping", "Forest", "Pasture", "Single_cropping"))
-#label <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_Area", "Water"))
 label <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask"))
 label
 
@@ -84,16 +83,16 @@ lucC_plot_bar_events(c1, custom_palette = FALSE)
 
 
 #------------- tests - recur
-third_raster.df <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
+system.time(third_raster.df <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
                                    time_interval1 = c("2001-09-01","2001-09-01"),
-                                   time_interval2 = c("2003-09-01","2016-09-01"),
-                                   label = label, timeline = timeline)
+                                   time_interval2 = c("2002-09-01","2016-09-01"),
+                                   label = label, timeline = timeline))
 third_raster.df
 
 d1 <- lucC_result_format(third_raster.df)
 d1
 lucC_plot_sequence_events(d1, custom_palette = FALSE, show_y_index = FALSE)
-lucC_plot_bar_events(d1, custom_palette = FALSE)
+lucC_plot_bar_events(d1, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
 
 
 #------------- tests - convert
@@ -110,7 +109,7 @@ lucC_plot_bar_events(f1, custom_palette = FALSE)
 
 
 #------------- tests - evolve
-fifth_raster.df <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = "Pasture",
+fifth_raster.df <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = "Pasture1",
                                     time_interval1 = c("2001-09-01","2001-09-01"), relation_interval1 = "contains",
                                     raster_class2 = "Forest",
                                     time_interval2 = c("2002-09-01","2016-09-01"), relation_interval2 = "contains",
@@ -124,52 +123,127 @@ lucC_plot_frequency_events(e1, custom_palette = FALSE, legend_text = "Legend")
 
 
 #---------------
-a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
-                     time_interval = c("2001-09-01","2003-09-01"),
-                     relation_interval = "equals", label = label, timeline = timeline)
+a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Pasture1",
+                     time_interval = c("2001-09-01","2005-09-01"),   # c("2001-09-01","2003-09-01"),
+                     relation_interval = "contains", label = label, timeline = timeline)
 a
 
 b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
-                     time_interval = c("2004-09-01","2007-09-01"),
+                     time_interval = c("2001-09-01","2007-09-01"),  # c("2004-09-01","2007-09-01"),
                      relation_interval = "contains", label = label, timeline = timeline)
 b
 
 # before
 c1 <- lucC_relation_before(first_raster = a, second_raster = b)
 c1
-c11 <- lucC_result_format(c1)
-lucC_plot_sequence_events(c11, custom_palette = FALSE, show_y_index = TRUE)
+lucC_plot_sequence_events(c1, custom_palette = FALSE, show_y_index = TRUE)
 
 # meets
 c2 <- lucC_relation_meets(first_raster = a, second_raster = b)
 c2
-c21 <- lucC_result_format(c2)
-lucC_plot_sequence_events(c21, custom_palette = FALSE, show_y_index = TRUE)
+lucC_plot_sequence_events(c2, custom_palette = FALSE, show_y_index = TRUE)
 
 # follows
 c3 <- lucC_relation_follows(first_raster = a, second_raster = b)
 c3
-c31 <- lucC_result_format(c3)
-lucC_plot_sequence_events(c31, custom_palette = FALSE, show_y_index = TRUE)
-lucC_plot_bar_events(c31, custom_palette = FALSE, side_by_side = FALSE, legend_text = "New", column_legend = 2)
+lucC_plot_sequence_events(c3, custom_palette = FALSE, show_y_index = TRUE)
+lucC_plot_bar_events(c3, custom_palette = FALSE, side_by_side = FALSE, legend_text = "New", column_legend = 2)
 lucC_plot_frequency_events(c31, custom_palette = FALSE, legend_text = "New", column_legend = 1)
 
 # in
 c4 <- lucC_relation_in(first_raster = a, second_raster = b)
 c4
-c41 <- lucC_result_format(c4)
-lucC_plot_sequence_events(c41, custom_palette = FALSE, show_y_index = TRUE)
+#c41 <- lucC_result_format(c4)
+lucC_plot_sequence_events(c4, custom_palette = FALSE, show_y_index = TRUE)
+lucC_plot_bar_events(c4, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
+lucC_plot_frequency_events(c4, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
 
 
 
 
 
+
+system.time(
+  a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+                       time_interval = c("2001-09-01","2016-09-01"),
+                       relation_interval = "contains", label = label, timeline = timeline)
+  )
+head(a)
+
+system.time(
+  a1 <- lucC_result_format(a)
+  )
+
+head(a1)
+#lucC_plot_sequence_events(a1, custom_palette = FALSE, show_y_index = FALSE)
+lucC_plot_bar_events2(a1, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
+
+
+
+#library(reshape2)
+library(ggplot2)
+
+DF1 <-c41 #a
+head(DF1)
+str(DF1)
+
+meltR1 = reshape2::melt(DF1, id = c("x","y"))
+meltR1 = reshape2::melt(DF1[,c(3:ncol(DF1))], id = c("id"))
+head(meltR1)
+
+data <- data.frame(table(lubridate::year(meltR1$variable), meltR1$value))
+#data <- data.frame(table(meltR1$Var2, meltR1$value))
+head(data)
+
+pixel_resolution <- 232
+ggplot(data, aes(x=data$Var1, y = (data$Freq*(pixel_resolution*pixel_resolution))/(1000*1000), fill = data$Var2)) +
+  geom_bar(width = 0.7, stat="identity", position = "dodge") +
+  theme_bw() #+ + geom_line()
 
 
 .
 .
-.
-.
+
+
+
+
+
+
+
+
+#---------------------
+library(microbenchmark); library(plyr)
+op <- microbenchmark(
+  PLYR=ddply(mtcars, .(cyl, gear), summarise,
+             output = mean(hp)),
+  AGGR=aggregate(hp ~ cyl + gear, mtcars, mean),
+  TAPPLY = tapply(mtcars$hp, interaction(mtcars$cyl,
+                                         mtcars$gear), mean),
+  times=1000L)
+
+print(op) #standard data frame of the output
+boxplot(op) #boxplot of output
+library(ggplot2) #nice log plot of the output
+qplot(y=time, data=op, colour=expr) + scale_y_log10()
+#---------------------
+
+
+mic
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
