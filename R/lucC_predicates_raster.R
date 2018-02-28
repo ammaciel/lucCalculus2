@@ -11,7 +11,7 @@
 ##                                                             ##
 ##                                             2018-02-26      ##
 ##                                                             ##
-##  J. F. Allen.  end_datewards a general theory of action and ##
+##  J. F. Allen.  Towards a general theory of action and       ##
 ##  time. Artificial Intelligence, 23(2): 123--154, 1984.      ##
 ##                                                             ##
 #################################################################
@@ -23,35 +23,35 @@
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide a predicate of Allen's which asserts that a class holds
-#' during a time interval. Return a tibble with value within defined interval
+#' @description Provide a predicate HOLDS which evaluates as true when a class \code{c_i},
+#' e.g. 'Forest', holds uring the interval \code{t_i}. Return a matrix with values within
+#' defined interval
 #'
 #' @usage lucC_pred_holds (raster_obj = NULL, raster_class = NULL,
 #' time_interval = c("2000-01-01", "2004-01-01"),
 #' relation_interval = "contains", label = NULL, timeline = NULL)
 #'
 #' @param raster_obj        Raster. A raster stack with classified images
-#' @param raster_class      Character. Name of class present in a row of the tibble, such as 'Forest' or other value
-#' @param time_interval     Interval. A interval of time to verify if class is over or
-#'                          not in character format. Given a tibble with values, will be asserts if that
-#'                          class of locations holds during a time interval
-#' @param relation_interval Character. If a location holds during all time interval 'equals' or can be appear in any
+#' @param raster_class      Character. Name of the class of interest, such as 'Forest', to research
+#' @param time_interval     Interval. A time interval to verify if class is over or not
+#' @param relation_interval Character. If a location HOLDS during all time interval 'equals' or can be appear in any
 #'                          times 'contains'. Default is 'contains'
-#' @param label             Character. All labels of each value of pixel of classified raster
-#' @param timeline          Date. A list with all end_dates of classified raster
+#' @param label             Character. All labels of each value of pixel from classified raster
+#' @param timeline          Character. A list of all dates of classified raster, timeline
 #'
 #' @keywords datasets
-#' @return Tibble with all events hold during a time interval
-#' @import magrittr
+#' @return Matrix with all states which holds during a time interval
 #' @importFrom lubridate int_standardize int_start int_end as_date ymd years
-#' @importFrom tibble as_tibble
 #' @importFrom raster subset rasterToPoints
 #' @importFrom tidyr drop_na
 #' @export
 #'
 #' @examples \dontrun{
 #'
-#' library(lucC)
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Pasture",
+#' time_interval = c("2001-09-01","2005-09-01"), relation_interval = "contains",
+#' label = label, timeline = timeline)
+#' a
 #'
 #'}
 #'
@@ -102,7 +102,7 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
   # define values to query
   class <- match(class_name, label)
 
-  # subset with all lcoations from raster holds during a time interval
+  # subset with all locations from raster holds during a time interval
   .holds_raster <- function(ras.obj, class.ras, start_date.ras, end_date.ras) {
     temp <- raster::subset(ras.obj, start_date.ras:end_date.ras)
     output <- temp == class.ras
@@ -110,54 +110,51 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
   }
 
   # apply holds_raster to obtain results
-  output_holds <- .holds_raster(rasterStack_obj, class, date_start, date_end) # rt
-  #raster::plot(output_holds)
+  output_holds <- .holds_raster(rasterStack_obj, class, date_start, date_end)
 
   longLatFromRaster <- NULL
+
   # extract x, y, and values from raster output_holds
   longLatFromRaster <- raster::rasterToPoints(output_holds)
-  #longLatFromRaster <- raster::as.data.frame(output_holds, xy = TRUE)
+  #longLatFromRaster <- raster::as.data.frame(output_holds, xy = TRUE) # another way
 
   if (relation_allen == "equals" & ncol(longLatFromRaster) > 3) {
-    longLatFromRaster.df <- longLatFromRaster[
+    longLatFromRaster.mtx <- longLatFromRaster[
       base::rowSums(longLatFromRaster[,c(3:ncol(longLatFromRaster))] &
                 !is.na(longLatFromRaster[,c(3:ncol(longLatFromRaster))])) == length(3:ncol(longLatFromRaster)),]
   } else if (relation_allen == "contains" & ncol(longLatFromRaster) > 3)  {
-    longLatFromRaster.df <- longLatFromRaster[
+    longLatFromRaster.mtx <- longLatFromRaster[
       base::rowSums(longLatFromRaster[,c(3:ncol(longLatFromRaster))] &
                 !is.na(longLatFromRaster[,c(3:ncol(longLatFromRaster))])) > 0,]
   } else if ((relation_allen == "equals" | relation_allen == "contains") & ncol(longLatFromRaster) == 3){
-    longLatFromRaster.df <- longLatFromRaster[!(is.na(longLatFromRaster[, 3]) | longLatFromRaster[, 3] == 0), ]
+    longLatFromRaster.mtx <- longLatFromRaster[!(is.na(longLatFromRaster[, 3]) | longLatFromRaster[, 3] == 0), ]
   }
 
-  # longLatFromRaster.df
-  # nrow(longLatFromRaster.df)
-
   ## test rows entire FALSE values
-  # dplyr::anti_join(longLatFromRaster,longLatFromRaster.df)
+  # dplyr::anti_join(longLatFromRaster,longLatFromRaster.mtx)
 
   # define timeline from raster output_holds
   timeline_holds = timeline[ timeline >= timeline[date_start] & timeline <= timeline[date_end]]
 
   # alter column names of data.frame
-  if( NCOL(longLatFromRaster.df) == 1 & is.null(ncol(longLatFromRaster.df))){
+  if( NCOL(longLatFromRaster.mtx) == 1 & is.null(ncol(longLatFromRaster.mtx))){
     # case there is only one value
-    longLatFromRaster.df <- base::as.matrix(t(longLatFromRaster.df))
-    colnames(longLatFromRaster.df)[c(3:ncol(longLatFromRaster.df))] <- as.character(timeline_holds)
-  } else if( nrow(longLatFromRaster.df) == 0){
+    longLatFromRaster.mtx <- base::as.matrix(t(longLatFromRaster.mtx))
+    colnames(longLatFromRaster.mtx)[c(3:ncol(longLatFromRaster.mtx))] <- as.character(timeline_holds)
+  } else if( nrow(longLatFromRaster.mtx) == 0){
     # case there is no values
-    longLatFromRaster.df <- NULL
-    return(longLatFromRaster.df)
+    longLatFromRaster.mtx <- NULL
+    return(longLatFromRaster.mtx)
   } else {
     # case more than one value
-    colnames(longLatFromRaster.df)[c(3:ncol(longLatFromRaster.df))] <- as.character(timeline_holds)
+    colnames(longLatFromRaster.mtx)[c(3:ncol(longLatFromRaster.mtx))] <- as.character(timeline_holds)
   }
 
   # alter label for original value in character
-  longLatFromRaster.df[,c(3:ncol(longLatFromRaster.df))] <-
-    as.character(ifelse(longLatFromRaster.df[,c(3:ncol(longLatFromRaster.df))] == 1, class_name, NA))
+  longLatFromRaster.mtx[,c(3:ncol(longLatFromRaster.mtx))] <-
+    as.character(ifelse(longLatFromRaster.mtx[,c(3:ncol(longLatFromRaster.mtx))] == 1, class_name, NA))
 
-  result <- longLatFromRaster.df
+  result <- longLatFromRaster.mtx
 
   return(result)
 }
@@ -210,30 +207,25 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide a predicate of Allen's which asserts that a class holds
-#' during a time interval. Return a tibble with value within defined interval
+#' @description Provide a predicate RECUR which evaluates as true when a location holds
+#' a class \code{c_i}, e.g. 'Forest', during two non-continuous distinct intervals
+#' \code{t_i} and \code{t_j}. Return a matrix with values within defined interval
 #'
 #' @usage lucC_pred_recur (raster_obj = NULL, raster_class = NULL,
 #' time_interval1 = c("2001-01-01", "2001-01-01"),
 #' time_interval2 = c("2002-01-01", "2005-01-01"),
 #' label = NULL, timeline = NULL)
 #'
-#' @param raster_obj         Raster. A raster stack with classified images
-#' @param raster_class       Character. Name of class present in a row of the tibble, such as 'Forest' or other value
-#' @param time_interval1     Interval. A interval of time to verify if class is over or
-#'                           not in character format. Given a tibble with values, will be asserts if that
-#'                           class of locations holds during a time interval
-#' @param time_interval2     Interval. A interval of time to verify if class is over or
-#'                           not in character format. Given a tibble with values, will be asserts if that
-#'                           class of locations holds during a time interval
-#' @param label              Character. All labels of each value of pixel of classified raster
-#' @param timeline           Date. A list with all end_dates of classified raster
+#' @param raster_obj       Raster. A raster stack with classified images
+#' @param raster_class     Character. Name of the class of interest, such as 'Forest', to research
+#' @param time_interval1   Interval. A first time interval to verify if class is over or not
+#' @param time_interval2   Interval. A second and non-overlapped time interval to verify if class is over or not
+#' @param label            Character. All labels of each value of pixel from classified raster
+#' @param timeline         Character. A list of all dates of classified raster, timeline
 #'
 #' @keywords datasets
-#' @return Tibble with all events hold during a time interval
-#' @import magrittr
+#' @return Matrix with all states which holds during a time interval
 #' @importFrom lubridate int_standardize int_start int_end as_date ymd years
-#' @importFrom tibble as_tibble
 #' @importFrom raster subset rasterToPoints
 #' @importFrom tidyr drop_na
 #' @importFrom stats complete.cases
@@ -241,7 +233,11 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
 #'
 #' @examples \dontrun{
 #'
-#' library(lucC)
+#' b <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval1 = c("2001-09-01","2001-09-01"),
+#'                      time_interval2 = c("2002-09-01","2016-09-01"),
+#'                      label = label, timeline = timeline))
+#' b
 #'
 #'}
 #'
@@ -324,8 +320,10 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide a predicate of Allen's which asserts that a class holds
-#' during a time interval. Return a tibble with value within defined interval
+#' @description Provide a predicate EVOLVE which evaluates as true when a location holds the
+#' class \code{c_i}, e.g. 'Forest', during the interval \code{t_i}, class \code{c_j}, e.g.
+#' 'Pasture', during the interval \code{t_j} and \code{t_j} is not necessarily immediately
+#' sequential of \code{t_i}. Return a matrix with values within defined interval
 #'
 #' @usage lucC_pred_evolve (raster_obj = NULL, raster_class1 = NULL,
 #' time_interval1 = c("2001-01-01", "2001-01-01"), relation_interval1 = "equals",
@@ -333,33 +331,34 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
 #' relation_interval2 = "contains", label = NULL, timeline = NULL)
 #'
 #' @param raster_obj         Raster. A raster stack with classified images
-#' @param raster_class1      Character. Name of the first class present in a row of the tibble, such as 'Forest' or other value
-#' @param time_interval1     Interval. A interval of time to verify if class is over or
-#'                           not in character format. Given a tibble with values, will be asserts if that
-#'                           class of locations holds during a time interval
-#' @param relation_interval1 Character. If a location holds during all time interval 'equals' or can be appear in any
+#' @param raster_class1      Character. Name of the first class of interest, such as 'Forest', to research
+#' @param time_interval1     Interval. A first interval to verify if class is over or not
+#' @param relation_interval1 Character. If a location HOLDS during all time interval 'equals' or can be appear in any
 #'                           times 'contains'. Default is 'equals'
-#' @param raster_class2      Character. Name of the second class present in a row of the tibble, such as 'Forest' or other value
-#' @param time_interval2     Interval. A interval of time to verify if class is over or
-#'                           not in character format. Given a tibble with values, will be asserts if that
-#'                           class of locations holds during a time interval
-#' @param relation_interval2 Character. If a location holds during all time interval 'equals' or can be appear in any
+#' @param raster_class2      Character. Name of the second class of interest, such as 'Pasture', to research
+#' @param time_interval2     Interval. A second interval to verify if class is over or not
+#' @param relation_interval2 Character. If a location HOLDS during all time interval 'equals' or can be appear in any
 #'                           times 'contains'. Default is 'contains'
-#' @param label              Character. All labels of each value of pixel of classified raster
-#' @param timeline           Date. A list with all end_dates of classified raster
+#' @param label             Character. All labels of each value of pixel from classified raster
+#' @param timeline          Character. A list of all dates of classified raster, timeline
 #'
 #' @keywords datasets
-#' @return Tibble with all events hold during a time interval
-#' @import magrittr
+#' @return Matrix with all states which holds during a time interval
 #' @importFrom lubridate int_standardize int_start int_end as_date ymd years
-#' @importFrom tibble as_tibble
 #' @importFrom raster subset rasterToPoints
 #' @importFrom tidyr drop_na
 #' @export
 #'
 #' @examples \dontrun{
 #'
-#' library(lucC)
+#' c <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = "Forest",
+#'                       time_interval1 = c("2001-09-01","2001-09-01"),
+#'                       relation_interval1 = "contains",
+#'                       raster_class2 = "Pasture1",
+#'                       time_interval2 = c("2002-09-01","2016-09-01"),
+#'                       relation_interval2 = "contains",
+#'                       label = label, timeline = timeline)
+#' c
 #'
 #'}
 #'
@@ -427,8 +426,10 @@ lucC_pred_evolve <- function(raster_obj = NULL, raster_class1 = NULL, time_inter
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide a predicate of Allen's which asserts that a class holds
-#' during a time interval. Return a tibble with value within defined interval
+#' @description Provide a predicate CONVERT which evaluates as true when a location holds the
+#' class \code{c_i}, e.g. 'Forest', during the interval \code{t_i}, class \code{c_j}, e.g. 'Soybean',
+#' during the interval \code{t_j} and \code{t_j} is sequential of \code{t_i}. Return a matrix
+#' with values within defined interval
 #'
 #' @usage lucC_pred_convert (raster_obj = NULL, raster_class1 = NULL,
 #' time_interval1 = c("2001-01-01", "2001-01-01"), relation_interval1 = "equals",
@@ -436,33 +437,34 @@ lucC_pred_evolve <- function(raster_obj = NULL, raster_class1 = NULL, time_inter
 #' relation_interval2 = "equals", label = NULL, timeline = NULL)
 #'
 #' @param raster_obj         Raster. A raster stack with classified images
-#' @param raster_class1      Character. Name of the first class present in a row of the tibble, such as 'Forest' or other value
-#' @param time_interval1     Interval. A interval of time to verify if class is over or
-#'                           not in character format. Given a tibble with values, will be asserts if that
-#'                           class of locations holds during a time interval
-#' @param relation_interval1 Character. If a location holds during all time interval 'equals' or can be appear in any
+#' @param raster_class1      Character. Name of the first class of interest, such as 'Forest', to research
+#' @param time_interval1     Interval. A first interval to verify if class is over or not
+#' @param relation_interval1 Character. If a location HOLDS during all time interval 'equals' or can be appear in any
 #'                           times 'contains'. Default is 'equals'
-#' @param raster_class2      Character. Name of the second class present in a row of the tibble, such as 'Forest' or other value
-#' @param time_interval2     Interval. A interval of time to verify if class is over or
-#'                           not in character format. Given a tibble with values, will be asserts if that
-#'                           class of locations holds during a time interval
-#' @param relation_interval2 Character. If a location holds during all time interval 'equals' or can be appear in any
+#' @param raster_class2      Character. Name of the second class of interest, such as 'Pasture', to research
+#' @param time_interval2     Interval. A second interval to verify if class is over or not
+#' @param relation_interval2 Character. If a location HOLDS during all time interval 'equals' or can be appear in any
 #'                           times 'contains'. Default is 'equals'
-#' @param label              Character. All labels of each value of pixel of classified raster
-#' @param timeline           Date. A list with all end_dates of classified raster
+#' @param label              Character. All labels of each value of pixel from classified raster
+#' @param timeline           Character. A list of all dates of classified raster, timeline
 #'
 #' @keywords datasets
-#' @return Tibble with all events hold during a time interval
-#' @import magrittr
+#' @return Matrix with all states which holds during a time interval
 #' @importFrom lubridate int_standardize int_start int_end as_date ymd years
-#' @importFrom tibble as_tibble
 #' @importFrom raster subset rasterToPoints
 #' @importFrom tidyr drop_na
 #' @export
 #'
 #' @examples \dontrun{
 #'
-#' library(lucC)
+#' d <- lucC_pred_convert(raster_obj = rb_sits, raster_class1 = "Forest",
+#'                       time_interval1 = c("2001-09-01","2001-09-01"),
+#'                       relation_interval1 = "equals",
+#'                       raster_class2 = "Pasture1",
+#'                       time_interval2 = c("2002-09-01","2002-09-01"),
+#'                       relation_interval2 = "equals",
+#'                       label = label, timeline = timeline)
+#' d
 #'
 #'}
 #'

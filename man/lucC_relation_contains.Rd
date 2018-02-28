@@ -8,16 +8,19 @@
 lucC_relation_contains(first_raster = NULL, second_raster = NULL)
 }
 \arguments{
-\item{first_raster}{matrix. An interval between two dates.}
+\item{first_raster}{Matrix. An interval between two dates.}
 
-\item{second_raster}{matrix. An interval between two dates.}
+\item{second_raster}{Matrix. An interval between two dates.}
 }
 \value{
 Data set with merge of two data sets
 }
 \description{
-Provide an Allen's interval relation to classified raster data.
-And return data set with raster data sets merged
+Provide an Allen's interval relation CONTAINS which start time interval of the
+raster_1 must be (<) less than the start time interval from raster_2, and end time interval
+of the raster_1 must be (>) greater than the end time interval from raster_2. See more at (ALLEN, J. F.
+"Maintaining knowledge about temporal intervals". Communications of the ACM, v(26), 11,
+1983, 832-843. DOI: \url{http://dx.doi.org/10.1145/182.358434})
 }
 \examples{
 \dontrun{

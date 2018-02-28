@@ -5,13 +5,13 @@
 \alias{lucC_plot_sequence_events}
 \title{Plot Sequence Maps with lucC Events}
 \usage{
-lucC_plot_sequence_events (data_tb = NULL, custom_palette = FALSE,
+lucC_plot_sequence_events (data_mtx = NULL, custom_palette = FALSE,
 RGB_color = NULL, show_y_index = TRUE, start_date = "2000-01-01",
 end_date = "2016-12-31", relabel = FALSE, original_labels = NULL,
 new_labels = NULL)
 }
 \arguments{
-\item{data_tb}{Tibble. A tibble with values longitude and latitude and other values}
+\item{data_mtx}{Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS}
 
 \item{custom_palette}{Boolean. A TRUE or FALSE value. If TRUE, user will provide its own color palette setting! Default is FALSE}
 
@@ -33,41 +33,10 @@ new_labels = NULL)
 Plot sequence time series as lines
 }
 \description{
-Plot time series as sequence of lines over time
+Plot locations as a sequence of lines over time
 }
 \examples{
 \dontrun{
-
-library(lucC)
-
-lucC_starting_point()
-
-# open a JSON file example
-file_json = "./inst/extdata/patterns/example_TWDTW.json"
-
-# open file JSON
-input_tb_raw_json <- file_json \%>\%
-  lucC_fromJSON()
-input_tb_raw_json
-
-# plot maps input data
-lucC_plot_maps_input(input_tb_raw_json, EPSG_WGS84 = TRUE,
-custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f",
-"#929e6e", "#f5e7a1"))
-
-# define interval
-time_ex1 <- lucC_interval("2002-01-01", "2014-01-01")
-
-# apply predicate occur
-ts_occur1 <- lucC_predicate_holds(geo_objects = input_tb_raw_json,
-object_properties = "Forest", event_time_intervals = time_ex1)
-ts_occur1
-
-# events over input map
-lucC_plot_maps_events(ts_occur1, EPSG_WGS84 = TRUE,
-custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f",
-"#929e6e", "#f5e7a1"), shape_point = 0, colour_point = "black",
-size_point = 2.3)
 
 lucC_plot_sequence_events(ts_occur1, show_y_index = FALSE,
 end_date = "2017-03-01", custom_palette = TRUE, RGB_color = "#929e6e")

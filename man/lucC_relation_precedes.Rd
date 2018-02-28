@@ -8,16 +8,18 @@
 lucC_relation_precedes(first_raster = NULL, second_raster = NULL)
 }
 \arguments{
-\item{first_raster}{matrix. An interval between two dates.}
+\item{first_raster}{Matrix. An interval between two dates.}
 
-\item{second_raster}{matrix. An interval between two dates.}
+\item{second_raster}{Matrix. An interval between two dates.}
 }
 \value{
 Data set with merge of two data sets
 }
 \description{
-Provide an Allen's interval relation to classified raster data.
-And return data set with raster data sets merged
+Provide an Allen's interval relation PRECEDES which aggregates the relations
+MET_BY and AFTER. See more at (ALLEN, J. F. "Maintaining knowledge about temporal
+intervals". Communications of the ACM, v(26), 11, 1983, 832-843.
+DOI: \url{http://dx.doi.org/10.1145/182.358434})
 }
 \examples{
 \dontrun{

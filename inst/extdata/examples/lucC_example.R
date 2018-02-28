@@ -1,4 +1,4 @@
-library(magrittr)
+library(sits.LUC.Calculus)
 
 # MT_samples <- "~/Desktop/Classi_MT_SVM/raster_sample_mt"
 # #MT_samples <- "~/Desktop/raster"
@@ -76,10 +76,8 @@ c <- lucC_relation_starts(a,b)
 #c <- lucC_relation_during(a,b)
 #c <- lucC_relation_equals(a,b)
 c
-c1 <- lucC_result_format(c)
-c1
-lucC_plot_sequence_events(c1, custom_palette = FALSE, show_y_index = FALSE)
-lucC_plot_bar_events(c1, custom_palette = FALSE)
+lucC_plot_sequence_events(c, custom_palette = FALSE, show_y_index = FALSE)
+lucC_plot_bar_events(c, custom_palette = FALSE)
 
 
 #------------- tests - recur
@@ -89,23 +87,20 @@ third_raster.df <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest"
                                     label = label, timeline = timeline)
 third_raster.df
 
-d1 <- lucC_result_format(third_raster.df)
-d1
-lucC_plot_sequence_events(d1, custom_palette = FALSE, show_y_index = FALSE)
-lucC_plot_bar_events(d1, custom_palette = FALSE)
+lucC_plot_sequence_events(third_raster.df, custom_palette = FALSE, show_y_index = FALSE)
+lucC_plot_bar_events(third_raster.df, custom_palette = FALSE)
 
 
 #------------- tests - convert
-sixth_raster.df <- lucC_pred_convert(raster_obj = rb_sits, raster_class1 = "Cerrado",
+sixth_raster.df <- lucC_pred_convert(raster_obj = rb_sits, raster_class1 = "Forest",
                                      time_interval1 = c("2001-09-01","2001-09-01"), relation_interval1 = "equals",
-                                     raster_class2 = "Forest",
+                                     raster_class2 = "Cerrado",
                                      time_interval2 = c("2002-09-01","2016-09-01"), relation_interval2 = "contains",
                                      label = label, timeline = timeline)
 sixth_raster.df
 
-f1 <- lucC_result_format(sixth_raster.df)
-lucC_plot_sequence_events(f1, custom_palette = FALSE, show_y_index = FALSE)
-lucC_plot_bar_events(f1, custom_palette = FALSE)
+lucC_plot_sequence_events(sixth_raster.df, custom_palette = FALSE, show_y_index = FALSE)
+lucC_plot_bar_events(sixth_raster.df, custom_palette = FALSE)
 
 
 #------------- tests - evolve
@@ -116,10 +111,9 @@ fifth_raster.df <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = "Pastu
                                     label = label, timeline = timeline)
 fifth_raster.df
 
-e1 <- lucC_result_format(fifth_raster.df)
-lucC_plot_sequence_events(e1, custom_palette = FALSE, show_y_index = FALSE)
-lucC_plot_bar_events(e1, custom_palette = FALSE)
-lucC_plot_frequency_events(e1, custom_palette = FALSE, legend_text = "Legend")
+lucC_plot_sequence_events(fifth_raster.df, custom_palette = FALSE, show_y_index = FALSE)
+lucC_plot_bar_events(fifth_raster.df, custom_palette = FALSE)
+lucC_plot_frequency_events(fifth_raster.df, custom_palette = FALSE, legend_text = "Legend")
 
 
 #---------------
@@ -136,33 +130,24 @@ b
 # before
 c1 <- lucC_relation_before(first_raster = a, second_raster = b)
 c1
-c11 <- lucC_result_format(c1)
-lucC_plot_sequence_events(c11, custom_palette = FALSE, show_y_index = TRUE)
+lucC_plot_sequence_events(c1, custom_palette = FALSE, show_y_index = FALSE)
 
 # meets
 c2 <- lucC_relation_meets(first_raster = a, second_raster = b)
 c2
-c21 <- lucC_result_format(c2)
-lucC_plot_sequence_events(c21, custom_palette = FALSE, show_y_index = TRUE)
+lucC_plot_sequence_events(c2, custom_palette = FALSE, show_y_index = TRUE)
 
 # follows
 c3 <- lucC_relation_follows(first_raster = a, second_raster = b)
 c3
-c31 <- lucC_result_format(c3)
-lucC_plot_sequence_events(c31, custom_palette = FALSE, show_y_index = TRUE)
-lucC_plot_bar_events(c31, custom_palette = FALSE, side_by_side = FALSE, legend_text = "New", column_legend = 2)
-lucC_plot_frequency_events(c31, custom_palette = FALSE, legend_text = "New", column_legend = 1)
+lucC_plot_sequence_events(c3, custom_palette = FALSE, show_y_index = TRUE)
+lucC_plot_bar_events(c3, custom_palette = FALSE, side_by_side = FALSE, legend_text = "New", column_legend = 2)
+lucC_plot_frequency_events(c3, custom_palette = FALSE, legend_text = "New", column_legend = 1)
 
 # in
 c4 <- lucC_relation_in(first_raster = a, second_raster = b)
 c4
-c41 <- lucC_result_format(c4)
-lucC_plot_sequence_events(c41, custom_palette = FALSE, show_y_index = TRUE)
-
-
-
-
-
+lucC_plot_sequence_events(c4, custom_palette = FALSE, show_y_index = TRUE)
 
 
 .

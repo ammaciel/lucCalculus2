@@ -10,8 +10,9 @@
 ##                                                             ##
 ##                                             2018-02-26      ##
 ##                                                             ##
-##  J. F. Allen.  Towards a general theory of action and       ##
-##  time. Artificial Intelligence, 23(2): 123--154, 1984.      ##
+##  Allen, James F. "Maintaining knowledge about temporal      ##
+##  intervals". Commun. ACM 26, 11, 1983, 832-843.             ##
+##  DOI: \url{http://dx.doi.org/10.1145/182.358434}            ##
 ##                                                             ##
 #################################################################
 
@@ -81,13 +82,16 @@
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation BEFORE which end time interval of the
+#' raster_1 must be (<) less than start time interval from raster_2, and also time interval
+#' from raster_1 can not overlap time interval from raster_2. See more at (ALLEN, J. F.
+#' "Maintaining knowledge about temporal intervals". Communications of the ACM, v(26), 11,
+#' 1983, 832-843. DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_before(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
@@ -197,13 +201,16 @@ lucC_relation_before <- function (first_raster = NULL, second_raster = NULL) {
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation AFTER which start time interval of the
+#' raster_1 must be (>) greater than end time interval from raster_2, and also time interval
+#' from raster_1 can not overlap time interval from raster_2. See more at (ALLEN, J. F.
+#' "Maintaining knowledge about temporal intervals". Communications of the ACM, v(26), 11,
+#' 1983, 832-843. DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_after(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
@@ -258,7 +265,7 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
     # build intervals for each raster data set
     rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
   else {
-    message("\nRelation MEETS cannot be applied!\n
+    message("\nRelation AFTER cannot be applied!\n
           raster 1 and raster 2 has no relation!")
     return(result <- NULL)
   }
@@ -317,13 +324,16 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation MEETS which end time interval of the
+#' raster_1 must be (=) equal to the start time interval from raster_2, and also time interval
+#' from raster_1 can not overlap time interval from raster_2. See more at (ALLEN, J. F.
+#' "Maintaining knowledge about temporal intervals". Communications of the ACM, v(26), 11,
+#' 1983, 832-843. DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_meets(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
@@ -406,13 +416,16 @@ lucC_relation_meets <- function (first_raster = NULL, second_raster = NULL) {
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation MET_BY which end time interval of the
+#' raster_2 must be (=) equal to the start time interval from raster_1, and also time interval
+#' from raster_2 can not overlap time interval from raster_1. See more at (ALLEN, J. F.
+#' "Maintaining knowledge about temporal intervals". Communications of the ACM, v(26), 11,
+#' 1983, 832-843. DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_met_by(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
@@ -494,13 +507,16 @@ lucC_relation_met_by <- function (first_raster = NULL, second_raster = NULL) {
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation STARTS which start time interval of the
+#' raster_1 must be (=) equal to the start time interval from raster_2, and end time interval
+#' of the raster_1 must be (<) less than the end time interval from raster_2. See more at (ALLEN, J. F.
+#' "Maintaining knowledge about temporal intervals". Communications of the ACM, v(26), 11,
+#' 1983, 832-843. DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_starts(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
@@ -573,7 +589,7 @@ lucC_relation_starts <- function (first_raster = NULL, second_raster = NULL) {
       return(result <- NULL)
   } else{
     message("\nRelation STARTS cannot be applied!\n
-         start time interval from raster 1 must be (=) equals the start time interval from raster 2 and \n
+         start time interval from raster 1 must be (=) equal the start time interval from raster 2 and \n
          end time interval from raster 1 must be (<) less than the end time interval from raster 2 and!\n")
     return(result <- NULL)
   }
@@ -586,13 +602,16 @@ lucC_relation_starts <- function (first_raster = NULL, second_raster = NULL) {
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation STARTED_BY which start time interval of the
+#' raster_1 must be (=) equal to the start time interval from raster_2, and end time interval
+#' of the raster_1 must be (>) greater than the end time interval from raster_2. See more at (ALLEN, J. F.
+#' "Maintaining knowledge about temporal intervals". Communications of the ACM, v(26), 11,
+#' 1983, 832-843. DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_started_by(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
@@ -665,7 +684,7 @@ lucC_relation_started_by <- function (first_raster = NULL, second_raster = NULL)
       return(result <- NULL)
   } else{
     message("\nRelation STARTED BY cannot be applied!\n
-         start time interval from raster 1 must be (=) equals the start time interval from raster 2 and \n
+         start time interval from raster 1 must be (=) equal the start time interval from raster 2 and \n
          end time interval from raster 1 must be (>) greater than the end time interval from raster 2 and!\n")
     return(result <- NULL)
   }
@@ -679,13 +698,16 @@ lucC_relation_started_by <- function (first_raster = NULL, second_raster = NULL)
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation DURING which start time interval of the
+#' raster_1 must be (>) greater than the start time interval from raster_2, and end time interval
+#' of the raster_1 must be (<) less than the end time interval from raster_2. See more at (ALLEN, J. F.
+#' "Maintaining knowledge about temporal intervals". Communications of the ACM, v(26), 11,
+#' 1983, 832-843. DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_during(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
@@ -767,13 +789,16 @@ lucC_relation_during <- function (first_raster = NULL, second_raster = NULL) {
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation CONTAINS which start time interval of the
+#' raster_1 must be (<) less than the start time interval from raster_2, and end time interval
+#' of the raster_1 must be (>) greater than the end time interval from raster_2. See more at (ALLEN, J. F.
+#' "Maintaining knowledge about temporal intervals". Communications of the ACM, v(26), 11,
+#' 1983, 832-843. DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_contains(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
@@ -856,13 +881,16 @@ lucC_relation_contains <- function (first_raster = NULL, second_raster = NULL) {
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation FINISHES which start time interval of the
+#' raster_1 must be (>) greater than the start time interval from raster_2, and end time interval
+#' of the raster_1 must be (=) equal to the end time interval from raster_2. See more at (ALLEN, J. F.
+#' "Maintaining knowledge about temporal intervals". Communications of the ACM, v(26), 11,
+#' 1983, 832-843. DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_finishes(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
@@ -936,7 +964,7 @@ lucC_relation_finishes <- function (first_raster = NULL, second_raster = NULL) {
   } else{
     message("\nRelation FINISHES cannot be applied!\n
          start time interval from raster 1 must be (>) greater than the start time interval from raster 2 and \n
-         end time interval from raster 1 must be (=) equals the end time interval from raster 2 and!\n")
+         end time interval from raster 1 must be (=) equal to the end time interval from raster 2 and!\n")
     return(result <- NULL)
   }
 
@@ -949,13 +977,16 @@ lucC_relation_finishes <- function (first_raster = NULL, second_raster = NULL) {
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation FINISHED_BY which start time interval of the
+#' raster_1 must be (<) less than the start time interval from raster_2, and end time interval
+#' of the raster_1 must be (=) equal to the end time interval from raster_2. See more at (ALLEN, J. F.
+#' "Maintaining knowledge about temporal intervals". Communications of the ACM, v(26), 11,
+#' 1983, 832-843. DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_finished_by(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
@@ -1029,7 +1060,7 @@ lucC_relation_finished_by <- function (first_raster = NULL, second_raster = NULL
   } else{
     message("\nRelation FINISHED BY cannot be applied!\n
          start time interval from raster 1 must be (<) less than the start time interval from raster 2 and \n
-         end time interval from raster 1 must be (=) equals the end time interval from raster 2 and!\n")
+         end time interval from raster 1 must be (=) equal to the end time interval from raster 2 and!\n")
     return(result <- NULL)
   }
 
@@ -1041,13 +1072,15 @@ lucC_relation_finished_by <- function (first_raster = NULL, second_raster = NULL
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation EQUALS which start and end time interval of the
+#' raster_1 must be (=) equal to the start and end time interval from raster_2. See more at (ALLEN, J. F.
+#' "Maintaining knowledge about temporal intervals". Communications of the ACM, v(26), 11,
+#' 1983, 832-843. DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_equals(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets

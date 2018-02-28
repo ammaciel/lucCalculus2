@@ -5,12 +5,12 @@
 \alias{lucC_plot_maps_input}
 \title{Plot Input Maps}
 \usage{
-lucC_plot_maps_input (data_tb = NULL, EPSG_WGS84 = TRUE, 
+lucC_plot_maps_input (raster_obj = NULL, EPSG_WGS84 = TRUE,
 custom_palette = FALSE, RGB_color = NULL, plot_ncol = NULL,
 relabel = FALSE, original_labels = NULL, new_labels = NULL)
 }
 \arguments{
-\item{data_tb}{Tibble. A tibble with values longitude and latitude and other values}
+\item{raster_obj}{Tibble. A tibble with values longitude and latitude and other values}
 
 \item{EPSG_WGS84}{Character. A reference coordinate system. If TRUE, the values of latitude and longitude alredy use this coordinate system, if FALSE, the data set need to be transformed}
 
@@ -48,8 +48,8 @@ input_tb_raw_json <- file_json \%>\%
 input_tb_raw_json
 
 # plot maps input data
-lucC_plot_maps_input(input_tb_raw_json, EPSG_WGS84 = TRUE, 
-custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f", 
+lucC_plot_maps_input(input_tb_raw_json, EPSG_WGS84 = TRUE,
+custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f",
 "#929e6e", "#f5e7a1"))
 
 

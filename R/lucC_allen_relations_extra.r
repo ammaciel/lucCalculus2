@@ -8,7 +8,7 @@
 ##                                                             ##
 ##   R script with extra Allen's relationships                 ##
 ##                                                             ##
-##                                             2017-06-23      ##
+##                                             2018-02-28      ##
 ##                                                             ##
 ##  J. F. Allen.  Towards a general theory of action and       ##
 ##  time. Artificial Intelligence, 23(2): 123--154, 1984.      ##
@@ -47,13 +47,15 @@
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation IN which aggregates the relations DURING,
+#' STARTS and FINISHES. See more at (ALLEN, J. F. "Maintaining knowledge about temporal
+#' intervals". Communications of the ACM, v(26), 11, 1983, 832-843.
+#' DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_in(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
@@ -126,13 +128,15 @@ lucC_relation_in <- function (first_raster = NULL, second_raster = NULL) {
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation FOLLOWS which aggregates the relations
+#' MEETS and BEFORE. See more at (ALLEN, J. F. "Maintaining knowledge about temporal
+#' intervals". Communications of the ACM, v(26), 11, 1983, 832-843.
+#' DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_follows(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets
@@ -202,13 +206,15 @@ lucC_relation_follows <- function (first_raster = NULL, second_raster = NULL) {
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide an Allen's interval relation to classified raster data.
-#' And return data set with raster data sets merged
+#' @description Provide an Allen's interval relation PRECEDES which aggregates the relations
+#' MET_BY and AFTER. See more at (ALLEN, J. F. "Maintaining knowledge about temporal
+#' intervals". Communications of the ACM, v(26), 11, 1983, 832-843.
+#' DOI: \url{http://dx.doi.org/10.1145/182.358434})
 #'
 #' @usage lucC_relation_precedes(first_raster = NULL, second_raster = NULL)
 #'
-#' @param first_raster  matrix. An interval between two dates.
-#' @param second_raster matrix. An interval between two dates.
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets

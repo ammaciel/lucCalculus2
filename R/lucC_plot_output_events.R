@@ -8,7 +8,7 @@
 ##                                                             ##
 ##  R script to plot events: sequence, frequency and bar       ##
 ##                                                             ##
-##                                             2018-02-27      ##
+##                                             2018-02-28      ##
 ##                                                             ##
 ##                                                             ##
 #################################################################
@@ -20,14 +20,14 @@
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Plot time series as sequence of lines over time
+#' @description Plot locations as a sequence of lines over time
 #'
-#' @usage lucC_plot_sequence_events (data_tb = NULL, custom_palette = FALSE,
+#' @usage lucC_plot_sequence_events (data_mtx = NULL, custom_palette = FALSE,
 #' RGB_color = NULL, show_y_index = TRUE, start_date = "2000-01-01",
 #' end_date = "2016-12-31", relabel = FALSE, original_labels = NULL,
 #' new_labels = NULL)
 #'
-#' @param data_tb         Tibble. A tibble with values longitude and latitude and other values
+#' @param data_mtx        Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS
 #' @param custom_palette  Boolean. A TRUE or FALSE value. If TRUE, user will provide its own color palette setting! Default is FALSE
 #' @param RGB_color       Character. A vector with color names to sequence legend, for example, c("Green","Blue"). Default is setting scale_colour_hue
 #' @param show_y_index    Boolean. TRUE/FALSE to show the index values in the axis y of the graphic
@@ -42,40 +42,12 @@
 #' @import ggplot2
 #' @importFrom ensurer ensure_that
 #' @importFrom scales hue_pal
+#' @importFrom reshape2 melt
+#' @importFrom dplyr mutate group_indices_
+#' @importFrom stats na.omit
 #' @export
 #'
 #' @examples \dontrun{
-#'
-#' library(lucC)
-#'
-#' lucC_starting_point()
-#'
-#' # open a JSON file example
-#' file_json = "./inst/extdata/patterns/example_TWDTW.json"
-#'
-#' # open file JSON
-#' input_tb_raw_json <- file_json %>%
-#'   lucC_fromJSON()
-#' input_tb_raw_json
-#'
-#' # plot maps input data
-#' lucC_plot_maps_input(input_tb_raw_json, EPSG_WGS84 = TRUE,
-#' custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f",
-#' "#929e6e", "#f5e7a1"))
-#'
-#' # define interval
-#' time_ex1 <- lucC_interval("2002-01-01", "2014-01-01")
-#'
-#' # apply predicate occur
-#' ts_occur1 <- lucC_predicate_holds(geo_objects = input_tb_raw_json,
-#' object_properties = "Forest", event_time_intervals = time_ex1)
-#' ts_occur1
-#'
-#' # events over input map
-#' lucC_plot_maps_events(ts_occur1, EPSG_WGS84 = TRUE,
-#' custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f",
-#' "#929e6e", "#f5e7a1"), shape_point = 0, colour_point = "black",
-#' size_point = 2.3)
 #'
 #' lucC_plot_sequence_events(ts_occur1, show_y_index = FALSE,
 #' end_date = "2017-03-01", custom_palette = TRUE, RGB_color = "#929e6e")
@@ -83,11 +55,11 @@
 #'}
 #'
 
-lucC_plot_sequence_events <- function(data_tb = NULL, custom_palette = FALSE, RGB_color = NULL, show_y_index = TRUE, start_date = "2000-01-01", end_date = "2016-12-31", relabel = FALSE, original_labels = NULL, new_labels = NULL){
+lucC_plot_sequence_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_color = NULL, show_y_index = TRUE, start_date = "2000-01-01", end_date = "2016-12-31", relabel = FALSE, original_labels = NULL, new_labels = NULL){
 
   # Ensure if parameters exists
-  ensurer::ensure_that(data_tb, !is.null(data_tb),
-                       err_desc = "data_tb tibble, file must be defined!\nThis data can be obtained using lucC_plot_maps_events().")
+  ensurer::ensure_that(data_mtx, !is.null(data_mtx),
+                       err_desc = "data_mtx matrix, file must be defined!\nThis data can be obtained using predicates RECUR, HOLDS, EVOLVE and CONVERT.")
   ensurer::ensure_that(custom_palette, !is.null(custom_palette),
                        err_desc = "custom_palette must be defined, if wants use its own color palette setting! Default is FALSE")
   ensurer::ensure_that(show_y_index, !is.null(show_y_index),
@@ -97,18 +69,22 @@ lucC_plot_sequence_events <- function(data_tb = NULL, custom_palette = FALSE, RG
   ensurer::ensure_that(end_date, !is.null(end_date),
                        err_desc = "End date must be defined! Default is '2016-12-31'!")
 
-  mapSeq <- data_tb
-  mapSeq <- mapSeq[order(mapSeq$index),] # order by index
+  # to data.frame
+  mapSeq <- reshape2::melt(data_mtx, id = c("x","y"))
 
-  mapSeq$start_date <- as.Date(mapSeq$start_date, format = '%Y-%m-%d')
-  mapSeq$end_date <- as.Date(mapSeq$end_date, format = '%Y-%m-%d')
-
-  data <- as.data.frame(mapSeq) # data from package datasets
-  data$Category <- as.character(mapSeq$index) # this makes things simpler later
+  # create new columns to use in geom_segment
+  data <- base::as.data.frame(mapSeq)
+  data <- data %>%
+    dplyr::mutate(start_date = as.Date((lubridate::ymd(.$variable) - lubridate::years(1)), format = '%Y-%m-%d')) %>%
+    dplyr::mutate(end_date = as.Date((lubridate::ymd(.$variable)), format = '%Y-%m-%d')) %>%
+    dplyr::mutate(Category = dplyr::group_indices_(data, .dots=c("x", "y"))) %>%
+    dplyr::mutate(longLat = paste(.$x, .$y, .$Category, sep = ", ")) %>%
+    stats::na.omit() %>%
+    .[order(.$Category),] # order by index
 
   # insert own colors palette
   if(custom_palette == TRUE){
-    if(is.null(RGB_color) | length(RGB_color) != length(unique(mapSeq$label))){
+    if(is.null(RGB_color) | length(RGB_color) != length(unique(data$value))){
       cat("\nIf custom_palette = TRUE, a RGB_color vector with colors must be defined!")
       cat("\nProvide a list of colors with the same length of the number of legend!\n")
     } else {
@@ -116,16 +92,16 @@ lucC_plot_sequence_events <- function(data_tb = NULL, custom_palette = FALSE, RG
     }
   } else {
     # more colors
-    colour_count = length(unique(mapSeq$label))
+    colour_count = length(unique(data$value))
     my_palette = scales::hue_pal()(colour_count)
   }
 
-  original_leg_lab <- unique(mapSeq$label)
+  original_leg_lab <- unique(data$value)
   cat("Original legend labels: \n", original_leg_lab, "\n")
 
   # insert own legend text
   if(relabel == TRUE){
-    if(is.null(original_labels) | length(new_labels) != length(unique(mapSeq$label)) |
+    if(is.null(original_labels) | length(new_labels) != length(unique(data$label)) |
        all(original_labels %in% original_leg_lab) == FALSE){
       cat("\nIf relabel = TRUE, a vector with original labels must be defined!")
       cat("\nProvide a list of original labels and new labels with the same length of the legend!\n")
@@ -135,8 +111,8 @@ lucC_plot_sequence_events <- function(data_tb = NULL, custom_palette = FALSE, RG
     }
   } else {
     # my legend text
-    my_original_label = unique(mapSeq$label)
-    my_new_labels = unique(mapSeq$label)
+    my_original_label = unique(data$value)
+    my_new_labels = unique(data$value)
   }
 
   g <- ggplot2::ggplot(data, aes(y = data$Category)) +
@@ -144,25 +120,26 @@ lucC_plot_sequence_events <- function(data_tb = NULL, custom_palette = FALSE, RG
     theme_bw()+
     geom_segment(aes(x = data$"start_date", y = data$Category,
                      xend = data$"end_date", yend = data$Category,
-                     color = data$"label"), size = 1.25) +
+                     color = data$"value"), size = 1.25) +
 
-    geom_point(aes(x = data$"start_date", color =  data$"label"), size = 3, shape = 19) +
-    geom_point(aes(x = data$"end_date", color = data$"label"), size = 3, shape = 19) +
+    geom_point(aes(x = data$"start_date", color =  data$"value"), size = 3, shape = 19) +
+    geom_point(aes(x = data$"end_date", color = data$"value"), size = 3, shape = 19) +
 
     # define time period
     scale_x_date(limits=as.Date(c(start_date, end_date))) +
+    scale_y_continuous(breaks = data$"Category", labels = data$"longLat") +
     scale_color_manual(name="Legend:", values = my_palette, breaks = my_original_label, labels = my_new_labels)
   #scale_color_grey(name = "Legend:", start = 0, end = 0.8)
 
-  # shows axis y label with index values from tibble
+  # shows axis y label with index values from matrix
   if(show_y_index == TRUE){
     g <- g + theme(legend.position = "bottom",
-                   legend.text=element_text(size=11), ###
+                   legend.text = element_text(size=11), ###
                    legend.key = element_blank())
   } else {
     g <- g + theme(legend.position = "bottom",
-                   legend.text=element_text(size=11), ###
-                   axis.text.y=element_blank(),
+                   legend.text = element_text(size=11), ###
+                   axis.text.y = element_blank(),
                    legend.key = element_blank())
   }
 
@@ -180,13 +157,13 @@ lucC_plot_sequence_events <- function(data_tb = NULL, custom_palette = FALSE, RG
 #'
 #' @description Plot barplot over time
 #'
-#' @usage lucC_plot_bar_events (data_tb = NULL,
+#' @usage lucC_plot_bar_events (data_mtx = NULL,
 #' custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250,
 #' relabel = FALSE, original_labels = NULL, new_labels = NULL,
 #' legend_text = "Land use transitions:", column_legend = 2,
 #' side_by_side = FALSE)
 #'
-#' @param data_tb          Tibble. A tibble with values longitude and latitude and other values
+#' @param data_mtx         Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS
 #' @param custom_palette   Boolean. A TRUE or FALSE value. If TRUE, user will provide its own color palette setting! Default is FALSE
 #' @param RGB_color        Character. A vector with color names to map legend, for example, c("Green","Blue"). Default is setting scale_colour_hue
 #' @param pixel_resolution Numeric. Is a spatial resolution of the pixel. Default is 250 meters considering MODIS 250 m. See more at \url{https://modis.gsfc.nasa.gov/about/specifications.php}.
@@ -208,55 +185,27 @@ lucC_plot_sequence_events <- function(data_tb = NULL, custom_palette = FALSE, RG
 #'
 #' @examples \dontrun{
 #'
-#' library(lucC)
-#'
-#' lucC_starting_point()
-#'
-#' # open a JSON file example
-#' file_json = "./inst/extdata/patterns/example_TWDTW.json"
-#'
-#' # open file JSON
-#' input_tb_raw_json <- file_json %>%
-#'   lucC_fromJSON()
-#' input_tb_raw_json
-#'
-#' # plot maps input data
-#' lucC_plot_maps_input(input_tb_raw_json, EPSG_WGS84 = TRUE,
-#' custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f",
-#' "#929e6e", "#f5e7a1"))
-#'
-#' # define interval
-#' time_ex1 <- lucC_interval("2002-01-01", "2014-01-01")
-#'
-#' # apply predicate occur
-#' ts_occur1 <- lucC_predicate_holds(geo_objects = input_tb_raw_json,
-#' object_properties = "Forest", event_time_intervals = time_ex1)
-#' ts_occur1
-#'
-#' # events over input map
-#' lucC_plot_maps_events(ts_occur1, EPSG_WGS84 = TRUE,
-#' custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f",
-#' "#929e6e", "#f5e7a1"), shape_point = 0, colour_point = "black",
-#' size_point = 2.3)
-#'
-#' lucC_plot_bar_events(ts_occur1, custom_palette = TRUE,
-#' RGB_color = "#929e6e", pixel_resolution = 250)
+#' lucC_plot_bar_events(data_mtx = raster_mtx, custom_palette = TRUE,
+#' RGB_color = c("green", "orange"), pixel_resolution = 232,
+#' relabel = TRUE, original_labels = c("Forest", "Pasture1"),
+#' new_labels = c("Forest", "Pasture"), legend_text = "Legend: ",
+#' column_legend = 1, side_by_side = TRUE)
 #'
 #'}
 #'
 
-lucC_plot_bar_events <- function(data_tb = NULL, custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Land use transitions:", column_legend = 2, side_by_side = FALSE){
+lucC_plot_bar_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Land use transitions:", column_legend = 2, side_by_side = FALSE){
 
   # Ensure if parameters exists
-  ensurer::ensure_that(data_tb, !is.null(data_tb),
-                       err_desc = "data_tb tibble, file must be defined!\nThis data can be obtained using lucC_plot_maps_events().")
+  ensurer::ensure_that(data_mtx, !is.null(data_mtx),
+                       err_desc = "data_mtx matrix, file must be defined!\nThis data can be obtained using predicates RECUR, HOLDS, EVOLVE and CONVERT.")
   ensurer::ensure_that(custom_palette, !is.null(custom_palette),
                        err_desc = "custom_palette must be defined, if wants use its own color palette setting! Default is FALSE")
   ensurer::ensure_that(pixel_resolution, !is.null(pixel_resolution),
                        err_desc = "pixel_resolution must be defined! Default is 250 meters on basis of MODIS image")
 
   # to data frame
-  input_data <- reshape2::melt(data_tb, id = c("x","y"))
+  input_data <- reshape2::melt(data_mtx, id = c("x","y"))
 
   # count number of values
   mapBar <- data.frame(table(lubridate::year(input_data$variable), input_data$value))
@@ -332,14 +281,14 @@ lucC_plot_bar_events <- function(data_tb = NULL, custom_palette = FALSE, RGB_col
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Plot frequency polygon over time
+#' @description Plot frequency line over time
 #'
-#' @usage lucC_plot_frequency_events (data_tb = NULL,
+#' @usage lucC_plot_frequency_events (data_mtx = NULL,
 #' custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250,
 #' relabel = FALSE, original_labels = NULL, new_labels = NULL,
 #' legend_text = "Land use transitions:", column_legend = 2)
 #'
-#' @param data_tb          Tibble. A tibble with values longitude and latitude and other values
+#' @param data_mtx         Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS
 #' @param custom_palette   Boolean. A TRUE or FALSE value. If TRUE, user will provide its own color palette setting! Default is FALSE
 #' @param RGB_color        Character. A vector with color names to map legend, for example, c("Green","Blue"). Default is setting scale_colour_hue
 #' @param pixel_resolution Numeric. Is a spatial resolution of the pixel. Default is 250 meters considering MODIS 250 m. See more at \url{https://modis.gsfc.nasa.gov/about/specifications.php}.
@@ -360,55 +309,27 @@ lucC_plot_bar_events <- function(data_tb = NULL, custom_palette = FALSE, RGB_col
 #'
 #' @examples \dontrun{
 #'
-#' library(lucC)
-#'
-#' lucC_starting_point()
-#'
-#' # open a JSON file example
-#' file_json = "./inst/extdata/patterns/example_TWDTW.json"
-#'
-#' # open file JSON
-#' input_tb_raw_json <- file_json %>%
-#'   lucC_fromJSON()
-#' input_tb_raw_json
-#'
-#' # plot maps input data
-#' lucC_plot_frequency_events(input_tb_raw_json, EPSG_WGS84 = TRUE,
-#' custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f",
-#' "#929e6e", "#f5e7a1"))
-#'
-#' # define interval
-#' time_ex1 <- lucC_interval("2002-01-01", "2014-01-01")
-#'
-#' # apply predicate occur
-#' ts_occur1 <- lucC_predicate_holds(geo_objects = input_tb_raw_json,
-#' object_properties = "Forest", event_time_intervals = time_ex1)
-#' ts_occur1
-#'
-#' # events over input map
-#' lucC_plot_maps_events(ts_occur1, EPSG_WGS84 = TRUE,
-#' custom_palette = TRUE, RGB_color = c("#FFB266", "#1b791f",
-#' "#929e6e", "#f5e7a1"), shape_point = 0, colour_point = "black",
-#' size_point = 2.3)
-#'
-#' lucC_plot_frequency_events(ts_occur1, custom_palette = TRUE,
-#' RGB_color = "#929e6e", pixel_resolution = 250)
+#' lucC_plot_frequency_events(data_mtx = raster_mtx, custom_palette = TRUE,
+#' RGB_color = c("green", "orange"), pixel_resolution = 232,
+#' relabel = TRUE, original_labels = c("Forest", "Pasture1"),
+#' new_labels = c("Forest", "Pasture"), legend_text = "Legend: ",
+#' column_legend = 1, side_by_side = TRUE)
 #'
 #'}
 #'
 
-lucC_plot_frequency_events <- function(data_tb = NULL, custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Land use transitions:", column_legend = 2){
+lucC_plot_frequency_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Land use transitions:", column_legend = 2){
 
   # Ensure if parameters exists
-  ensurer::ensure_that(data_tb, !is.null(data_tb),
-                       err_desc = "data_tb tibble, file must be defined!\nThis data can be obtained using lucC_plot_maps_events().")
+  ensurer::ensure_that(data_mtx, !is.null(data_mtx),
+                       err_desc = "data_mtx matrix, file must be defined!\nThis data can be obtained using predicates RECUR, HOLDS, EVOLVE and CONVERT.")
   ensurer::ensure_that(custom_palette, !is.null(custom_palette),
                        err_desc = "custom_palette must be defined, if wants use its own color palette setting! Default is FALSE")
   ensurer::ensure_that(pixel_resolution, !is.null(pixel_resolution),
                        err_desc = "pixel_resolution must be defined! Default is 250 meters on basis of MODIS image")
 
   # to data frame
-  input_data <- reshape2::melt(data_tb, id = c("x","y"))
+  input_data <- reshape2::melt(data_mtx, id = c("x","y"))
 
   # count number of values
   mapFreq <- data.frame(table(lubridate::year(input_data$variable), input_data$value))
