@@ -161,113 +161,30 @@ lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = c3, timeline = timeline
 
 .
 .
-.
-
-#rb_sits@data@names <- c(2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016)
-rb_sits@data@names
-rb_sits$sample_MT.1
-
-# -------------- test replace values ------------------
-
-# original raster
-df <- raster::rasterToPoints(rb_sits) %>%
-  data.frame()
-head(df)
-
-colnames(df)[c(3:ncol(df))] <- as.character(lubridate::year(timeline))
-head(df)
-raster_df <- reshape2::melt(df, id.vars = c("x","y"))
-head(raster_df)
-
-raster_df$variable = as.character(levels(raster_df$variable))[raster_df$variable]
-str(raster_df)
-
-# data matrix to new raster
-new_df <- as.data.frame(third_raster.df)
-head(new_df)
-colnames(new_df)[c(3:ncol(new_df))] <- as.character(lubridate::year(colnames(new_df)[c(3:ncol(new_df))]))
-head(new_df)
-
-new_df[c(3:ncol(new_df))] <- ifelse(new_df[c(3:ncol(new_df))]=="Forest",13,"")
-head(new_df)
-
-point_df <- reshape2::melt(new_df, id.vars = c("x","y")) %>%
-  stats::na.omit()
-head(point_df)
-point_df$x = as.numeric(levels(point_df$x))[point_df$x]
-point_df$variable = as.character(levels(point_df$variable))[point_df$variable]
-point_df$y = as.numeric(levels(point_df$y))[point_df$y]
-
-str(point_df)
-
-# match
-#raster_df[match(paste(raster_df$x,raster_df$y),paste(point_df$x,point_df$y),nomatch=0),]
-
-# ------------------ replace point_df in raster_df ---------------------
-
-df1 <- raster_df
-df2 <- point_df
-
-library(dplyr)
-# change original by new values - ok
-d <- merge(df1,df2, by = c("x","y","variable")) %>%
-  mutate(value = .$value.y) %>%
-  select(-value.x, -value.y) %>%
-  .[order(.$variable),]
-d
-
-# posterior
-d1 <- left_join(df1, d, by = c("x" = "x", "y" = "y", "variable" = "variable")) %>%
-  mutate(value = ifelse(!is.na(value.y), value.y,value.x)) %>%
-  select(-value.x, -value.y) %>%
-  .[order(.$variable),]
-d1
-
-d2 <- reshape2::dcast(d1, x+y ~ variable, value.var= "value")
-colnames(d2)[c(3:ncol(d2))] <- as.character(timeline)
-d2
-class(d2)
-head(d2)
-
-str(d2)
-
-# d2$x = as.numeric(levels(d2$x))[d2$x]
-# d2$variable = as.character(levels(d2$variable))[d2$variable]
-# d2$y = as.numeric(levels(d2$y))[d2$y]
-
-
-lucC_plot_bar_events(data_mtx = d2, pixel_resolution = 232, custom_palette = FALSE)
-
-.
-.
-library(raster)
-r <- raster::rasterFromXYZ(d2)
-names(r) <- rb_sits@data@names
-
-lucC_plot_raster(raster_obj = rb_sits, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE)
-
-lucC_plot_raster(raster_obj = r, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE) #, shape_point = "#")
-
-lucC_plot_raster(raster_obj = r, timeline = timeline, label = label_2, custom_palette = TRUE, RGB_color = colors_2, relabel = FALSE) #, shape_point = "#")
-
 # create label with classified data from SVM method
-#label <- as.character(c("Double_cropping", "Forest", "Pasture", "Single_cropping"))
 label_2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_Area", "Water", "zecondary_vegetation"))
 label_2
 
 colors_2 <- c("#b3cc33", "#8ddbec", "#228b22", "#afe3c8", "#b6a896", "#e1cdb6", "#e5c6a0", "#b69872", "#b68549", "#dec000", "#cc18b4", "#0000f1", "red")
 
-# resolution
-raster::crs(rb_sits)
 
-#raster::plot(rb_sits)
-names(rb_sits)
+lucC_plot_raster(raster_obj = r, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE) #, shape_point = "#")
 
-#-----------
+lucC_plot_raster(raster_obj = r, timeline = timeline, label = label_2, custom_palette = TRUE, RGB_color = colors_2, relabel = FALSE) #, shape_point = "#")
 
 
 
-.
-r
+rb_new <- lucC_update_raster(raster_obj = rb_sits, data_mtx = third_raster.df, timeline = timeline, class_to_replace = "Forest", new_pixel_value = 6)
+rb_new
+
+lucC_plot_bar_events(data_mtx = rb_new, pixel_resolution = 232, custom_palette = FALSE)
+
+lucC_save_GeoTIFF(raster_obj = rb_sits, data_mtx = rb_new, path_raster_folder = "~/Desktop/raster222")
+
+
+lucC_plot_raster(raster_obj = rb_sits, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE)
+
+
+
 
 
