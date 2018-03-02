@@ -21,17 +21,9 @@ Plot map ggplot2 for all events discovered in input data
 \examples{
 \dontrun{
 
-library(lucC)
-
-lucC_starting_point()
-
-# open data with time series set
-data("example_TWDTW")
-example_TWDTW
-
 # save rasters in folder
 lucC_toGeoTIFF (example_TWDTW, "~/Desktop/raster")
- 
+
 }
 
 }

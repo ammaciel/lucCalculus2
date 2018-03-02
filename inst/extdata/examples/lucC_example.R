@@ -43,12 +43,14 @@ raster::res(rb_sits)
 #raster::plot(rb_sits)
 names(rb_sits)
 
-#-------------
-# alter attributes using labels
-rb_sits@data@attributes <- lapply(rb_sits@data@attributes, function(x)  {x <- data.frame(ID = c(1:length(label)), category = label)} )
+#-----------
+colors_1 <- c("#b3cc33", "#8ddbec", "#228b22", "#afe3c8", "#b6a896", "#e1cdb6", "#e5c6a0", "#b69872", "#b68549", "#dec000", "#cc18b4", "#0000f1" )
+lucC_plot_raster(raster_obj = rb_sits, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 6)
 
-colors <- c("#b3cc33", "#8ddbec", "#228b22", "#afe3c8", "#b6a896", "#e1cdb6", "#e5c6a0", "#b69872", "#b68549", "#dec000", "#cc18b4", "#0000f1" )
-rasterVis::levelplot(rb_sits, col.regions=colors) # par.settings=rasterVis::RdBuTheme
+#-------------
+# # alter attributes using labels
+# rb_sits@data@attributes <- lapply(rb_sits@data@attributes, function(x)  {x <- data.frame(ID = c(1:length(label)), category = label)} )
+# rasterVis::levelplot(rb_sits, col.regions=colors) # par.settings=rasterVis::RdBuTheme
 
 
 
@@ -77,7 +79,9 @@ c <- lucC_relation_starts(a,b)
 #c <- lucC_relation_equals(a,b)
 c
 lucC_plot_sequence_events(c, custom_palette = FALSE, show_y_index = FALSE)
-lucC_plot_bar_events(c, custom_palette = FALSE)
+lucC_plot_bar_events(c, custom_palette = FALSE, side_by_side = TRUE)
+
+lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = c, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE) #, shape_point = "#")
 
 
 #------------- tests - recur
@@ -90,6 +94,7 @@ third_raster.df
 lucC_plot_sequence_events(third_raster.df, custom_palette = FALSE, show_y_index = FALSE)
 lucC_plot_bar_events(third_raster.df, custom_palette = FALSE)
 
+lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = third_raster.df, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE) #, shape_point = "#")
 
 #------------- tests - convert
 sixth_raster.df <- lucC_pred_convert(raster_obj = rb_sits, raster_class1 = "Forest",
@@ -153,7 +158,67 @@ lucC_plot_sequence_events(c4, custom_palette = FALSE, show_y_index = TRUE)
 .
 .
 .
-.
 
+#rb_sits@data@names <- c(2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016)
+rb_sits@data@names
+
+rb_sits$sample_MT.1
+
+rb_sits$sample_MT.2
+
+rb_sits$sample_MT.3
+
+df <- rasterToPoints(rb_sits) %>%
+  data.frame()
+head(df)
+
+colnames(df)[c(3:ncol(df))] <- as.character(lubridate::year(timeline))
+head(df)
+raster_df <- reshape2::melt(df, id = c("x","y"))
+head(raster_df)
+
+a1 <- as.data.frame(third_raster.df)
+str(a1)
+head(a1)
+colnames(a1)[c(3:ncol(a1))] <- as.character(lubridate::year(colnames(a1)[c(3:ncol(a1))]))
+head(a1)
+
+a1[c(3:ncol(a1))] <- ifelse(a1[c(3:ncol(a1))]=="Forest",18,NA)
+head(a1)
+
+point_df <- reshape2::melt(a1, id = c("x","y"))
+point_df <- stats::na.omit(point_df)
+head(point_df)
+point_df$x = as.numeric(levels(point_df$x))[point_df$x]
+point_df$variable = as.character(levels(point_df$variable))[point_df$variable]
+point_df$y = as.numeric(levels(point_df$y))[point_df$y]
+
+raster_df$variable = as.character(levels(raster_df$variable))[raster_df$variable]
+str(raster_df)
+str(point_df)
+
+# match
+#raster_df[match(paste(raster_df$x,raster_df$y),paste(point_df$x,point_df$y),nomatch=0),]
+
+
+keys <- c("x","y")
+c <- merge(raster_df,point_df[keys],by=keys)
+c
+reshape2::dcast(c, x+y ~ variable)
+
+
+raster_df[raster_df$value == "3", "value"] <- point_df[c(point_df$x, point_df$y) %in% raster_df[raster_df$value == "3", c(raster_df$x, raster_df$y)] , "value"]
+
+
+raster_df[c(raster_df$x, raster_df$y), "value"] <- point_df[c(point_df$x, point_df$y) %in% raster_df[c(raster_df$x, raster_df$y), ], "value"]
+raster_df
+
+df1 <- raster_df
+df2 <- point_df
+
+library(dplyr)
+left_join(df1,df2)%>%
+  mutate(valuerr=ifelse(value==3,18,value))%>%
+  select(-value)
 
 
