@@ -103,6 +103,9 @@ lucC_update_raster <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
     dplyr::select(-value.x, -value.y) %>%
     .[order(.$variable),]
 
+  # remove duplicated lines
+  raster_df_temp <- raster_df_temp[!duplicated(raster_df_temp), ]
+
   raster_df_update <- reshape2::dcast(raster_df_temp, x+y ~ variable, value.var= "value")
   colnames(raster_df_update)[c(3:ncol(raster_df_update))] <- as.character(timeline)
 

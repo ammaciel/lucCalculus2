@@ -1110,9 +1110,9 @@ lucC_relation_finished_by <- function (first_raster = NULL, second_raster = NULL
 # 13. The 'e' relation = lucC_relation_equals
 lucC_relation_equals <- function (first_raster = NULL, second_raster = NULL) {
 
-  # remove rows with NA in last column
-  first_raster <- first_raster[complete.cases(first_raster),]
-  second_raster <- second_raster[complete.cases(second_raster),]
+  # # remove rows with NA in last column
+  # first_raster <- first_raster
+  # second_raster <- second_raster
 
   # check is data set are empty
   if (!is.null(first_raster) & !is.null(second_raster) & identical(colnames(first_raster), colnames(second_raster))) {
@@ -1146,7 +1146,7 @@ lucC_relation_equals <- function (first_raster = NULL, second_raster = NULL) {
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) == lubridate::int_start(rasters_intervals[[2]])) &
       isTRUE(lubridate::int_end(rasters_intervals[[1]]) == lubridate::int_end(rasters_intervals[[2]]))){
-    result <- merge(first_raster , second_raster, by=c("x","y"), all.x = TRUE, all.y = TRUE)
+    result <- merge(first_raster, second_raster, all = TRUE)
     if (nrow(result) > 0)
       return(result)
     else

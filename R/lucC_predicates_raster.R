@@ -278,8 +278,9 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (length(res1) == 0 | length(res2) == 0){
-    stop("\nRelation RECUR cannot be applied!\n
+    message("\nRelation RECUR cannot be applied!\n
          This class does not exist in the defined interval.\n")
+    return(result <- NULL)
   } else if( nrow(res1) > 0 & nrow(res2) > 0 & ncol(res2) > 4 ) {
     # 1. isolate only rows with NA
     # all differents of this -> F F F F F F F
@@ -307,8 +308,9 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
 
     return(result)
   } else {
-    stop("\nRelation RECUR cannot be applied!\n
+    message("\nRelation RECUR cannot be applied!\n
          Second time interval must have more than two dates, i.e, 2002-2004.\n")
+    return(result <- NULL)
   }
 
 }
@@ -401,8 +403,9 @@ lucC_pred_evolve <- function(raster_obj = NULL, raster_class1 = NULL, time_inter
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (length(res1) == 0 | length(res2) == 0){
-    stop("\nRelation EVOLVE cannot be applied!\n
+    message("\nRelation EVOLVE cannot be applied!\n
          This class does not exist in the defined interval.\n")
+    return(result <- NULL)
   } else if( (nrow(res1) > 0)  & (nrow(res2) > 0) ) {
 
     result <- lucC_relation_follows(res1, res2)
@@ -411,9 +414,8 @@ lucC_pred_evolve <- function(raster_obj = NULL, raster_class1 = NULL, time_inter
 
     return(result)
   } else {
-    result <- NULL
-    return(result)
-    stop("\nRelation EVOLVE cannot be applied!\n")
+    message("\nRelation EVOLVE cannot be applied!\n")
+    return(result <- NULL)
   }
 
 }
@@ -507,8 +509,9 @@ lucC_pred_convert <- function(raster_obj = NULL, raster_class1 = NULL, time_inte
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if (length(res1) == 0 | length(res2) == 0){
-    stop("\nRelation CONVERT cannot be applied!\n
+    message("\nRelation CONVERT cannot be applied!\n
          This class does not exist in the defined interval.\n")
+    return(result <- NULL)
   } else if( (nrow(res1) > 0)  & (nrow(res2) > 0) ) {
 
     result <- lucC_relation_meets(res1, res2)
@@ -517,7 +520,8 @@ lucC_pred_convert <- function(raster_obj = NULL, raster_class1 = NULL, time_inte
 
     return(result)
   } else {
-    stop("\nRelation CONVERT cannot be applied!\n")
+    message("\nRelation CONVERT cannot be applied!\n")
+    return(result <- NULL)
   }
 }
 

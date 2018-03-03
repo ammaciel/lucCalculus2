@@ -28,68 +28,149 @@ label
 raster.tb <- sits::sits_coverage(files = file, name = "Sample_region", timeline = timeline, bands = "ndvi")
 raster.tb
 
-raster.tb$r_objs[[1]][[1]]
-
-class(raster.tb$r_objs[[1]][[1]])
-
 # new variable
 rb_sits <- raster.tb$r_objs[[1]][[1]]
 
-# resolution
-raster::res(rb_sits)
 
-#raster::plot(rb_sits)
-names(rb_sits)
+#----------------------------
+# test secondary vegetation
+#----------------------------
+# classes without Forest
+classes <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask"))
 
-#-----------
+convert_class <- NULL
+
+system.time(
+  forest_recur <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
+                                  time_interval1 = c("2001-09-01","2001-09-01"),
+                                  time_interval2 = c("2002-09-01","2016-09-01"),
+                                  label = label, timeline = timeline)
+)
+
+class(forest_recur)
+
+system.time(
+  for(i in seq_along(classes)){
+    print(classes[i])
+    temp <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = classes[i],
+                             time_interval1 = c("2001-09-01","2001-09-01"), relation_interval1 = "equals",
+                             raster_class2 = "Forest",
+                             time_interval2 = c("2002-09-01","2016-09-01"), relation_interval2 = "contains",
+                             label = label, timeline = timeline)
+
+    convert_class <- rbind(convert_class, temp)
+  }
+)
+
+convert_class1 <- merge(convert_class, forest_recur, all = TRUE)
+head(convert_class1)
+
+drops <- c("2001-09-01")
+convert_class1 <- convert_class1[ , !(names(convert_class1) %in% drops)]
+head(convert_class1)
+
+#lucC_plot_sequence_events(convert_class, custom_palette = FALSE, show_y_index = FALSE)
+lucC_plot_bar_events(convert_class1, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
+
+lucC_plot_bar_events(convert_class1, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
+
+
+# new color
 colors_1 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
 lucC_plot_raster(raster_obj = rb_sits, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 6)
 
-#-------------
-# # alter attributes using labels
-# rb_sits@data@attributes <- lapply(rb_sits@data@attributes, function(x)  {x <- data.frame(ID = c(1:length(label)), category = label)} )
-# rasterVis::levelplot(rb_sits, col.regions=colors) # par.settings=rasterVis::RdBuTheme
+lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = convert_class1, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE, shape_point = ".")
 
 
-#------------- tests - intervals before, meets and follows -- Allen's relations
-a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
-                     time_interval = c("2001-09-01","2003-09-01"),
-                     relation_interval = "equals", label = label, timeline = timeline)
-a
+#-----------------------------------
+# update original raster
+new_class <- length(label) + 1
+
+rb_sits_new <- lucC_update_raster(raster_obj = rb_sits,
+                                  data_mtx = convert_class1,
+                                  timeline = timeline,
+                                  class_to_replace = "Forest",
+                                  new_pixel_value = 17)
+
+rb_sits_new
+
+lucC_plot_bar_events(data_mtx = rb_sits_new, pixel_resolution = 232, custom_palette = FALSE)
+
+# save as raster file
+lucC_save_GeoTIFF(raster_obj = rb_sits, data_mtx = rb_sits_new, path_raster_folder = "~/Desktop/rasterSec")
 
 
-b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
-                     time_interval = c("2001-09-01","2007-09-01"),
-                     relation_interval = "contains", label = label, timeline = timeline)
-b
 
-# before
-#c <- lucC_relation_before(first_raster = a, second_raster = b)
-#c <- lucC_relation_after(first_raster = b, second_raster = a)
-#c <- lucC_relation_meets(first_raster = a, second_raster = b)
-#c <- lucC_relation_met_by(first_raster = a, second_raster = b) # C c("2008-09-01","2010-09-01"), F c("2002-09-01","2007-09-01")
-c <- lucC_relation_starts(a,b)
-#c <- lucC_relation_started_by(b,a)
-#c <- lucC_relation_finishes(b,a)
-#c <- lucC_relation_finished_by(a,b)
-#c <- lucC_relation_during(a,b)
-#c <- lucC_relation_equals(a,b)
-c
-lucC_plot_sequence_events(c, custom_palette = FALSE, show_y_index = FALSE)
-lucC_plot_bar_events(c, custom_palette = FALSE)
+# ----------- open
+library(sits.LUC.Calculus)
+
+MT_samples <- "~/Desktop/rasterSec"
+#MT_samples <- "~/Desktop/raster"
+
+# create a rasterBrick with data
+Samples_files <- list.files(MT_samples,
+                               full.names = TRUE,
+                               pattern = ".tif$")
+# order files
+numbers = as.numeric(regmatches(Samples_files, regexpr("[0-9]+", Samples_files)))
+Samples_files <- Samples_files[order(numbers)]
+
+# save RasterBrick
+MT_samples_brick <- Samples_files %>%
+  raster::stack(.) %>%
+  raster::brick(.) %>%
+  raster::writeRaster(., "~/Desktop/raster_Jur2.tif", overwrite=TRUE)
+
+MT_samples_brick
+
+# open files
+file <- c("~/Desktop/raster_Jur2.tif")
+file
+
+#library(sits)
+# create a raster metadata file based on the information about the files
+raster_sec.tb <- sits::sits_coverage(files = file, name = "Juruena_new", timeline = timeline, bands = "ndvi")
+raster_sec.tb
+
+# new variable
+rb_sits_2 <- raster_sec.tb$r_objs[[1]][[1]]
+rb_sits_2
+
+#--------------------
+label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
+label2
+
+secondary <- lucC_pred_holds(raster_obj = rb_sits_2, raster_class = "Secondary_vegetation",
+                     time_interval = c("2001-09-01","2016-09-01"),
+                     relation_interval = "contains", label = label2, timeline = timeline)
+secondary
+
+forest <- lucC_pred_holds(raster_obj = rb_sits_2, raster_class = "Forest",
+                             time_interval = c("2001-09-01","2016-09-01"),
+                             relation_interval = "contains", label = label2, timeline = timeline)
+forest
+
+ddad <- lucC_relation_equals(secondary, forest)
+head(ddad)
+
+lucC_plot_bar_events(data_mtx = ddad, pixel_resolution = 232, custom_palette = FALSE)
+
+#-----------------
+colors_2 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff", "red")
+
+lucC_plot_raster(raster_obj = rb_sits_2, timeline = timeline, label = label2, custom_palette = TRUE, RGB_color = colors_2, relabel = FALSE)
 
 
-#------------- tests - recur
-system.time(third_raster.df <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
-                                   time_interval1 = c("2001-09-01","2001-09-01"),
-                                   time_interval2 = c("2002-09-01","2016-09-01"),
-                                   label = label, timeline = timeline))
-third_raster.df
 
-lucC_plot_sequence_events(third_raster.df, custom_palette = FALSE, show_y_index = FALSE)
-lucC_plot_bar_events(third_raster.df, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
+lucC_plot_bar_events(data_mtx = df_new_sv[which(rb_sits_new[,c(3:ncol(rb_sits_new))] == "Forest" | rb_sits_new[,c(3:ncol(rb_sits_new))] ==  "Secondary_vegetation"),], pixel_resolution = 232, custom_palette = FALSE)
 
-lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = third_raster.df, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE) #, shape_point = "#")
+
+
+
+
+
+
+
 
 #------------- tests - convert
 sixth_raster.df <- lucC_pred_convert(raster_obj = rb_sits, raster_class1 = "Forest",
@@ -103,64 +184,6 @@ lucC_plot_sequence_events(sixth_raster.df, custom_palette = FALSE, show_y_index 
 lucC_plot_bar_events(sixth_raster.df, custom_palette = FALSE)
 
 
-#------------- tests - evolve
-fifth_raster.df <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = "Forest",
-                                    time_interval1 = c("2001-09-01","2001-09-01"), relation_interval1 = "contains",
-                                    raster_class2 = "Pasture1",
-                                    time_interval2 = c("2002-09-01","2016-09-01"), relation_interval2 = "contains",
-                                    label = label, timeline = timeline)
-fifth_raster.df
-
-lucC_plot_sequence_events(fifth_raster.df, custom_palette = FALSE, show_y_index = FALSE)
-lucC_plot_bar_events(data_mtx = fifth_raster.df, custom_palette = TRUE, RGB_color = c("green", "orange"), pixel_resolution = 232, relabel = TRUE, original_labels = c("Forest", "Pasture1"), new_labels = c("Forest", "Pasture"), legend_text = "Legend: ", column_legend = 1, side_by_side = TRUE)
-lucC_plot_frequency_events(fifth_raster.df, custom_palette = FALSE, legend_text = "Legend")
 
 
-#---------------
-a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Pasture1",
-                     time_interval = c("2001-09-01","2001-09-01"),   # c("2001-09-01","2003-09-01"),
-                     relation_interval = "contains", label = label, timeline = timeline)
-a
-
-b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
-                     time_interval = c("2002-09-01","2007-09-01"),  # c("2004-09-01","2007-09-01"),
-                     relation_interval = "contains", label = label, timeline = timeline)
-b
-
-# before
-c1 <- lucC_relation_before(first_raster = a, second_raster = b)
-c1
-lucC_plot_sequence_events(c1, custom_palette = FALSE, show_y_index = TRUE)
-
-# meets
-c2 <- lucC_relation_meets(first_raster = a, second_raster = b)
-c2
-lucC_plot_sequence_events(c2, custom_palette = FALSE, show_y_index = TRUE)
-
-# follows
-c3 <- lucC_relation_follows(first_raster = a, second_raster = b)
-c3
-lucC_plot_sequence_events(c3, custom_palette = FALSE, show_y_index = TRUE)
-lucC_plot_bar_events(c3, custom_palette = FALSE, side_by_side = FALSE, legend_text = "New", column_legend = 2)
-lucC_plot_frequency_events(c31, custom_palette = FALSE, legend_text = "New", column_legend = 1)
-
-# in
-c4 <- lucC_relation_in(first_raster = a, second_raster = b)
-c4
-lucC_plot_sequence_events(c4, custom_palette = FALSE, show_y_index = TRUE)
-lucC_plot_bar_events(c4, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
-lucC_plot_frequency_events(c4, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
-
-
-.
-.
-.
-.
-
-lucC_plot_raster(raster_obj = rb_sits, timeline = timeline, label = label, custom_palette = FALSE, RGB_color = colors_1)
-
-lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = b, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE, shape_point = ".")
-
-.
-.
 .

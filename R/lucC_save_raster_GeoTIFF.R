@@ -73,19 +73,8 @@ lucC_save_GeoTIFF <- function(raster_obj = NULL, data_mtx = NULL, path_raster_fo
 
   message("Saving... \n")
 
-  # add a progress bar
-  progress_bar <- utils::txtProgressBar(min = 0, max = length(raster::nlayers(new_raster)), style = 3)
-
-  # save each image separetely by original name
-  for(i in 1:raster::nlayers(new_raster)){
-    # write it as a geoTIFF file using the raster package
-    raster::writeRaster(new_raster[[i]],paste0(path_raster_folder,"/Raster_", names(new_raster[[i]]),".tif", sep = ""))
-
-    # update progress bar
-    utils::setTxtProgressBar(progress_bar, i)
-  }
-
-  close(progress_bar)
+  # write it as a geoTIFF file using the raster package
+  raster::writeRaster(new_raster, filename= paste0(path_raster_folder,"/New", sep = ""), bylayer=TRUE, suffix = names(new_raster), format="GTiff", overwrite=TRUE)
 
   cat("\nGeoTIFF images saved successfully in directory: '", path_raster_folder, "'\n")
 
