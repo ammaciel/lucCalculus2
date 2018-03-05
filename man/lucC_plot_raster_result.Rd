@@ -8,7 +8,7 @@
 lucC_plot_raster_result (raster_obj = NULL, data_mtx = NULL,
 timeline = NULL, label = NULL, custom_palette = FALSE, RGB_color = NULL,
 plot_ncol = 5, relabel = FALSE, original_labels = NULL, new_labels = NULL,
-legend_text = "Legend:", column_legend = 4, shape_point = 0,
+legend_text = "Legend:", columns_legend = 4, shape_point = 0,
 colour_point = "black", size_point= 1)
 }
 \arguments{
@@ -34,7 +34,7 @@ colour_point = "black", size_point= 1)
 
 \item{legend_text}{Character. A text legend to show in plot. Default is "Legend:"}
 
-\item{column_legend}{Integer. A number with the desired number of columns in legend. Default is 4}
+\item{columns_legend}{Integer. A number with the desired number of columns in legend. Default is 4}
 
 \item{shape_point}{Numeric or Character. Is a shape point for events highlighted over map. Default is 0.
 This includes different points symbols commonly used in R as "pch", such as numeric values like 0 to square, 1 to circle

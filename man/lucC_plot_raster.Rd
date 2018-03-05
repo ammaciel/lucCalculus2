@@ -8,7 +8,7 @@
 lucC_plot_raster(raster_obj = NULL, timeline = NULL,
 label = NULL, custom_palette = FALSE, RGB_color = NULL,
 plot_ncol = 5, relabel = FALSE, original_labels = NULL,
-new_labels = NULL, legend_text = "Legend:", column_legend = 4)
+new_labels = NULL, legend_text = "Legend:", columns_legend = 4)
 }
 \arguments{
 \item{raster_obj}{Raster. A raster stack with classified images}
@@ -31,7 +31,7 @@ new_labels = NULL, legend_text = "Legend:", column_legend = 4)
 
 \item{legend_text}{Character. A text legend to show in plot. Default is "Legend:"}
 
-\item{column_legend}{Integer. A number with the desired number of columns in legend. Default is 4}
+\item{columns_legend}{Integer. A number with the desired number of columns in legend. Default is 4}
 }
 \value{
 Plot with input data as colored map

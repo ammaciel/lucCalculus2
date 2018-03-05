@@ -24,7 +24,7 @@
 #' @usage lucC_plot_raster(raster_obj = NULL, timeline = NULL,
 #' label = NULL, custom_palette = FALSE, RGB_color = NULL,
 #' plot_ncol = 5, relabel = FALSE, original_labels = NULL,
-#' new_labels = NULL, legend_text = "Legend:", column_legend = 4)
+#' new_labels = NULL, legend_text = "Legend:", columns_legend = 4)
 #'
 #' @param raster_obj      Raster. A raster stack with classified images
 #' @param timeline        Character. A list of all dates of classified raster, timeline
@@ -36,7 +36,7 @@
 #' @param original_labels Character. A vector with original labels from legend text, for example, c("Forest","Pasture")
 #' @param new_labels      Character. A vector with new labels to legend text, for example, c("Mature_Forest","Pasture1")
 #' @param legend_text     Character. A text legend to show in plot. Default is "Legend:"
-#' @param column_legend   Integer. A number with the desired number of columns in legend. Default is 4
+#' @param columns_legend   Integer. A number with the desired number of columns in legend. Default is 4
 #'
 #' @keywords datasets
 #' @return Plot with input data as colored map
@@ -47,6 +47,7 @@
 #' @importFrom lubridate year
 #' @importFrom dplyr mutate
 #' @importFrom stats setNames
+#' @importFrom raster rasterToPoints
 #' @export
 #'
 #' @examples \dontrun{
@@ -58,7 +59,7 @@
 #'
 
 # plot maps for input data
-lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, custom_palette = FALSE, RGB_color = NULL, plot_ncol = 5, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Legend:", column_legend = 4) {
+lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, custom_palette = FALSE, RGB_color = NULL, plot_ncol = 5, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Legend:", columns_legend = 4) {
 
   # Ensure if parameters exists
   ensurer::ensure_that(raster_obj, !is.null(raster_obj),
@@ -74,7 +75,7 @@ lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, c
 
   #-------------------- start: rasterBrick --------------------------------
   # make the points a dataframe for ggplot
-  df <- rasterToPoints(raster_obj) %>%
+  df <- raster::rasterToPoints(raster_obj) %>%
     data.frame()
 
   # make column headings
@@ -114,8 +115,13 @@ lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, c
     my_palette = grDevices::colorRampPalette(RColorBrewer::brewer.pal(name="Paired", n = 12))(colour_count)
   }
 
-  original_leg_lab <- as.character(unique(raster_df$value))
-  cat("Original legend labels: \n", original_leg_lab, "\n")
+  label_raster_df <- unique(raster_df$value)
+  # R to respect the order in data.frame. To change the order of factor levels by specifying the order explicitly.
+  raster_df$value <- factor(raster_df$value, levels = label_raster_df[order(match(label_raster_df, label))])
+
+  # show legend follow an order of labels
+  original_leg_lab <- label_raster_df[order(match(label_raster_df, label))]
+  cat("Original legend labels: \n", paste0(original_leg_lab, collapse = " ", sep = ","), "\n")
 
   # insert own legend text
   if(relabel == TRUE){
@@ -129,13 +135,13 @@ lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, c
     }
   } else {
     # my legend text
-    my_original_label = sort(unique(raster_df$value))
-    my_new_labels = sort(unique(raster_df$value))
+    my_original_label = original_leg_lab
+    my_new_labels = original_leg_lab
   }
 
   # plot images all years
   g <- ggplot(raster_df, aes(raster_df$x, raster_df$y)) +
-    geom_raster(aes(fill=raster_df$value)) +
+    geom_raster(aes(fill=raster_df$value), stat = "identity") +
     scale_y_discrete(expand = c(0, 0), breaks = NULL) +
     scale_x_discrete(expand = c(0, 0), breaks = NULL) +
     theme_bw() +
@@ -146,7 +152,7 @@ lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, c
     xlab("") +
     ylab("") +
     scale_fill_manual(name = legend_text, values = my_palette, breaks = my_original_label, labels = my_new_labels) +
-    guides(fill=guide_legend(ncol = column_legend)) + # number of columns - legend plot
+    guides(fill=guide_legend(ncol = columns_legend)) + # number of columns - legend plot
     theme(axis.title.x = element_blank(), # element_text(size=16),
           axis.title.y = element_blank(), #  element_text(size=16, angle=90),
           axis.text.x = element_blank(), #  element_text(size=14),

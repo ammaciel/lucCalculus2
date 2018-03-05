@@ -1,22 +1,17 @@
-<h2>Land Use Change Calculus - lucC (LUC Calculus)</h2>
+<h2>SITS using Land Use Change Calculus (sits.LUC.Calculus) (LUC Calculus)</h2>
 
 This package implements the LUC Calculus for reasoning about land use change events. Based on a set of classified time series, we build expressions to answer specific questions, such as <i>Which events of "Forest" areas were replaced by "Pasture"?</i>
 
-With package "lucC" is possible to build questions using Allen's interval temporal logic relationships and also others extended from their study. I suggest the reader read <a href="http://cse.unl.edu/~choueiry/Documents/Allen-CACM1983.pdf"> (Allen 1983)</a> and <a href="http://www.cs.ucf.edu/~lboloni/Teaching/EEL6938_2007/papers/Allen-GeneralTheoryActionTime.pdf"> (Allen 1984) </a> for more details. Besides, is possible to generate graphics with event information and plot maps with results. Using these events the user can to perform analysis on time series data to discover important land use changes.
+With package "sits.LUC.Calculus" is possible to build questions using Allen's interval temporal logic relationships and also others extended from their study. I suggest the reader read <a href="http://cse.unl.edu/~choueiry/Documents/Allen-CACM1983.pdf"> (Allen 1983)</a> and <a href="http://www.cs.ucf.edu/~lboloni/Teaching/EEL6938_2007/papers/Allen-GeneralTheoryActionTime.pdf"> (Allen 1984) </a> for more details. Besides, is possible to generate graphics with event information and plot maps with results. Using these events the user can to perform analysis on time series data to discover important land use changes.
 
-wtss is an R client package for handling Web Time-Series Service (WTSS) in the client side at <a href="https://github.com/e-sensing/wtss.R">https://github.com/e-sensing/wtss.R</a>
-
-Classification method can be found using package dtwSat at <a href="https://github.com/vwmaus/dtwSat">https://github.com/vwmaus/dtwSat</a>
-
-Tools to Satellite Image Time Series analysis can be found using package sits at <a href="https://github.com/gilbertocamara/sits">https://github.com/gilbertocamara/sits</a>
-
+Classification method and others tools to Satellite Image Time Series analysis can be found using package sits at <a href="https://github.com/e-sensing/sits">https://github.com/e-sensing/sits</a>
 
 <h3>Prerequisites: </h3> 
 <ul>
   <li><a href="http://git-scm.com/">Git</a></li>
   <li><a href="http://www.r-project.org/">R</a></li>
   <li><a href="http://www.rstudio.com/">Rstudio</a></li>
-  <li>A set of time series classified data </li>
+  <li>A set of classified GeoTIFF images by year </li>
   <li>The lucC requires "devtools" package is available. </li> 
 </ul>
 
@@ -25,14 +20,15 @@ Tools to Satellite Image Time Series analysis can be found using package sits at
   <li>Open RStudio</li>
   <li>Install devtools <code>install.packages("devtools")</code> </li>
   <li>Load devtools <code>library(devtools)</code> </li>
-  <li>Install the lucC package <code>install_github("ammaciel/lucC")</code> </li>
+  <li>Install the sits.LUC.Calculus package <code>install_github("ammaciel/sits.LUC.Calculus")</code> </li>
 </ul>
 
 <br />
 <h3>Example 1</h3>
 
- - Load the lucC package <code>library(lucC)</code>
+ - Load the lucC package <code>library(sits.LUC.Calculus)</code>
 
+ - ... change 
  - Load a example data <code>data("example_TWDTW")</code>
 
  - Create new variable tibble format and apply lucC_standard_date_events to standardize start_date and end_date columns

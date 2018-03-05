@@ -1111,7 +1111,7 @@ lucC_relation_finished_by <- function (first_raster = NULL, second_raster = NULL
 lucC_relation_equals <- function (first_raster = NULL, second_raster = NULL) {
 
   # check is data set are empty
-  if (!is.null(first_raster) & !is.null(second_raster) & identical(colnames(first_raster), colnames(second_raster))) {
+  if (!is.null(first_raster) & !is.null(second_raster) & all(colnames(first_raster) %in% colnames(second_raster))) {
     first_raster <- first_raster
     second_raster <- second_raster
     # case mastrix have only one columns

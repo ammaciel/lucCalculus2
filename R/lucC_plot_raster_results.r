@@ -25,7 +25,7 @@
 #' @usage lucC_plot_raster_result (raster_obj = NULL, data_mtx = NULL,
 #' timeline = NULL, label = NULL, custom_palette = FALSE, RGB_color = NULL,
 #' plot_ncol = 5, relabel = FALSE, original_labels = NULL, new_labels = NULL,
-#' legend_text = "Legend:", column_legend = 4, shape_point = 0,
+#' legend_text = "Legend:", columns_legend = 4, shape_point = 0,
 #' colour_point = "black", size_point= 1)
 #'
 #' @param raster_obj      Raster. A raster stack with classified images
@@ -39,7 +39,7 @@
 #' @param original_labels Character. A vector with original labels from legend text, for example, c("Forest","Pasture")
 #' @param new_labels      Character. A vector with new labels to legend text, for example, c("Mature_Forest","Pasture1")
 #' @param legend_text     Character. A text legend to show in plot. Default is "Legend:"
-#' @param column_legend   Integer. A number with the desired number of columns in legend. Default is 4
+#' @param columns_legend   Integer. A number with the desired number of columns in legend. Default is 4
 #' @param shape_point     Numeric or Character. Is a shape point for events highlighted over map. Default is 0.
 #' This includes different points symbols commonly used in R as "pch", such as numeric values like 0 to square, 1 to circle
 #' and 4 to cross shape. And also other characters can be used including ".", "+", "*", "-", "#".
@@ -55,6 +55,8 @@
 #' @importFrom lubridate year
 #' @importFrom dplyr mutate
 #' @importFrom stats na.omit
+#' @importFrom stats setNames
+#' @importFrom raster rasterToPoints
 #' @export
 #'
 #' @examples \dontrun{
@@ -68,7 +70,7 @@
 #'
 
 # plot maps with events
-lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline = NULL, label = NULL, custom_palette = FALSE, RGB_color = NULL, plot_ncol = 5, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Legend:", column_legend = 4, shape_point = 0, colour_point = "black", size_point= 1){
+lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline = NULL, label = NULL, custom_palette = FALSE, RGB_color = NULL, plot_ncol = 5, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Legend:", columns_legend = 4, shape_point = 0, colour_point = "black", size_point= 1){
 
   # Ensure if parameters exists
   ensurer::ensure_that(raster_obj, !is.null(raster_obj),
@@ -100,7 +102,7 @@ lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
 
   #-------------------- start: rasterBrick --------------------------------
   # make the points a dataframe for ggplot
-  df <- rasterToPoints(raster_obj) %>%
+  df <- raster::rasterToPoints(raster_obj) %>%
     data.frame()
 
   # make column headings
@@ -140,8 +142,13 @@ lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
     my_palette = grDevices::colorRampPalette(RColorBrewer::brewer.pal(name="Paired", n = 12))(colour_count)
   }
 
-  original_leg_lab <- as.character(unique(raster_df$value))
-  cat("Original legend labels: \n", original_leg_lab, "\n")
+  label_raster_df <- unique(raster_df$value)
+  # R to respect the order in data.frame. To change the order of factor levels by specifying the order explicitly.
+  raster_df$value <- factor(raster_df$value, levels = label_raster_df[order(match(label_raster_df, label))])
+
+  # show legend follow an order of labels
+  original_leg_lab <- label_raster_df[order(match(label_raster_df, label))]
+  cat("Original legend labels: \n", paste0(original_leg_lab, collapse = " ", sep = ","), "\n")
 
   # insert own legend text
   if(relabel == TRUE){
@@ -155,13 +162,13 @@ lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
     }
   } else {
     # my legend text
-    my_original_label = sort(unique(raster_df$value))
-    my_new_labels = sort(unique(raster_df$value))
+    my_original_label = original_leg_lab
+    my_new_labels = original_leg_lab
   }
 
   # plot images all years
   g <- ggplot(raster_df, aes(raster_df$x, raster_df$y)) +
-    geom_raster(aes(fill=raster_df$value)) +
+    geom_raster(aes(fill=raster_df$value), stat = "identity") +
     geom_point(data=points_df, aes(x=points_df$x, y=points_df$y), shape = shape_point, colour = colour_point, size = size_point) + #  size=1.4
     scale_y_discrete(expand = c(0, 0), breaks = NULL) +
     scale_x_discrete(expand = c(0, 0), breaks = NULL) +
@@ -172,7 +179,8 @@ lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
     #theme(legend.position = "bottom") +#, strip.text = element_text(size=10)) +
     xlab("") +
     ylab("") +
-    scale_fill_manual(name="Legend:", values = my_palette) +
+    scale_fill_manual(name = legend_text, values = my_palette, breaks = my_original_label, labels = my_new_labels) +
+    guides(fill=guide_legend(ncol = columns_legend)) + # number of columns - legend plot
     theme(axis.title.x = element_blank(), # element_text(size=16),
           axis.title.y = element_blank(), #  element_text(size=16, angle=90),
           axis.text.x = element_blank(), #  element_text(size=14),
@@ -182,6 +190,7 @@ lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
           panel.border = element_blank(),
           strip.background = element_rect(colour=NA, fill="gray85"), #strip.background = element_blank(),
           legend.position = "bottom",
+          legend.text=element_text(size=10),
           legend.key = element_blank()
     )
 
