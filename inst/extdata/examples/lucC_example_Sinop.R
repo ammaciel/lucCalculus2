@@ -6,11 +6,11 @@ library(sits.LUC.Calculus)
 #----------------------------
 
 # create a RasterBrick from individual raster saved previously
-lucC_create_RasterBrick(path_open_GeoTIFFs = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterJuruena", path_save_RasterBrick = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster")
+lucC_create_RasterBrick(path_open_GeoTIFFs = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterSinop", path_save_RasterBrick = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster")
 
 # ------------- define variables to use in sits -------------
 # open files
-file <- c("~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterJuruena.tif")
+file <- c("~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterSinop.tif")
 file
 
 # create timeline with classified data from SVM method
@@ -19,12 +19,12 @@ timeline
 
 #library(sits)
 # create a RasterBrick metadata file based on the information about the files
-raster.tb <- sits::sits_coverage(files = file, name = "Juruena", timeline = timeline, bands = "ndvi")
+raster.tb <- sits::sits_coverage(files = file, name = "Sinop", timeline = timeline, bands = "ndvi")
 raster.tb
 
 # new variable
-rb_Juruena <- raster.tb$r_objs[[1]][[1]]
-rb_Juruena
+rb_sits <- raster.tb$r_objs[[1]][[1]]
+rb_sits
 
 
 # ------------- define variables to plot raster -------------
@@ -37,7 +37,7 @@ colors_1 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", 
 colors_1
 
 # plot raster brick
-lucC_plot_raster(raster_obj = rb_Juruena,
+lucC_plot_raster(raster_obj = rb_sits,
                  timeline = timeline, label = label,
                  custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 6)
 
@@ -48,7 +48,7 @@ lucC_plot_raster(raster_obj = rb_Juruena,
 
 # 1. Verify if forest RECUR ins econd interval
 system.time(
-  forest_recur <- lucC_pred_recur(raster_obj = rb_Juruena, raster_class = "Forest",
+  forest_recur <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
                                   time_interval1 = c("2001-09-01","2001-09-01"),
                                   time_interval2 = c("2002-09-01","2016-09-01"),
                                   label = label, timeline = timeline)
@@ -65,7 +65,7 @@ classes <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Pasture1",
 system.time(
   for(i in seq_along(classes)){
     print(classes[i])
-    temp <- lucC_pred_evolve(raster_obj = rb_Juruena, raster_class1 = classes[i],
+    temp <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = classes[i],
                              time_interval1 = c("2001-09-01","2001-09-01"), relation_interval1 = "equals",
                              raster_class2 = "Forest",
                              time_interval2 = c("2002-09-01","2016-09-01"), relation_interval2 = "contains",
@@ -79,16 +79,16 @@ system.time(
 forest_sec <- lucC_relation_equals(convert_class, forest_recur)
 head(forest_sec)
 
-lucC_plot_bar_events(forest_sec, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
+lucC_plot_bar_events(forest_sec, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend:")
 
 # 4. Remove column 2001 because it' is not used to replace pixels's only support column
 forest_sec2 <- lucC_remove_columns(data_mtx = forest_sec, name_columns = c("2001-09-01"))
 head(forest_sec2)
 
-lucC_plot_bar_events(forest_sec2, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
+lucC_plot_bar_events(forest_sec2, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend:")
 
 # 5. Plot secondary vegetation over raster without column 2001 because it' is not used to replace pixels's only support column
-lucC_plot_raster_result(raster_obj = rb_Juruena,
+lucC_plot_raster_result(raster_obj = rb_sits,
                         data_mtx = forest_sec2,
                         timeline = timeline,
                         label = label, custom_palette = TRUE,
@@ -101,20 +101,20 @@ lucC_plot_raster_result(raster_obj = rb_Juruena,
 #----------------------------
 
 # 1. update original RasterBrick with new class
-rb_Juruena_new <- lucC_update_raster(raster_obj = rb_Juruena,
-                                  data_mtx = forest_sec2,       # without 2001
-                                  timeline = timeline,
-                                  class_to_replace = "Forest",  # only class Forest
-                                  new_pixel_value = 17)         # new pixel value
+rb_sits_new <- lucC_update_raster(raster_obj = rb_sits,
+                                     data_mtx = forest_sec2,       # without 2001
+                                     timeline = timeline,
+                                     class_to_replace = "Forest",  # only class Forest
+                                     new_pixel_value = 17)         # new pixel value
 
-head(rb_Juruena_new)
+head(rb_sits_new)
 
-lucC_plot_bar_events(data_mtx = rb_Juruena_new, pixel_resolution = 232, custom_palette = FALSE)
+lucC_plot_bar_events(data_mtx = rb_sits_new, pixel_resolution = 232, custom_palette = FALSE)
 
 # 2. save the update matrix as GeoTIFF images
-lucC_save_GeoTIFF(raster_obj = rb_Juruena,
-                  data_mtx = rb_Juruena_new,
-                  path_raster_folder = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterJuruenaSec")
+lucC_save_GeoTIFF(raster_obj = rb_sits,
+                  data_mtx = rb_sits_new,
+                  path_raster_folder = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterSinopSec")
 
 
 
@@ -124,11 +124,11 @@ lucC_save_GeoTIFF(raster_obj = rb_Juruena,
 #----------------------------
 
 # create a RasterBrick from individual raster saved previously
-lucC_create_RasterBrick(path_open_GeoTIFFs = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterJuruenaSec", path_save_RasterBrick = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster")
+lucC_create_RasterBrick(path_open_GeoTIFFs = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterSinopSec", path_save_RasterBrick = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster")
 
 # ------------- define variables to use in sits -------------
 # open files with new pixel secondary vegetation
-file <- c("~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterJuruenaSec.tif")
+file <- c("~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterSinopSec.tif")
 file
 
 # create timeline with classified data from SVM method
@@ -141,8 +141,8 @@ raster.tb <- sits::sits_coverage(files = file, name = "JuruenaSec", timeline = t
 raster.tb
 
 # new variable
-rb_Juruena2 <- raster.tb$r_objs[[1]][[1]]
-rb_Juruena2
+rb_sits2 <- raster.tb$r_objs[[1]][[1]]
+rb_sits2
 
 # new class Seconary vegetation
 label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
@@ -153,14 +153,14 @@ label2
 # 5- Discover Forest and Secondary vegetation - LUC Calculus
 #----------------------------
 
-secondary.mtx <- lucC_pred_holds(raster_obj = rb_Juruena2, raster_class = "Secondary_vegetation",
+secondary.mtx <- lucC_pred_holds(raster_obj = rb_sits2, raster_class = "Secondary_vegetation",
                                  time_interval = c("2001-09-01","2016-09-01"),
                                  relation_interval = "contains", label = label2, timeline = timeline)
 secondary.mtx
 
-forest.mtx <- lucC_pred_holds(raster_obj = rb_Juruena2, raster_class = "Forest",
-                             time_interval = c("2001-09-01","2016-09-01"),
-                             relation_interval = "contains", label = label2, timeline = timeline)
+forest.mtx <- lucC_pred_holds(raster_obj = rb_sits2, raster_class = "Forest",
+                              time_interval = c("2001-09-01","2016-09-01"),
+                              relation_interval = "contains", label = label2, timeline = timeline)
 forest.mtx
 
 Forest_secondary.mtx <- lucC_relation_equals(secondary.mtx, forest.mtx)
@@ -179,7 +179,7 @@ measures
 colors_2 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff", "red")
 
 # plot
-lucC_plot_raster(raster_obj = rb_Juruena2, timeline = timeline,
+lucC_plot_raster(raster_obj = rb_sits2, timeline = timeline,
                  label = label2, custom_palette = TRUE,
                  RGB_color = colors_2, relabel = FALSE, plot_ncol = 6)
 

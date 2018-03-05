@@ -93,8 +93,8 @@ lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   # melt data
   points_df <- reshape2::melt(events_df, id = c("x","y"))
   # remove factor
-  points_df$x = as.numeric(levels(points_df$x))[points_df$x]
-  points_df$y = as.numeric(levels(points_df$y))[points_df$y]
+  points_df$x = as.numeric(as.character(points_df$x)) #as.numeric(levels(points_df$x))[points_df$x]
+  points_df$y = as.numeric(as.character(points_df$y))
 
   points_df <- stats::na.omit(points_df)
 

@@ -85,9 +85,9 @@ lucC_update_raster <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
     stats::na.omit()
 
   # remove factors
-  point_df$x = as.numeric(levels(point_df$x))[point_df$x]
-  point_df$variable = as.character(levels(point_df$variable))[point_df$variable]
-  point_df$y = as.numeric(levels(point_df$y))[point_df$y]
+  point_df$x = as.numeric(as.character(point_df$x)) # as.numeric(levels(point_df$x))[point_df$x]
+  point_df$variable = as.character(as.character(point_df$variable))
+  point_df$y = as.numeric(as.character(point_df$y))
 
   # ------------------ replace point_df in raster_df ---------------------
 
