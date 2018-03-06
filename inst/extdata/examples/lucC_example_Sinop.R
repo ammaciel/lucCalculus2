@@ -188,7 +188,7 @@ lucC_plot_raster(raster_obj = rb_sits2, timeline = timeline,
 #----------------------------
 # 6- Discover Land use transitions - LUC Calculus
 #----------------------------
-label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
+label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture", "Pasture", "Pasture", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
 label2
 
 # create timeline with classified data from SVM method
@@ -196,7 +196,7 @@ timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004
 timeline
 
 class1 <- c("Forest")
-classes <- c("Pasture1", "Pasture2", "Pasture3", "Secondary_vegetation")
+classes <- c("Pasture", "Secondary_vegetation") #
 
 direct_transi.df <- NULL
 
@@ -254,11 +254,16 @@ timeline1 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "200
 
 timeline2 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01"))
 
+colors_3 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#7ecfa4", "#b6a896", "#3a3aff", "red", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff", "red")
+
+
 class1 <- c("Forest")
 class2 <- c("Pasture")
 class3 <- c("Soybean")
 
 soybean_after.df <- NULL
+
+raster.data <- block1
 
 # along of all classes
 system.time(
@@ -267,15 +272,15 @@ system.time(
     t_2 <- timeline1[x]
     cat(paste0(t_1, ", ", t_2, sep = ""), "\n")
 
-    soybean.df <- lucC_pred_holds(raster_obj = rb_sits2, raster_class = class3,
+    soybean.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = class3,
                                   time_interval = c(t_2,t_2),
                                   relation_interval = "contains", label = label2, timeline = timeline)
 
-    pasture.df <- lucC_pred_holds(raster_obj = rb_sits2, raster_class = class2,
+    pasture.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = class2,
                                   time_interval = c(timeline2[1],t_1),
                                   relation_interval = "contains", label = label2, timeline = timeline)
 
-    forest.df <- lucC_pred_holds(raster_obj = rb_sits2, raster_class = class1,
+    forest.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = class1,
                                  time_interval = c(timeline2[1],t_1),
                                  relation_interval = "contains", label = label2, timeline = timeline)
 
@@ -303,5 +308,37 @@ lucC_plot_bar_events(data_mtx = Soybean_After_2006,
 measures_Forest_Pasture <- lucC_result_measures(data_mtx = Soybean_After_2006, pixel_resolution = 232)
 measures_Forest_Pasture
 
+# plot
+lucC_plot_raster(raster_obj = raster.data, timeline = timeline,
+                 label = label2, custom_palette = TRUE,
+                 RGB_color = colors_3, relabel = FALSE, plot_ncol = 6)
 
+lucC_plot_raster_result(raster_obj = raster.data, data_mtx = Soybean_After_2006, timeline = timeline,
+                 label = label2, custom_palette = TRUE,
+                 RGB_color = colors_3, relabel = FALSE, plot_ncol = 6, shape_point = ".")
+
+.
+.
+.
+
+
+
+
+
+#------------------------------------
+# explit a raster by blocks
+d <- rb_sits2
+ii <- seq(1, nrow(rb_sits2), 200)
+jj <- seq(1, ncol(rb_sits2), 200)
+r <- list()
+q <- 1
+for (i in ii) {
+  for (j in jj) {
+    r[[q]] <- d[i:(i+199), j:(j+199), drop=FALSE]
+    q <- q + 1
+  }
+}
+raster::plot(r[[1]])
+
+block1 <- r[[1]]
 

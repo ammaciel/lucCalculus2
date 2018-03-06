@@ -12,7 +12,7 @@ Classification method and others tools to Satellite Image Time Series analysis c
   <li><a href="http://www.r-project.org/">R</a></li>
   <li><a href="http://www.rstudio.com/">Rstudio</a></li>
   <li>A set of classified GeoTIFF images by year </li>
-  <li>The lucC requires "devtools" package is available. </li> 
+  <li>The sits.LUC.Calculus requires "devtools" package is available. </li> 
 </ul>
 
 <h3>How to use the package:</h3>

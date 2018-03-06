@@ -185,6 +185,25 @@ lucC_save_GeoTIFF(raster_obj = rb_sits, data_mtx = rb_new, path_raster_folder = 
 lucC_plot_raster(raster_obj = rb_sits, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE)
 
 
+#------------------------
+# Test if change original label by other
+#------------------------
+# original
+lucC_plot_raster(raster_obj = rb_sits, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE, plot_ncol = 6) #,
 
+colors_2 <- c("#b3cc33", "#8ddbec", "#228b22", "#afe3c8", "#b6a896", "#e1cdb6", "#e5c6a0", "#b69872", "#b68549", "#dec000", "#cc18b4", "#0000f1")
 
+label2 <- as.character(c("Pasture", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_Area", "Water"))
+label2
+
+#
+a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Pasture",
+                     time_interval = c("2001-09-01","2016-09-01"),
+                     relation_interval = "contains", label = label2, timeline = timeline)
+a
+
+#
+lucC_plot_raster(raster_obj = rb_sits, timeline = timeline, label = label2, custom_palette = TRUE, RGB_color = colors_2, relabel = FALSE, plot_ncol = 6)
+
+lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = a, timeline = timeline, label = label2, custom_palette = TRUE, RGB_color = colors_2, relabel = FALSE, plot_ncol = 6)
 

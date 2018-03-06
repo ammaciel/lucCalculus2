@@ -42,7 +42,7 @@
 #' @keywords datasets
 #' @return Matrix with all states which holds during a time interval
 #' @importFrom lubridate int_standardize int_start int_end as_date ymd years
-#' @importFrom raster subset rasterToPoints
+#' @importFrom raster subset rasterToPoints values
 #' @importFrom tidyr drop_na
 #' @export
 #'
@@ -99,19 +99,24 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
     stop("\nInvalide option: 'equals' or 'contains' must be defined!\n")
   }
 
-  # define values to query
-  class <- match(class_name, label)
+  # define values to query, in accordance of label order
+  #class <- match(class_name, label)
+  class <- which(label %in% class_name)
 
   # subset with all locations from raster holds during a time interval
   .holds_raster <- function(ras.obj, class.ras, start_date.ras, end_date.ras) {
-    temp <- raster::subset(ras.obj, start_date.ras:end_date.ras)
-    output <- temp == class.ras
+    # subset in accordance with range of date
+    output <- raster::subset(ras.obj, start_date.ras:end_date.ras, value = TRUE)
+    # just replace all values raster match will position label
+    raster::values(output) <- ifelse(raster::values(output) %in% class.ras, 1, NA)
+    #output[output[] %in% class.ras] <- NA
     return(output)
   }
 
   # apply holds_raster to obtain results
   output_holds <- .holds_raster(rasterStack_obj, class, date_start, date_end)
 
+  # empty data
   longLatFromRaster <- NULL
 
   # extract x, y, and values from raster output_holds
