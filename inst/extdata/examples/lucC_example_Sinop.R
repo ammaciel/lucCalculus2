@@ -249,39 +249,34 @@ measures_Forest_Pasture
 label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture", "Pasture", "Pasture", "Soybean", "Soybean", "Soybean", "Soybean", "Soybean", "Soybean", "Soybean", "Water", "Water", "Secondary_vegetation"))
 label2
 
+# soy moratorium
+timeline1 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01"))
+
 # create timeline with classified data from SVM method
-timeline1 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
+timeline2 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
 
-timeline2 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01"))
-
-colors_3 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#7ecfa4", "#b6a896", "#3a3aff", "red", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff", "red")
-
-
-class1 <- c("Forest")
-class2 <- c("Pasture")
-class3 <- c("Soybean")
-
+# intereting classes
 soybean_after.df <- NULL
 
-raster.data <- block1
+raster.data <- rb_sits2
 
 # along of all classes
 system.time(
-  for(x in 2:length(timeline1)){
-    t_1 <- timeline2[x-1]
-    t_2 <- timeline1[x]
+  for(x in 2:length(timeline2)){
+    t_1 <- timeline1[x-1]
+    t_2 <- timeline2[x]
     cat(paste0(t_1, ", ", t_2, sep = ""), "\n")
 
-    soybean.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = class3,
+    soybean.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = "Soybean",
                                   time_interval = c(t_2,t_2),
+                                  relation_interval = "equals", label = label2, timeline = timeline)
+
+    pasture.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = "Pasture",
+                                  time_interval = c(timeline1[1],t_1),
                                   relation_interval = "contains", label = label2, timeline = timeline)
 
-    pasture.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = class2,
-                                  time_interval = c(timeline2[1],t_1),
-                                  relation_interval = "contains", label = label2, timeline = timeline)
-
-    forest.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = class1,
-                                 time_interval = c(timeline2[1],t_1),
+    forest.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = "Forest",
+                                 time_interval = c(timeline1[1],t_1),
                                  relation_interval = "contains", label = label2, timeline = timeline)
 
     fores_past.temp <- lucC_relation_occurs(pasture.df, forest.df)
@@ -309,6 +304,8 @@ measures_Forest_Pasture <- lucC_result_measures(data_mtx = Soybean_After_2006, p
 measures_Forest_Pasture
 
 # plot
+colors_3 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#7ecfa4", "#b6a896", "#3a3aff", "red", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff", "red")
+
 lucC_plot_raster(raster_obj = raster.data, timeline = timeline,
                  label = label2, custom_palette = TRUE,
                  RGB_color = colors_3, relabel = FALSE, plot_ncol = 6)
@@ -321,39 +318,17 @@ lucC_plot_raster_result(raster_obj = raster.data, data_mtx = Soybean_After_2006,
 .
 .
 
-
-
-
-
 #------------------------------------
 # explit a raster by blocks
-original_raster <- rb_sits2
-number_cells <- 300
-ii <- seq(1, nrow(original_raster), number_cells)
-jj <- seq(1, ncol(original_raster), number_cells)
-raster_blocks.list <- list()
-block_id <- 1
-for (i in ii) {
-  for (j in jj) {
-    raster_blocks.list[[block_id]] <- original_raster[i:(i+(number_cells-1)), j:(j+(number_cells-1)), drop=FALSE]
-    block_id <- block_id + 1
-  }
-}
-raster::plot(raster_blocks.list[[1]])
+#------------------------------------
+blocks <- lucC_create_blocks(rb_sits2, number_cells = 400)
+blocks
 
-#---------------------
-lucC_plot_raster(raster_obj = r[[1]], timeline = timeline,
+lucC_plot_raster(raster_obj = blocks[[1]], timeline = timeline,
                  label = label2, custom_palette = TRUE,
                  RGB_color = colors_3, relabel = FALSE, plot_ncol = 6)
 
-lucC_plot_raster(raster_obj = r[[2]], timeline = timeline,
+lucC_plot_raster(raster_obj = blocks[[2]], timeline = timeline,
                  label = label2, custom_palette = TRUE,
                  RGB_color = colors_3, relabel = FALSE, plot_ncol = 6)
 
-lucC_plot_raster(raster_obj = r[[3]], timeline = timeline,
-                 label = label2, custom_palette = TRUE,
-                 RGB_color = colors_3, relabel = FALSE, plot_ncol = 6)
-
-lucC_plot_raster(raster_obj = r[[4]], timeline = timeline,
-                 label = label2, custom_palette = TRUE,
-                 RGB_color = colors_3, relabel = FALSE, plot_ncol = 6)
