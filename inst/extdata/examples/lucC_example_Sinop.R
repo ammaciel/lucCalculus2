@@ -327,18 +327,33 @@ lucC_plot_raster_result(raster_obj = raster.data, data_mtx = Soybean_After_2006,
 
 #------------------------------------
 # explit a raster by blocks
-d <- rb_sits2
-ii <- seq(1, nrow(rb_sits2), 200)
-jj <- seq(1, ncol(rb_sits2), 200)
-r <- list()
-q <- 1
+original_raster <- rb_sits2
+number_cells <- 300
+ii <- seq(1, nrow(original_raster), number_cells)
+jj <- seq(1, ncol(original_raster), number_cells)
+raster_blocks.list <- list()
+block_id <- 1
 for (i in ii) {
   for (j in jj) {
-    r[[q]] <- d[i:(i+199), j:(j+199), drop=FALSE]
-    q <- q + 1
+    raster_blocks.list[[block_id]] <- original_raster[i:(i+(number_cells-1)), j:(j+(number_cells-1)), drop=FALSE]
+    block_id <- block_id + 1
   }
 }
-raster::plot(r[[1]])
+raster::plot(raster_blocks.list[[1]])
 
-block1 <- r[[1]]
+#---------------------
+lucC_plot_raster(raster_obj = r[[1]], timeline = timeline,
+                 label = label2, custom_palette = TRUE,
+                 RGB_color = colors_3, relabel = FALSE, plot_ncol = 6)
 
+lucC_plot_raster(raster_obj = r[[2]], timeline = timeline,
+                 label = label2, custom_palette = TRUE,
+                 RGB_color = colors_3, relabel = FALSE, plot_ncol = 6)
+
+lucC_plot_raster(raster_obj = r[[3]], timeline = timeline,
+                 label = label2, custom_palette = TRUE,
+                 RGB_color = colors_3, relabel = FALSE, plot_ncol = 6)
+
+lucC_plot_raster(raster_obj = r[[4]], timeline = timeline,
+                 label = label2, custom_palette = TRUE,
+                 RGB_color = colors_3, relabel = FALSE, plot_ncol = 6)

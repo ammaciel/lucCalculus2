@@ -3,7 +3,7 @@
 \docType{data}
 \name{lucC_pred_recur}
 \alias{lucC_pred_recur}
-\title{Predicate Allen Holds}
+\title{Predicate Recur}
 \usage{
 lucC_pred_recur (raster_obj = NULL, raster_class = NULL,
 time_interval1 = c("2001-01-01", "2001-01-01"),

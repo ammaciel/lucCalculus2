@@ -13,7 +13,7 @@
 ##                                                             ##
 #################################################################
 
-#' @title Plot Input Maps
+#' @title Plot RasterBrick
 #' @name lucC_plot_raster
 #' @aliases lucC_plot_raster
 #' @author Adeline M. Maciel
@@ -63,7 +63,7 @@ lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, c
 
   # Ensure if parameters exists
   ensurer::ensure_that(raster_obj, !is.null(raster_obj),
-                       err_desc = "raster_obj tibble, file must be defined!\nThis data can be obtained using lucC predicates holds or occurs.")
+                       err_desc = "raster_obj, file must be defined!")
   ensurer::ensure_that(timeline, !is.null(timeline),
                        err_desc = "timeline must be defined!")
   ensurer::ensure_that(label, !is.null(label),

@@ -59,7 +59,7 @@ lucC_remove_columns <- function(data_mtx = NULL, name_columns = NULL){
 }
 
 
-#' @title Remove columns of a data set
+#' @title Select columns of a data set
 #' @name lucC_select_columns
 #' @aliases lucC_select_columns
 #' @author Adeline M. Maciel

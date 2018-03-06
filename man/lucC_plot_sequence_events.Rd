@@ -3,7 +3,7 @@
 \docType{data}
 \name{lucC_plot_sequence_events}
 \alias{lucC_plot_sequence_events}
-\title{Plot Sequence Maps with lucC Events}
+\title{Plot Sequence Maps}
 \usage{
 lucC_plot_sequence_events (data_mtx = NULL, custom_palette = FALSE,
 RGB_color = NULL, show_y_index = TRUE, start_date = "2000-01-01",

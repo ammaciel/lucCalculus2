@@ -3,7 +3,7 @@
 \docType{data}
 \name{lucC_update_raster}
 \alias{lucC_update_raster}
-\title{Plot Input Maps}
+\title{Update a Rasterrick with pixel replaced}
 \usage{
 lucC_update_raster(raster_obj = NULL, data_mtx = NULL,
 timeline = NULL, class_to_replace = NULL, new_pixel_value = 20)

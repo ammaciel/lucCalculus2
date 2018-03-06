@@ -14,7 +14,7 @@
 #################################################################
 
 
-#' @title Save tibble as Raster in Folder
+#' @title Save a RasterBrick reclassified in Folder
 #' @name lucC_save_GeoTIFF
 #' @aliases lucC_save_GeoTIFF
 #' @author Adeline M. Maciel

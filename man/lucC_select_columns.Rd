@@ -3,7 +3,7 @@
 \docType{data}
 \name{lucC_select_columns}
 \alias{lucC_select_columns}
-\title{Remove columns of a data set}
+\title{Select columns of a data set}
 \usage{
 lucC_select_columns(data_mtx = NULL, name_columns = NULL)
 }

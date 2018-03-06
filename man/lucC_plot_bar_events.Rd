@@ -3,7 +3,7 @@
 \docType{data}
 \name{lucC_plot_bar_events}
 \alias{lucC_plot_bar_events}
-\title{Plot Barplot Maps with lucC Events}
+\title{Plot Barplot Maps}
 \usage{
 lucC_plot_bar_events (data_mtx = NULL,
 custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250,

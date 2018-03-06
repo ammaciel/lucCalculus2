@@ -280,7 +280,7 @@ lucC_relation_precedes <- function (first_raster = NULL, second_raster = NULL) {
 
 
 
-#' @title Allen Relation Precedes
+#' @title Allen Relation Occurs
 #' @name lucC_relation_occurs
 #' @aliases lucC_relation_same_interval
 #' @author Adeline M. Maciel

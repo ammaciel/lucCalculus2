@@ -206,7 +206,7 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
 }
 
 
-#' @title Predicate Allen Holds
+#' @title Predicate Recur
 #' @name lucC_pred_recur
 #' @aliases lucC_pred_recur
 #' @author Adeline M. Maciel
@@ -321,7 +321,7 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
 }
 
 
-#' @title Predicate Allen Holds
+#' @title Predicate Evolve
 #' @name lucC_pred_evolve
 #' @aliases lucC_pred_evolve
 #' @author Adeline M. Maciel
@@ -427,7 +427,7 @@ lucC_pred_evolve <- function(raster_obj = NULL, raster_class1 = NULL, time_inter
 
 
 
-#' @title Predicate Allen Holds
+#' @title Predicate Convert
 #' @name lucC_pred_convert
 #' @aliases lucC_pred_convert
 #' @author Adeline M. Maciel

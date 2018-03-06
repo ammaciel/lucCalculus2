@@ -15,13 +15,13 @@
 #################################################################
 
 
-#' @title Plot Sequence Maps with lucC Events
+#' @title Data.frame with statistical measures
 #' @name lucC_result_measures
 #' @aliases lucC_result_measures
 #' @author Adeline M. Maciel
 #' @docType data
 #'
-#' @description Provide a data.frame with main measures to resultd from LUC Calculus application such as: Area (km2),
+#' @description Provide a data.frame with main statistical measures to resultd from LUC Calculus application such as: Area (km2),
 #' Cumulative Sum (CumSum), Relative Frequency and Cumulative Relative Frequency
 #'
 #' @usage lucC_result_measures (data_mtx = NULL, pixel_resolution = 250)
@@ -30,7 +30,7 @@
 #' @param pixel_resolution Numeric. Is a spatial resolution of the pixel. Default is 250 meters considering MODIS 250 m. See more at \url{https://modis.gsfc.nasa.gov/about/specifications.php}.
 #'
 #' @keywords datasets
-#' @return Data frame with measures computed
+#' @return Data frame with statistical measures
 #' @import ggplot2
 #' @importFrom ensurer ensure_that
 #' @importFrom reshape2 melt

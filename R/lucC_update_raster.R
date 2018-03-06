@@ -13,7 +13,7 @@
 ##                                                             ##
 #################################################################
 
-#' @title Plot Input Maps
+#' @title Update a Rasterrick with pixel replaced
 #' @name lucC_update_raster
 #' @aliases lucC_update_raster
 #' @author Adeline M. Maciel

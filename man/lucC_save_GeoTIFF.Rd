@@ -3,7 +3,7 @@
 \docType{data}
 \name{lucC_save_GeoTIFF}
 \alias{lucC_save_GeoTIFF}
-\title{Save tibble as Raster in Folder}
+\title{Save a RasterBrick reclassified in Folder}
 \usage{
 lucC_save_GeoTIFF(raster_obj = NULL, data_mtx = NULL, path_raster_folder = NULL)
 }

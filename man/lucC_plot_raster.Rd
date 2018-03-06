@@ -3,7 +3,7 @@
 \docType{data}
 \name{lucC_plot_raster}
 \alias{lucC_plot_raster}
-\title{Plot Input Maps}
+\title{Plot RasterBrick}
 \usage{
 lucC_plot_raster(raster_obj = NULL, timeline = NULL,
 label = NULL, custom_palette = FALSE, RGB_color = NULL,

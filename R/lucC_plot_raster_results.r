@@ -14,7 +14,7 @@
 #################################################################
 
 
-#' @title Plot Events over Maps with lucC
+#' @title Plot RasterBrick and Events over
 #' @name lucC_plot_raster_result
 #' @aliases lucC_plot_raster_result
 #' @author Adeline M. Maciel
@@ -74,7 +74,7 @@ lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
 
   # Ensure if parameters exists
   ensurer::ensure_that(raster_obj, !is.null(raster_obj),
-                       err_desc = "raster_obj tibble, file must be defined!\nThis data can be obtained using lucC predicates holds or occurs.")
+                       err_desc = "raster_obj, file must be defined!")
   ensurer::ensure_that(data_mtx, !is.null(data_mtx),
                        err_desc = "data_mtx matrix, file must be defined!\nThis data can be obtained using predicates RECUR, HOLDS, EVOLVE and CONVERT.")
   ensurer::ensure_that(timeline, !is.null(timeline),

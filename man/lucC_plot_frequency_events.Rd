@@ -3,7 +3,7 @@
 \docType{data}
 \name{lucC_plot_frequency_events}
 \alias{lucC_plot_frequency_events}
-\title{Plot Frequency Polygon with lucC Events}
+\title{Plot Frequency Polygon}
 \usage{
 lucC_plot_frequency_events (data_mtx = NULL,
 custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250,

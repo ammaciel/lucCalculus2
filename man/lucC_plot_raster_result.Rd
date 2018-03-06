@@ -3,7 +3,7 @@
 \docType{data}
 \name{lucC_plot_raster_result}
 \alias{lucC_plot_raster_result}
-\title{Plot Events over Maps with lucC}
+\title{Plot RasterBrick and Events over}
 \usage{
 lucC_plot_raster_result (raster_obj = NULL, data_mtx = NULL,
 timeline = NULL, label = NULL, custom_palette = FALSE, RGB_color = NULL,

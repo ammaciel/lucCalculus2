@@ -3,7 +3,7 @@
 \docType{data}
 \name{lucC_pred_evolve}
 \alias{lucC_pred_evolve}
-\title{Predicate Allen Holds}
+\title{Predicate Evolve}
 \usage{
 lucC_pred_evolve (raster_obj = NULL, raster_class1 = NULL,
 time_interval1 = c("2001-01-01", "2001-01-01"), relation_interval1 = "equals",

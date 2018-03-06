@@ -3,7 +3,7 @@
 \docType{data}
 \name{lucC_result_measures}
 \alias{lucC_result_measures}
-\title{Plot Sequence Maps with lucC Events}
+\title{Data.frame with statistical measures}
 \usage{
 lucC_result_measures (data_mtx = NULL, pixel_resolution = 250)
 }
@@ -13,10 +13,10 @@ lucC_result_measures (data_mtx = NULL, pixel_resolution = 250)
 \item{pixel_resolution}{Numeric. Is a spatial resolution of the pixel. Default is 250 meters considering MODIS 250 m. See more at \url{https://modis.gsfc.nasa.gov/about/specifications.php}.}
 }
 \value{
-Data frame with measures computed
+Data frame with statistical measures
 }
 \description{
-Provide a data.frame with main measures to resultd from LUC Calculus application such as: Area (km2),
+Provide a data.frame with main statistical measures to resultd from LUC Calculus application such as: Area (km2),
 Cumulative Sum (CumSum), Relative Frequency and Cumulative Relative Frequency
 }
 \examples{

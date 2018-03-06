@@ -14,7 +14,7 @@
 #################################################################
 
 
-#' @title Plot Sequence Maps with lucC Events
+#' @title Plot Sequence Maps
 #' @name lucC_plot_sequence_events
 #' @aliases lucC_plot_sequence_events
 #' @author Adeline M. Maciel
@@ -149,7 +149,7 @@ lucC_plot_sequence_events <- function(data_mtx = NULL, custom_palette = FALSE, R
 
 
 
-#' @title Plot Barplot Maps with lucC Events
+#' @title Plot Barplot Maps
 #' @name lucC_plot_bar_events
 #' @aliases lucC_plot_bar_events
 #' @author Adeline M. Maciel
@@ -275,7 +275,7 @@ lucC_plot_bar_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_co
 
 
 
-#' @title Plot Frequency Polygon with lucC Events
+#' @title Plot Frequency Polygon
 #' @name lucC_plot_frequency_events
 #' @aliases lucC_plot_frequency_events
 #' @author Adeline M. Maciel

@@ -4,7 +4,7 @@
 \name{lucC_relation_occurs}
 \alias{lucC_relation_occurs}
 \alias{lucC_relation_same_interval}
-\title{Allen Relation Precedes}
+\title{Allen Relation Occurs}
 \usage{
 lucC_relation_occurs(first_raster = NULL, second_raster = NULL)
 }
