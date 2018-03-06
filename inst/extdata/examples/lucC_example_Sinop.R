@@ -171,8 +171,8 @@ lucC_plot_bar_events(data_mtx = Forest_secondary.mtx,
                      pixel_resolution = 232, custom_palette = FALSE, side_by_side = TRUE)
 
 # Compute values
-measures <- lucC_result_measures(data_mtx = Forest_secondary.mtx, pixel_resolution = 232)
-measures
+measuresFor_Sec <- lucC_result_measures(data_mtx = Forest_secondary.mtx, pixel_resolution = 232)
+measuresFor_Sec
 
 #-----------------
 # define new color squeme - added Secondary Vegetation value
@@ -184,6 +184,124 @@ lucC_plot_raster(raster_obj = rb_sits2, timeline = timeline,
                  RGB_color = colors_2, relabel = FALSE, plot_ncol = 6)
 
 
+
+#----------------------------
+# 6- Discover Land use transitions - LUC Calculus
+#----------------------------
+label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
+label2
+
+# create timeline with classified data from SVM method
+timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
+timeline
+
+class1 <- c("Forest")
+classes <- c("Pasture1", "Pasture2", "Pasture3", "Secondary_vegetation")
+
+direct_transi.df <- NULL
+
+# along of all classes
+system.time(
+  for(x in 2:length(timeline)){
+    t_1 <- timeline[x-1]
+    t_2 <- timeline[x]
+    cat(paste0(t_1, ", ", t_2, sep = ""), "\n")
+
+    # moves across all classes
+    for(i in seq_along(classes)){
+      cat(classes[i], collapse = " ")
+      temp <- lucC_pred_convert(raster_obj = rb_sits2, raster_class1 = class1,
+                                time_interval1 = c(t_1,t_1), relation_interval1 = "equals",
+                                raster_class2 = classes[i],
+                                time_interval2 = c(t_2,t_2), relation_interval2 = "equals",
+                                label = label2, timeline = timeline)
+
+      if (!is.null(temp)) {
+        temp <- lucC_remove_columns(data_mtx = temp, name_columns = as.character(t_1))
+      } else{
+        temp <- temp
+      }
+
+      direct_transi.df <- dplyr::bind_rows(direct_transi.df, temp)
+    }
+    cat("\n")
+  }
+)
+
+Forest_Pasture <- direct_transi.df
+head(Forest_Pasture)
+
+# plot results
+lucC_plot_bar_events(data_mtx = Forest_Pasture,
+                     pixel_resolution = 232, custom_palette = FALSE, side_by_side = FALSE)
+
+# Compute values
+measures_Forest_Pasture <- lucC_result_measures(data_mtx = Forest_Pasture, pixel_resolution = 232)
+measures_Forest_Pasture
+
+
+
+#----------------------------
+# 7- Soybean Moratotium - LUC Calculus
+#----------------------------
+#label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
+
+label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture", "Pasture", "Pasture", "Soybean", "Soybean", "Soybean", "Soybean", "Soybean", "Soybean", "Soybean", "Water", "Water", "Secondary_vegetation"))
+label2
+
+# create timeline with classified data from SVM method
+timeline1 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
+
+timeline2 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01"))
+
+class1 <- c("Forest")
+class2 <- c("Pasture")
+class3 <- c("Soybean")
+
+soybean_after.df <- NULL
+
+# along of all classes
+system.time(
+  for(x in 2:length(timeline1)){
+    t_1 <- timeline2[x-1]
+    t_2 <- timeline1[x]
+    cat(paste0(t_1, ", ", t_2, sep = ""), "\n")
+
+    soybean.df <- lucC_pred_holds(raster_obj = rb_sits2, raster_class = class3,
+                                  time_interval = c(t_2,t_2),
+                                  relation_interval = "contains", label = label2, timeline = timeline)
+
+    pasture.df <- lucC_pred_holds(raster_obj = rb_sits2, raster_class = class2,
+                                  time_interval = c(timeline2[1],t_1),
+                                  relation_interval = "contains", label = label2, timeline = timeline)
+
+    forest.df <- lucC_pred_holds(raster_obj = rb_sits2, raster_class = class1,
+                                 time_interval = c(timeline2[1],t_1),
+                                 relation_interval = "contains", label = label2, timeline = timeline)
+
+    fores_past.temp <- lucC_relation_occurs(pasture.df, forest.df)
+
+    temp <- lucC_relation_precedes(soybean.df, fores_past.temp)
+
+    if (!is.null(temp)) {
+      temp <- lucC_select_columns(data_mtx = temp, name_columns = t_2)
+    } else{
+      temp <- temp
+    }
+    soybean_after.df <- merge(soybean_after.df, temp, all = TRUE)
+  }
+)
+
+Soybean_After_2006 <- soybean_after.df
+head(Soybean_After_2006)
+
+# plot results
+lucC_plot_bar_events(data_mtx = Soybean_After_2006,
+                     pixel_resolution = 232, custom_palette = FALSE, side_by_side = TRUE)
+
+# Compute values
+measures_Forest_Pasture <- lucC_result_measures(data_mtx = Soybean_After_2006, pixel_resolution = 232)
+measures_Forest_Pasture
 
 
 

@@ -162,17 +162,22 @@ lucC_relation_before <- function (first_raster = NULL, second_raster = NULL) {
     # remove first column of second raster - jump one year
   } else if (isTRUE(lubridate::int_end(rasters_intervals[[1]]) < (lubridate::int_start(rasters_intervals[[2]]) + lubridate::years(1)))) {
     second_raster <- second_raster[,-3]
-    second_raster <- second_raster[base::rowSums(is.na(second_raster[,c(3:ncol(second_raster))]))
-                                   != ncol(second_raster[,c(3:ncol(second_raster))]), ]
-    if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
-      # build intervals for each raster data set
-      rasters_intervals2 <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
-    else {
+    if (ncol(second_raster) == 2){
       message("\nRelation BEFORE cannot be applied!\n
           raster 1 and raster 2 has no relation!")
       return(result <- NULL)
+    } else {
+      second_raster <- second_raster[base::rowSums(is.na(second_raster[,c(3:ncol(second_raster))]))
+                                     != ncol(second_raster[,c(3:ncol(second_raster))]), ]
+      if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+        # build intervals for each raster data set
+        rasters_intervals2 <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+      else {
+        message("\nRelation BEFORE cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+        return(result <- NULL)
+      }
     }
-
     if (isTRUE(lubridate::int_end(rasters_intervals2[[1]]) < lubridate::int_start(rasters_intervals2[[2]])) &
         !isTRUE(lubridate::int_overlaps(rasters_intervals2[[1]],rasters_intervals2[[2]]))){
       result <- merge(first_raster, second_raster, by = c("x","y"))
@@ -283,18 +288,23 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
   } else if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) > (lubridate::int_end(rasters_intervals[[2]])) - lubridate::years(1))) {
     #first_raster <- first_raster[,-ncol(first_raster)]
     first_raster <- first_raster[,-3]
-    first_raster <- first_raster[rowSums(is.na(first_raster[,c(3:ncol(first_raster))]))
-                                   != ncol(first_raster[,c(3:ncol(first_raster))]), ]
-
-    if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
-      # build intervals for each raster data set
-      rasters_intervals2 <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
-    else {
+    if (ncol(first_raster) == 2){
       message("\nRelation AFTER cannot be applied!\n
           raster 1 and raster 2 has no relation!")
       return(result <- NULL)
-    }
+    } else {
+      first_raster <- first_raster[rowSums(is.na(first_raster[,c(3:ncol(first_raster))]))
+                                   != ncol(first_raster[,c(3:ncol(first_raster))]), ]
 
+      if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+        # build intervals for each raster data set
+        rasters_intervals2 <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
+      else {
+        message("\nRelation AFTER cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+        return(result <- NULL)
+      }
+    }
     if (isTRUE(lubridate::int_start(rasters_intervals2[[1]]) > lubridate::int_end(rasters_intervals2[[2]])) &
         !isTRUE(lubridate::int_overlaps(rasters_intervals2[[1]],rasters_intervals2[[2]]))){
       result <- merge(first_raster, second_raster, by=c("x","y"))
