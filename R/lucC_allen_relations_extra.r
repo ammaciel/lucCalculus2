@@ -184,7 +184,7 @@ lucC_relation_follows <- function (first_raster = NULL, second_raster = NULL) {
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if( isTRUE(nrow(out1) > 0) & isTRUE(nrow(out2) > 0)) {
-    result <- dplyr::bind_rows(out1, out2)   # merge(out1, out2, by = c("x","y"), all = TRUE)
+    result <- lucC_merge(out1, out2)   # merge(out1, out2, by = c("x","y"), all = TRUE)
     if (nrow(result) > 0)
       return(result)
     else
@@ -263,7 +263,7 @@ lucC_relation_precedes <- function (first_raster = NULL, second_raster = NULL) {
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if( isTRUE(nrow(out1) > 0) & isTRUE(nrow(out2) > 0)) {
-    result <- dplyr::bind_rows(out1, out2) # merge(out1, out2, by = c("x","y"), all = TRUE)
+    result <- lucC_merge(out1, out2) # merge(out1, out2, by = c("x","y"), all = TRUE)
     if (nrow(result) > 0)
       return(result)
     else
@@ -296,7 +296,8 @@ lucC_relation_precedes <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets that values are in the same interval
-#' @importFrom dplyr bind_rows mutate select
+#' @importFrom reshape2 melt dcast
+#' @importFrom stats na.omit
 #' @export
 #'
 #' @examples \dontrun{
@@ -335,24 +336,33 @@ lucC_relation_occurs <- function (first_raster = NULL, second_raster = NULL) {
 
   # interval = rasters_intervals[[1]] (first interval), rasters_intervals[[2]] (second_interval)
   if( isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0)) {
-    result <- first_raster %>%
-      dplyr::mutate(check = ifelse(is.na(match(paste0(.$x, .$y),
-                                               paste0(second_raster$x, second_raster$y))),"No", "Yes")) %>%
-      base::subset(check == 'Yes') %>%
-      dplyr::select(-check) %>%
-      as.matrix()
-
-    # # other solution
+    ## preserve only the last column
     # result <- first_raster %>%
-    #   merge(., second_raster, by = c("x","y"), all = FALSE)
+    #   dplyr::mutate(check = ifelse(is.na(match(paste0(.$x, .$y),
+    #                                            paste0(second_raster$x, second_raster$y))),"No", "Yes")) %>%
+    #   base::subset(check == 'Yes') %>%
+    #   dplyr::select(-check) %>%
+    #   as.matrix()
 
-    # df1 <- df1 %>%
-    #   dplyr::left_join(df2 %>% dplyr::transmute(x, y, check = 'yes')) %>%
+    # result <- first_raster %>%
+    #   dplyr::left_join(second_raster %>% dplyr::transmute(x, y, check = 'yes')) %>%
     #   tidyr::replace_na(list(check = 'no')) %>%
     #   subset(check == 'yes') %>%
     #   dplyr::select(-check)
 
-    if (nrow(result) > 0){
+    # # other solution
+    points_same_coord <- merge(first_raster, second_raster, by = c("x","y"))
+
+    if (isTRUE(nrow(points_same_coord) > 0)){
+      point_df <- reshape2::melt(as.data.frame(points_same_coord), id.vars = c("x","y")) %>%
+        stats::na.omit()
+      # remove .x and .y
+      point_df$variable <- gsub("[$.xy\\.,]", "", point_df$variable)
+      # remove duplicated lines
+      point_df <- point_df[!duplicated(point_df), ]
+      # return matrix format
+      result <- reshape2::dcast(point_df, x+y ~ variable, value.var= "value")
+
       return(result)
     } else {
       message("\nRelation OCCURS cannot be applied!\n
@@ -367,4 +377,92 @@ lucC_relation_occurs <- function (first_raster = NULL, second_raster = NULL) {
 }
 
 
+#' @title LucC Merge
+#' @name lucC_merge
+#' @aliases lucC_merge
+#' @author Adeline M. Maciel
+#' @docType data
+#'
+#' @description Merge two data set by different columns and rows. Because base::merge replace values in initial years
+#'
+#' @usage lucC_merge(first_raster = NULL, second_raster = NULL)
+#'
+#' @param first_raster  Matrix. An interval between two dates.
+#' @param second_raster Matrix. An interval between two dates.
+#'
+#' @keywords datasets
+#' @return Data set merged with two data sets that values are in the same interval
+#' @importFrom reshape2 melt dcast
+#' @importFrom dplyr bind_rows
+#' @importFrom stats na.omit
+#' @export
+#'
+#' @examples \dontrun{
+#'
+#' a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+#'                      time_interval = c("2001-09-01","2002-09-01"),
+#'                      relation_interval = "contains", label = label,
+#'                      timeline = timeline)
+#' a
+#'
+#' b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Pasture",
+#'                      time_interval = c("2001-09-01","2002-09-01"),
+#'                      relation_interval = "contains", label = label,
+#'                      timeline = timeline)
+#' b
+#'
+#' # merge
+#' c <- lucC_merge(first_raster = a, second_raster = b)
+#'
+#'}
+#'
+
+#
+# 17. The 'lucC_relation_occurs'
+lucC_merge <- function (first_raster = NULL, second_raster = NULL) {
+
+  # check is data set are empty
+  first_raster <- as.data.frame(first_raster)
+  second_raster <- as.data.frame(second_raster)
+
+  #
+  if( isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0)) {
+    # first raster
+    first_raster <- reshape2::melt(as.data.frame(first_raster), id.vars = c("x","y")) %>%
+      stats::na.omit()
+    # remove factors
+    first_raster$x = as.numeric(as.character(first_raster$x)) # as.numeric(levels(point_df$x))[point_df$x]
+    first_raster$variable = as.character(as.character(first_raster$variable))
+    first_raster$y = as.numeric(as.character(first_raster$y))
+
+    # first raster
+    second_raster <- reshape2::melt(as.data.frame(second_raster), id.vars = c("x","y")) %>%
+      stats::na.omit()
+    # remove factors
+    second_raster$x = as.numeric(as.character(second_raster$x)) # as.numeric(levels(point_df$x))[point_df$x]
+    second_raster$variable = as.character(as.character(second_raster$variable))
+    second_raster$y = as.numeric(as.character(second_raster$y))
+
+    # merge them
+    result.temp <- dplyr::bind_rows(first_raster, second_raster)
+    # remove duplicated lines
+    result.temp <- result.temp[!duplicated(result.temp), ]
+    # return matrix format
+    result <- reshape2::dcast(result.temp, x+y ~ variable, value.var= "value")
+
+    if (nrow(result) > 0){
+      return(result)
+    } else {
+      message("\nRelation MERGE cannot be applied!\n
+          raster 1 and raster 2 has no relation!")
+      return(result <- NULL)
+    }
+  } else if ( isTRUE(nrow(first_raster) > 0) | isTRUE(nrow(second_raster) > 0)) {
+    result <- dplyr::bind_rows(first_raster, second_raster)
+    return(result)
+
+  } else {
+    return(result <- NULL)
+  }
+}
 

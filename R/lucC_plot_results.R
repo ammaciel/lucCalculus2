@@ -71,6 +71,7 @@ lucC_plot_sequence_events <- function(data_mtx = NULL, custom_palette = FALSE, R
 
   # to data.frame
   mapSeq <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"))
+  mapSeq <- mapSeq[!duplicated(mapSeq), ]
 
   # create new columns to use in geom_segment
   data <- base::as.data.frame(mapSeq)
@@ -206,6 +207,7 @@ lucC_plot_bar_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_co
 
   # to data frame
   input_data <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"))
+  input_data <- input_data[!duplicated(input_data), ]
 
   # count number of values
   mapBar <- data.frame(table(lubridate::year(input_data$variable), input_data$value))
@@ -330,6 +332,7 @@ lucC_plot_frequency_events <- function(data_mtx = NULL, custom_palette = FALSE, 
 
   # to data frame
   input_data <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"))
+  input_data <- input_data[!duplicated(input_data), ]
 
   # count number of values
   mapFreq <- data.frame(table(lubridate::year(input_data$variable), input_data$value))

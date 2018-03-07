@@ -123,8 +123,9 @@ lucC_relation_before <- function (first_raster = NULL, second_raster = NULL) {
 
   # check is data set are empty
   if (!is.null(first_raster) & !is.null(second_raster)) {
-    first_raster <- first_raster
-    second_raster <- second_raster
+    first_raster <- first_raster[(is.na(first_raster[,ncol(first_raster)]) | first_raster[,ncol(first_raster)] == ""), ]
+    first_raster <- first_raster[, -ncol(first_raster)]
+    second_raster <- second_raster[!(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
     # case mastrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
@@ -158,39 +159,6 @@ lucC_relation_before <- function (first_raster = NULL, second_raster = NULL) {
       return(result)
     else
       return(result <- NULL)
-
-    # remove first column of second raster - jump one year
-  } else if (isTRUE(lubridate::int_end(rasters_intervals[[1]]) < (lubridate::int_start(rasters_intervals[[2]]) + lubridate::years(1)))) {
-    second_raster <- second_raster[,-3]
-    if (ncol(second_raster) == 2){
-      message("\nRelation BEFORE cannot be applied!\n
-          raster 1 and raster 2 has no relation!")
-      return(result <- NULL)
-    } else {
-      second_raster <- second_raster[base::rowSums(is.na(second_raster[,c(3:ncol(second_raster))]))
-                                     != ncol(second_raster[,c(3:ncol(second_raster))]), ]
-      if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
-        # build intervals for each raster data set
-        rasters_intervals2 <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
-      else {
-        message("\nRelation BEFORE cannot be applied!\n
-          raster 1 and raster 2 has no relation!")
-        return(result <- NULL)
-      }
-    }
-    if (isTRUE(lubridate::int_end(rasters_intervals2[[1]]) < lubridate::int_start(rasters_intervals2[[2]])) &
-        !isTRUE(lubridate::int_overlaps(rasters_intervals2[[1]],rasters_intervals2[[2]]))){
-      result <- merge(first_raster, second_raster, by = c("x","y"))
-      if (nrow(result) > 0)
-        return(result)
-      else
-        return(result <- NULL)
-    } else {
-      message("\nRelation BEFORE cannot be applied!\n
-              end time interval from raster 1 must be (<) less than start time interval from raster 2 \n
-              time interval from raster 1 can not overlap time interval from raster 2!\n ")
-      return(result <- NULL)
-    }
   } else {
     message("\nRelation BEFORE cannot be applied!\n
           end time interval from raster 1 must be (<) less than start time interval from raster 2 \n
@@ -248,8 +216,9 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
 
   # check is data set are empty
   if (!is.null(first_raster) & !is.null(second_raster)) {
-    first_raster <- first_raster
-    second_raster <- second_raster
+    first_raster <- first_raster[!(is.na(first_raster[, 3]) | first_raster[, 3] == ""), ]
+    second_raster <- second_raster[(is.na(second_raster[, ncol(second_raster)]) | second_raster[, ncol(second_raster)] == ""), ]
+    second_raster <- second_raster[, -ncol(second_raster)]
     # case mastrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
@@ -283,41 +252,6 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
       return(result)
     else
       return(result <- NULL)
-
-    # remove first column of second raster
-  } else if (isTRUE(lubridate::int_start(rasters_intervals[[1]]) > (lubridate::int_end(rasters_intervals[[2]])) - lubridate::years(1))) {
-    #first_raster <- first_raster[,-ncol(first_raster)]
-    first_raster <- first_raster[,-3]
-    if (ncol(first_raster) == 2){
-      message("\nRelation AFTER cannot be applied!\n
-          raster 1 and raster 2 has no relation!")
-      return(result <- NULL)
-    } else {
-      first_raster <- first_raster[rowSums(is.na(first_raster[,c(3:ncol(first_raster))]))
-                                   != ncol(first_raster[,c(3:ncol(first_raster))]), ]
-
-      if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
-        # build intervals for each raster data set
-        rasters_intervals2 <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
-      else {
-        message("\nRelation AFTER cannot be applied!\n
-          raster 1 and raster 2 has no relation!")
-        return(result <- NULL)
-      }
-    }
-    if (isTRUE(lubridate::int_start(rasters_intervals2[[1]]) > lubridate::int_end(rasters_intervals2[[2]])) &
-        !isTRUE(lubridate::int_overlaps(rasters_intervals2[[1]],rasters_intervals2[[2]]))){
-      result <- merge(first_raster, second_raster, by=c("x","y"))
-      if (nrow(result) > 0)
-        return(result)
-      else
-        return(result <- NULL)
-    } else {
-      message("\nRelation AFTER cannot be applied!\n
-              start time interval from raster 1 must be (>) greater than end time interval from raster 2 \n
-              time interval from raster 1 can not overlap time interval from raster 2!\n ")
-      return(result <- NULL)
-    }
   } else {
     message("\nRelation AFTER cannot be applied!\n
           start time interval from raster 1 must be (>) greater than end time interval from raster 2 \n
