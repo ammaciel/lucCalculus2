@@ -8,7 +8,7 @@
 ##                                                             ##
 ##   R script with thirteen Allen's relationships              ##
 ##                                                             ##
-##                                             2018-02-26      ##
+##                                             2018-03-13      ##
 ##                                                             ##
 ##  Allen, James F. "Maintaining knowledge about temporal      ##
 ##  intervals". Commun. ACM 26, 11, 1983, 832-843.             ##
@@ -123,10 +123,19 @@ lucC_relation_before <- function (first_raster = NULL, second_raster = NULL) {
 
   # check is data set are empty
   if (!is.null(first_raster) & !is.null(second_raster)) {
-    first_raster <- first_raster[(is.na(first_raster[,ncol(first_raster)]) | first_raster[,ncol(first_raster)] == ""), ]
-    first_raster <- first_raster[, -ncol(first_raster)]
-    second_raster <- second_raster[!(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
-    # case mastrix have only one columns
+    # case there is a gap before second interval
+    if (isTRUE(lubridate::ymd(colnames(first_raster)[ncol(first_raster)]) <
+               lubridate::ymd(colnames(second_raster)[3]) - lubridate::years(1))){
+      first_raster <- first_raster
+      second_raster <- second_raster[!(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
+      # case there is a meet between first and second interval
+    } else if (isTRUE(lubridate::ymd(colnames(first_raster)[ncol(first_raster)]) ==
+                      lubridate::ymd(colnames(second_raster)[3]) - lubridate::years(1))){
+      first_raster <- first_raster[!(is.na(first_raster[,ncol(first_raster)]) | first_raster[,ncol(first_raster)] == ""), ]
+      second_raster <- second_raster[(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
+      second_raster <- second_raster[, -3]
+    }
+    # case matrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
       first_raster <- base::as.matrix(t(first_raster))
@@ -142,7 +151,7 @@ lucC_relation_before <- function (first_raster = NULL, second_raster = NULL) {
     return(result <- NULL)
   }
 
-  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+  if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set
     rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
   else {
@@ -216,10 +225,19 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
 
   # check is data set are empty
   if (!is.null(first_raster) & !is.null(second_raster)) {
-    first_raster <- first_raster[!(is.na(first_raster[, 3]) | first_raster[, 3] == ""), ]
-    second_raster <- second_raster[(is.na(second_raster[, ncol(second_raster)]) | second_raster[, ncol(second_raster)] == ""), ]
-    second_raster <- second_raster[, -ncol(second_raster)]
-    # case mastrix have only one columns
+    # case there is a gap after first interval
+    if (isTRUE(lubridate::ymd(colnames(first_raster)[3]) - lubridate::years(1) >
+               lubridate::ymd(colnames(second_raster)[ncol(second_raster)]))){
+      first_raster <- first_raster[!(is.na(first_raster[, 3]) | first_raster[, 3] == ""), ]
+      second_raster <- second_raster
+      # case there is a meet between first and second interval
+    } else if (isTRUE(lubridate::ymd(colnames(first_raster)[3]) - lubridate::years(1) ==
+                      lubridate::ymd(colnames(second_raster)[ncol(second_raster)]))){
+      first_raster <- first_raster[(is.na(first_raster[,3]) | first_raster[,3] == ""), ]
+      first_raster <- first_raster[, -3]
+      second_raster <- second_raster[!(is.na(second_raster[, ncol(second_raster)]) | second_raster[, ncol(second_raster)] == ""), ]
+    }
+    # case matrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
       first_raster <- base::as.matrix(t(first_raster))
@@ -235,7 +253,7 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
     return(result <- NULL)
   }
 
-  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+  if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set
     rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
   else {
@@ -308,10 +326,19 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
 lucC_relation_meets <- function (first_raster = NULL, second_raster = NULL) {
 
   # check is data set are empty
-  # remove rows with last and first column NA because MEETS
   if (!is.null(first_raster) & !is.null(second_raster)) {
-    first_raster <- first_raster[!(is.na(first_raster[,ncol(first_raster)]) | first_raster[,ncol(first_raster)] == ""), ]
-    second_raster <- second_raster[!(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
+    # case there is a meet between first and second interval
+    if (isTRUE(lubridate::ymd(colnames(first_raster)[ncol(first_raster)]) ==
+                lubridate::ymd(colnames(second_raster)[3]) - lubridate::years(1))){
+      # remove rows with last and first column NA because MEETS
+      first_raster <- first_raster[!(is.na(first_raster[,ncol(first_raster)]) | first_raster[,ncol(first_raster)] == ""), ]
+      second_raster <- second_raster[!(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
+    } else {
+      message("\nRelation MEETS cannot be applied!\n
+          end time interval from raster 1 must be (=) equal the start time interval from raster 2 \n
+          time interval from raster 1 can not overlap time interval from raster 2!\n ")
+      return(result <- NULL)
+    }
 
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
@@ -328,7 +355,7 @@ lucC_relation_meets <- function (first_raster = NULL, second_raster = NULL) {
     return(result <- NULL)
   }
 
-  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+  if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set
     rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
   else {
@@ -400,11 +427,21 @@ lucC_relation_meets <- function (first_raster = NULL, second_raster = NULL) {
 lucC_relation_met_by <- function (first_raster = NULL, second_raster = NULL) {
 
   # check is data set are empty
-  # remove rows with last and first column NA because MEETS
   if (!is.null(first_raster) & !is.null(second_raster)) {
-    first_raster <- first_raster[!(is.na(first_raster[, 3]) | first_raster[, 3] == ""), ]
-    second_raster <- second_raster[!(is.na(second_raster[, ncol(second_raster)]) | second_raster[, ncol(second_raster)] == ""), ]
-    # case mastrix have only one columns
+    # case there is a met by between first and second interval
+    if (isTRUE(lubridate::ymd(colnames(first_raster)[3]) - lubridate::years(1) ==
+               lubridate::ymd(colnames(second_raster)[ncol(second_raster)]))){
+      # remove rows with last and first column NA because MET BY
+      first_raster <- first_raster[!(is.na(first_raster[, 3]) | first_raster[, 3] == ""), ]
+      second_raster <- second_raster[!(is.na(second_raster[, ncol(second_raster)]) | second_raster[, ncol(second_raster)] == ""), ]
+    } else {
+      message("\nRelation MET BY cannot be applied!\n
+         end time interval from raster 2 must be (=) equal the start time interval from raster 1 \n
+         time interval from raster 1 can not overlap time interval from raster 2!\n")
+      return(result <- NULL)
+    }
+
+    # case matrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
       first_raster <- base::as.matrix(t(first_raster))
@@ -420,7 +457,7 @@ lucC_relation_met_by <- function (first_raster = NULL, second_raster = NULL) {
     return(result <- NULL)
   }
 
-  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+  if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set
     rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
   else {
@@ -498,7 +535,7 @@ lucC_relation_starts <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
-    # case mastrix have only one columns
+    # case matrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
       first_raster <- base::as.matrix(t(first_raster))
@@ -514,7 +551,7 @@ lucC_relation_starts <- function (first_raster = NULL, second_raster = NULL) {
     return(result <- NULL)
   }
 
-  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+  if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set
     rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
   else {
@@ -593,7 +630,7 @@ lucC_relation_started_by <- function (first_raster = NULL, second_raster = NULL)
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
-    # case mastrix have only one columns
+    # case matrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
       first_raster <- base::as.matrix(t(first_raster))
@@ -609,7 +646,7 @@ lucC_relation_started_by <- function (first_raster = NULL, second_raster = NULL)
     return(result <- NULL)
   }
 
-  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+  if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set
     rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
   else {
@@ -685,7 +722,7 @@ lucC_relation_during <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
-    # case mastrix have only one columns
+    # case matrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
       first_raster <- base::as.matrix(t(first_raster))
@@ -701,7 +738,7 @@ lucC_relation_during <- function (first_raster = NULL, second_raster = NULL) {
     return(result <- NULL)
   }
 
-  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+  if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set
     rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
   else {
@@ -776,7 +813,7 @@ lucC_relation_contains <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
-    # case mastrix have only one columns
+    # case matrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
       first_raster <- base::as.matrix(t(first_raster))
@@ -792,7 +829,7 @@ lucC_relation_contains <- function (first_raster = NULL, second_raster = NULL) {
     return(result <- NULL)
   }
 
-  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+  if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set
     rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
   else {
@@ -872,7 +909,7 @@ lucC_relation_finishes <- function (first_raster = NULL, second_raster = NULL) {
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
-    # case mastrix have only one columns
+    # case matrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
       first_raster <- base::as.matrix(t(first_raster))
@@ -888,7 +925,7 @@ lucC_relation_finishes <- function (first_raster = NULL, second_raster = NULL) {
     return(result <- NULL)
   }
 
-  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+  if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set
     rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
   else {
@@ -968,7 +1005,7 @@ lucC_relation_finished_by <- function (first_raster = NULL, second_raster = NULL
   if (!is.null(first_raster) & !is.null(second_raster)) {
     first_raster <- first_raster
     second_raster <- second_raster
-    # case mastrix have only one columns
+    # case matrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
       first_raster <- base::as.matrix(t(first_raster))
@@ -984,7 +1021,7 @@ lucC_relation_finished_by <- function (first_raster = NULL, second_raster = NULL
     return(result <- NULL)
   }
 
-  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+  if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set
     rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
   else {
@@ -1054,11 +1091,19 @@ lucC_relation_finished_by <- function (first_raster = NULL, second_raster = NULL
 # 13. The 'e' relation = lucC_relation_equals
 lucC_relation_equals <- function (first_raster = NULL, second_raster = NULL) {
 
+  # remove rows with NA in first column
+  first_raster <- subset(first_raster, !is.na(first_raster[,3]))
+  second_raster <- subset(second_raster, !is.na(second_raster[,3]))
+
+  # remove rows with NA in last column
+  first_raster <- subset(first_raster, !is.na(first_raster[,ncol(first_raster)]))
+  second_raster <- subset(second_raster, !is.na(second_raster[,ncol(second_raster)]))
+
   # check is data set are empty
   if (!is.null(first_raster) & !is.null(second_raster) & all(colnames(first_raster) %in% colnames(second_raster))) {
     first_raster <- first_raster
     second_raster <- second_raster
-    # case mastrix have only one columns
+    # case matrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
       # case there is only one value
       first_raster <- base::as.matrix(t(first_raster))
@@ -1074,7 +1119,7 @@ lucC_relation_equals <- function (first_raster = NULL, second_raster = NULL) {
     return(result <- NULL)
   }
 
-  if (nrow(first_raster) > 0 & nrow(second_raster) > 0)
+  if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set
     rasters_intervals <- .lucC_build_intervals(first_ras = first_raster, second_ras = second_raster)
   else {

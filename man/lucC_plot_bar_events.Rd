@@ -8,7 +8,7 @@
 lucC_plot_bar_events (data_mtx = NULL,
 custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250,
 relabel = FALSE, original_labels = NULL, new_labels = NULL,
-legend_text = "Land use transitions:", column_legend = 2,
+legend_text = "Legend:", column_legend = 2,
 side_by_side = FALSE)
 }
 \arguments{
@@ -26,7 +26,7 @@ side_by_side = FALSE)
 
 \item{new_labels}{Character. A vector with new labels to legend text, for example, c("Mature_Forest","Pasture1").}
 
-\item{legend_text}{Character. A text legend to show in plot. Default is "Land use transitions:".}
+\item{legend_text}{Character. A text legend to show in plot, such as "Land use transitions:". Default is "Legend:".}
 
 \item{column_legend}{Integer. A number with the desired number of columns in legend.}
 

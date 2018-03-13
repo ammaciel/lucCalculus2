@@ -6,11 +6,11 @@ library(sits.LUC.Calculus)
 #----------------------------
 
 # create a RasterBrick from individual raster saved previously
-lucC_create_RasterBrick(path_open_GeoTIFFs = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterJuruena", path_save_RasterBrick = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster")
+lucC_create_RasterBrick(path_open_GeoTIFFs = "inst/extdata/raster/rasterJuruena", path_save_RasterBrick = "inst/extdata/raster")
 
 # ------------- define variables to use in sits -------------
 # open files
-file <- c("~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterJuruena.tif")
+file <- c("inst/extdata/raster/rasterJuruena.tif")
 file
 
 # create timeline with classified data from SVM method
@@ -57,7 +57,7 @@ system.time(
 head(forest_recur)
 
 # 2. Verify if occur forest FOLLOWS a different class in 2001
-convert_class <- NULL
+forest_evolve <- NULL
 # classes without Forest
 classes <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask"))
 
@@ -71,25 +71,25 @@ system.time(
                              time_interval2 = c("2002-09-01","2016-09-01"), relation_interval2 = "contains",
                              label = label, timeline = timeline)
 
-    convert_class <- dplyr::bind_rows(convert_class, temp)
+    forest_evolve <- lucC_merge(forest_evolve, temp)
   }
 )
 
-# 3. Merge both forest_recur and convert_class datas
-forest_sec <- lucC_relation_equals(convert_class, forest_recur)
-head(forest_sec)
+# 3. Merge both forest_recur and forest_evolve datas
+forest_secondary <- lucC_merge(forest_evolve, forest_recur)
+head(forest_secondary)
 
-lucC_plot_bar_events(forest_sec, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
+lucC_plot_bar_events(forest_secondary, custom_palette = FALSE, pixel_resolution = 232)
 
 # 4. Remove column 2001 because it' is not used to replace pixels's only support column
-forest_sec2 <- lucC_remove_columns(data_mtx = forest_sec, name_columns = c("2001-09-01"))
-head(forest_sec2)
+forest_sec <- lucC_remove_columns(data_mtx = forest_secondary, name_columns = c("2001-09-01"))
+head(forest_sec)
 
-lucC_plot_bar_events(forest_sec2, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend")
+lucC_plot_bar_events(forest_sec, custom_palette = FALSE, pixel_resolution = 232)
 
 # 5. Plot secondary vegetation over raster without column 2001 because it' is not used to replace pixels's only support column
 lucC_plot_raster_result(raster_obj = rb_Juruena,
-                        data_mtx = forest_sec2,
+                        data_mtx = forest_sec,
                         timeline = timeline,
                         label = label, custom_palette = TRUE,
                         RGB_color = colors_1, relabel = FALSE, shape_point = ".")
@@ -99,13 +99,13 @@ lucC_plot_raster_result(raster_obj = rb_Juruena,
 #----------------------------
 # 3- Update original raster to add new pixel value
 #----------------------------
-
+label_new <- length(label)+1
 # 1. update original RasterBrick with new class
 rb_Juruena_new <- lucC_update_raster(raster_obj = rb_Juruena,
-                                  data_mtx = forest_sec2,       # without 2001
+                                  data_mtx = forest_sec,        # without 2001
                                   timeline = timeline,
                                   class_to_replace = "Forest",  # only class Forest
-                                  new_pixel_value = 17)         # new pixel value
+                                  new_pixel_value = label_new)  # new pixel value
 
 head(rb_Juruena_new)
 
@@ -114,7 +114,7 @@ lucC_plot_bar_events(data_mtx = rb_Juruena_new, pixel_resolution = 232, custom_p
 # 2. save the update matrix as GeoTIFF images
 lucC_save_GeoTIFF(raster_obj = rb_Juruena,
                   data_mtx = rb_Juruena_new,
-                  path_raster_folder = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterJuruenaSec")
+                  path_raster_folder = "inst/extdata/raster/rasterJuruenaSec")
 
 
 
@@ -124,11 +124,11 @@ lucC_save_GeoTIFF(raster_obj = rb_Juruena,
 #----------------------------
 
 # create a RasterBrick from individual raster saved previously
-lucC_create_RasterBrick(path_open_GeoTIFFs = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterJuruenaSec", path_save_RasterBrick = "~/github_projects/sits.LUC.Calculus/inst/extdata/raster")
+lucC_create_RasterBrick(path_open_GeoTIFFs = "inst/extdata/raster/rasterJuruenaSec", path_save_RasterBrick = "inst/extdata/raster")
 
 # ------------- define variables to use in sits -------------
 # open files with new pixel secondary vegetation
-file <- c("~/github_projects/sits.LUC.Calculus/inst/extdata/raster/rasterJuruenaSec.tif")
+file <- c("inst/extdata/raster/rasterJuruenaSec.tif")
 file
 
 # create timeline with classified data from SVM method
@@ -137,7 +137,7 @@ timeline
 
 #library(sits)
 # create a RasterBrick metadata file based on the information about the files
-raster.tb <- sits::sits_coverage(files = file, name = "JuruenaSec", timeline = timeline, bands = "ndvi")
+raster.tb <- sits::sits_coverage(files = file, name = "JuruenaSecVeg", timeline = timeline, bands = "ndvi")
 raster.tb
 
 # new variable
@@ -163,7 +163,7 @@ forest.mtx <- lucC_pred_holds(raster_obj = rb_Juruena2, raster_class = "Forest",
                              relation_interval = "contains", label = label2, timeline = timeline)
 head(forest.mtx)
 
-Forest_secondary.mtx <- lucC_relation_equals(secondary.mtx, forest.mtx)
+Forest_secondary.mtx <- lucC_merge(secondary.mtx, forest.mtx)
 head(Forest_secondary.mtx)
 
 # plot results
@@ -188,7 +188,8 @@ lucC_plot_raster(raster_obj = rb_Juruena2, timeline = timeline,
 #----------------------------
 # 6- Discover Land use transitions - LUC Calculus
 #----------------------------
-label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
+#label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
+label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture", "Pasture", "Pasture", "Soybean_Cotton", "Soybean_Crop", "Soybean_Crop", "Soybean_Crop", "Soybean_Crop", "Soybean_Fallow", "Soybean_Fallow", "Water", "Water", "Secondary_vegetation"))
 label2
 
 # create timeline with classified data from SVM method
@@ -196,7 +197,7 @@ timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004
 timeline
 
 class1 <- c("Forest")
-classes <- c("Pasture1", "Pasture2", "Pasture3", "Secondary_vegetation")
+classes <- c("Pasture", "Secondary_vegetation")
 
 direct_transi.df <- NULL
 
@@ -222,13 +223,16 @@ system.time(
         temp <- temp
       }
 
-      direct_transi.df <- dplyr::bind_rows(direct_transi.df, temp)
+      direct_transi.df <- lucC_merge(direct_transi.df, temp)
     }
     cat("\n")
   }
 )
 
 Forest_Pasture <- direct_transi.df
+head(Forest_Pasture)
+
+Forest_Pasture[ Forest_Pasture == "Pasture" ] <- "Forest_Pasture"
 head(Forest_Pasture)
 
 # plot results

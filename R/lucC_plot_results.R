@@ -161,7 +161,7 @@ lucC_plot_sequence_events <- function(data_mtx = NULL, custom_palette = FALSE, R
 #' @usage lucC_plot_bar_events (data_mtx = NULL,
 #' custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250,
 #' relabel = FALSE, original_labels = NULL, new_labels = NULL,
-#' legend_text = "Land use transitions:", column_legend = 2,
+#' legend_text = "Legend:", column_legend = 2,
 #' side_by_side = FALSE)
 #'
 #' @param data_mtx         Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS
@@ -171,7 +171,7 @@ lucC_plot_sequence_events <- function(data_mtx = NULL, custom_palette = FALSE, R
 #' @param relabel          Boolean. A TRUE or FALSE value. If TRUE, user will provide its own legend text setting! Default is FALSE
 #' @param original_labels  Character. A vector with original labels from legend text, for example, c("Forest","Pasture").
 #' @param new_labels       Character. A vector with new labels to legend text, for example, c("Mature_Forest","Pasture1").
-#' @param legend_text      Character. A text legend to show in plot. Default is "Land use transitions:".
+#' @param legend_text      Character. A text legend to show in plot, such as "Land use transitions:". Default is "Legend:".
 #' @param column_legend    Integer. A number with the desired number of columns in legend.
 #' @param side_by_side     Boolean. Make bar of a barplot a side-by-side plot. Default is FALSE.
 #'
@@ -195,7 +195,7 @@ lucC_plot_sequence_events <- function(data_mtx = NULL, custom_palette = FALSE, R
 #'}
 #'
 
-lucC_plot_bar_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Land use transitions:", column_legend = 2, side_by_side = FALSE){
+lucC_plot_bar_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Legend:", column_legend = 2, side_by_side = FALSE){
 
   # Ensure if parameters exists
   ensurer::ensure_that(data_mtx, !is.null(data_mtx),
@@ -288,7 +288,7 @@ lucC_plot_bar_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_co
 #' @usage lucC_plot_frequency_events (data_mtx = NULL,
 #' custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250,
 #' relabel = FALSE, original_labels = NULL, new_labels = NULL,
-#' legend_text = "Land use transitions:", column_legend = 2)
+#' legend_text = "Legend:", column_legend = 2)
 #'
 #' @param data_mtx         Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS
 #' @param custom_palette   Boolean. A TRUE or FALSE value. If TRUE, user will provide its own color palette setting! Default is FALSE
@@ -297,7 +297,7 @@ lucC_plot_bar_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_co
 #' @param relabel          Boolean. A TRUE or FALSE value. If TRUE, user will provide its own legend text setting! Default is FALSE
 #' @param original_labels  Character. A vector with original labels from legend text, for example, c("Forest","Pasture").
 #' @param new_labels       Character. A vector with new labels to legend text, for example, c("Mature_Forest","Pasture1").
-#' @param legend_text      Character. A text legend to show in plot. Default is "Land use transitions:".
+#' @param legend_text      Character. A text legend to show in plot. Default is "Legend:".
 #' @param column_legend    Integer. A number with the desired number of columns in legend.
 #'
 #' @keywords datasets
@@ -320,7 +320,7 @@ lucC_plot_bar_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_co
 #'}
 #'
 
-lucC_plot_frequency_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Land use transitions:", column_legend = 2){
+lucC_plot_frequency_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Legend:", column_legend = 2){
 
   # Ensure if parameters exists
   ensurer::ensure_that(data_mtx, !is.null(data_mtx),
