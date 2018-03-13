@@ -26,13 +26,13 @@ Classification method and others tools to Satellite Image Time Series analysis c
 <br />
 <h3>Example 1</h3>
 
- - Load the lucC package <code>library(sits.LUC.Calculus)</code>
+ - Load the sits.LUC.Calculus package <code>library(sits.LUC.Calculus)</code>
 
  - Create a RasterBrick from a set of classified images
 
 <pre class="R"> library(sits.LUC.Calculus)
 #-----------------------
-# 1- Open images and create a RasterBrick with each one and metadata with SITS
+# 0. Open images and create a RasterBrick with each one and metadata with SITS
 #-----------------------
 
 # create a RasterBrick from individual raster GeoTIFF classified previously
@@ -149,7 +149,10 @@ Fig. 3. Plot images classified from a RasterBrick and states from Before relatio
 - Apply LUC Calculus to discover secondary vegetation from RasterBrick. We are insterested only in Forest class that RECUR after a non-sequential interval and Forest that EVOLVE after a different class in 2001. After this we update the original raster.
 
 <pre class="R">
+#----------------------------
 # 1. RECUR predicate indicates a class that appear again
+#----------------------------
+
 forest_recur <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
                                     time_interval1 = c("2001-09-01","2001-09-01"),
                                     time_interval2 = c("2003-09-01","2016-09-01"),
@@ -200,7 +203,9 @@ Fig. 5. Plot images classified from a RasterBrick and states from RECUR relation
 
 
 <pre class="R">
+#----------------------------
 # 2. EVOLVE to verify Forest class that occurs after a different class in 2001
+#----------------------------
 forest_evolve <- NULL
 
 # classes without Forest based on original label
@@ -262,7 +267,10 @@ Fig. 7. Plot images classified from a RasterBrick and states from EVOLVE relatio
 
 
 <pre class="R">
-# 3. Merge both forest_recur and forest_evolve datas
+#----------------------------
+# 3. Merge both forest_recur and forest_evolve data sets
+#----------------------------
+
 forest_secondary <- lucC_merge(forest_evolve, forest_recur)
 head(forest_secondary)
 
@@ -308,7 +316,7 @@ Fig. 8. Plot images classified from a RasterBrick and states from EVOLVE relatio
 
 <pre class="R">
 #----------------------------
-# 4 - Update original raster to add new pixel value
+# 4. Update original raster to add new pixel value
 #----------------------------
 label_new <- length(label)+1
 # 1. update original RasterBrick with new class
@@ -384,7 +392,7 @@ Fig. 9. Plot a RasterBrick and states with new secondary vegetation class
 
 <pre class="R">
 #----------------------------
-# 5- Discover Forest and Secondary vegetation - LUC Calculus
+# 5. Discover Forest and Secondary vegetation - LUC Calculus
 #----------------------------
 
 label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation"))
