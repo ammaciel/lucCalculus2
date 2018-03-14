@@ -5,7 +5,8 @@
 \alias{lucC_save_GeoTIFF}
 \title{Save a RasterBrick reclassified in Folder}
 \usage{
-lucC_save_GeoTIFF(raster_obj = NULL, data_mtx = NULL, path_raster_folder = NULL)
+lucC_save_GeoTIFF(raster_obj = NULL, data_mtx = NULL,
+path_raster_folder = NULL, as_RasterBrick = FALSE)
 }
 \arguments{
 \item{raster_obj}{Raster. A raster stack with classified images}
@@ -13,6 +14,8 @@ lucC_save_GeoTIFF(raster_obj = NULL, data_mtx = NULL, path_raster_folder = NULL)
 \item{data_mtx}{Matrix. A matrix with pixel replaced, can be obtined using lucC_update_raster()}
 
 \item{path_raster_folder}{Character. Name a path folder to save raster images data. If  doesn't exist, a new directory is created}
+
+\item{as_RasterBrick}{Boolean. If FALSE, each layer will be saved in separate file. If TRUE, write a RasterBrick in a file. Default is FALSE.}
 }
 \value{
 Raster in geotiff format to open using SIG
@@ -24,7 +27,8 @@ Save new_raster reclassified in a diretory defined by user
 \dontrun{
 
 # save rasters in folder
-lucC_save_GeoTIFF (raster_obj = rb_sits, data_mtx = new_raster, path_raster_folder = "~/Desktop/raster")
+lucC_save_GeoTIFF (raster_obj = rb_sits, data_mtx = new_raster,
+path_raster_folder = "~/Desktop/raster", as_RasterBrick = FALSE)
 
 }
 

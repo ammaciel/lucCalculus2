@@ -22,11 +22,13 @@
 #'
 #' @description Save new_raster reclassified in a diretory defined by user
 #'
-#' @usage lucC_save_GeoTIFF(raster_obj = NULL, data_mtx = NULL, path_raster_folder = NULL)
+#' @usage lucC_save_GeoTIFF(raster_obj = NULL, data_mtx = NULL,
+#' path_raster_folder = NULL, as_RasterBrick = FALSE)
 #'
 #' @param raster_obj          Raster. A raster stack with classified images
 #' @param data_mtx            Matrix. A matrix with pixel replaced, can be obtined using lucC_update_raster()
 #' @param path_raster_folder  Character. Name a path folder to save raster images data. If  doesn't exist, a new directory is created
+#' @param as_RasterBrick      Boolean. If FALSE, each layer will be saved in separate file. If TRUE, write a RasterBrick in a file. Default is FALSE.
 #'
 #' @keywords datasets
 #' @return Raster in geotiff format to open using SIG
@@ -38,13 +40,14 @@
 #' @examples \dontrun{
 #'
 #' # save rasters in folder
-#' lucC_save_GeoTIFF (raster_obj = rb_sits, data_mtx = new_raster, path_raster_folder = "~/Desktop/raster")
+#' lucC_save_GeoTIFF (raster_obj = rb_sits, data_mtx = new_raster,
+#' path_raster_folder = "~/Desktop/raster", as_RasterBrick = FALSE)
 #'
 #'}
 #'
 
 # plot maps with events
-lucC_save_GeoTIFF <- function(raster_obj = NULL, data_mtx = NULL, path_raster_folder = NULL){
+lucC_save_GeoTIFF <- function(raster_obj = NULL, data_mtx = NULL, path_raster_folder = NULL, as_RasterBrick = FALSE){
 
   # Ensure if parameters exists
   ensurer::ensure_that(raster_obj, !is.null(raster_obj),
@@ -73,8 +76,18 @@ lucC_save_GeoTIFF <- function(raster_obj = NULL, data_mtx = NULL, path_raster_fo
 
   message("Saving... \n")
 
-  # write it as a geoTIFF file using the raster package
-  raster::writeRaster(new_raster, filename= paste0(path_raster_folder,"/New", sep = ""), bylayer=TRUE, suffix = names(new_raster), format="GTiff", overwrite=TRUE)
+  if(as_RasterBrick == FALSE){
+    # write as a geoTIFF file using the raster package by each layer
+    raster::writeRaster(new_raster,
+                        filename= paste0(path_raster_folder,"/New", sep = ""),
+                        bylayer=TRUE, suffix = names(new_raster), format="GTiff", overwrite=TRUE)
+  } else {
+    file_name <- basename(path_raster_folder)
+    # write as a geoTIFF file using the raster package as a RasterBrick file
+    raster::writeRaster(new_raster,
+                        filename= paste0(path_raster_folder,"/New_", file_name, sep = ""),
+                        bylayer=FALSE, format="GTiff", overwrite=TRUE)
+  }
 
   cat("\nGeoTIFF images saved successfully in directory: '", path_raster_folder, "'\n")
 

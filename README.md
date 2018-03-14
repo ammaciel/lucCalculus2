@@ -333,15 +333,17 @@ lucC_plot_bar_events(data_mtx = rb_sits_new, pixel_resolution = 232, custom_pale
 # 2. save the update matrix as GeoTIFF images
 lucC_save_GeoTIFF(raster_obj = rb_sits,
                   data_mtx = rb_sits_new,
-                  path_raster_folder = "inst/extdata/raster/raster_sampleSecVeg")
+                  path_raster_folder = "inst/extdata/raster/raster_sampleSecVeg1", 
+                  as_RasterBrick = TRUE )
 
 
 #------------
-# create a RasterBrick from individual raster GeoTIFF 
-lucC_create_RasterBrick(path_open_GeoTIFFs = "inst/extdata/raster/raster_sampleSecVeg", path_save_RasterBrick = "inst/extdata/raster")
+# create a RasterBrick from individual raster GeoTIFF, case saved as separate layers in lucC_save_GeoTIFF, as_RasterBrick = FALSE
+# lucC_create_RasterBrick(path_open_GeoTIFFs = "inst/extdata/raster/raster_sampleSecVeg", path_save_RasterBrick = "inst/extdata/raster")
+# file <- c("inst/extdata/raster/raster_sampleSecVeg.tif")
 
-# open files
-file <- c("inst/extdata/raster/raster_sampleSecVeg.tif")
+# open file RasterBrick
+file <- c("inst/extdata/raster/raster_sampleSecVeg1/New_raster_sampleSecVeg1.tif")
 
 # create timeline with classified data from SVM method
 timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))

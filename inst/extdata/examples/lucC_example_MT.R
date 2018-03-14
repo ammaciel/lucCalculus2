@@ -1,6 +1,5 @@
 library(sits.LUC.Calculus)
 
-
 #----------------------------
 # 1- Open idividual images and create a RasterBrick with each one and metadata ith SITS
 #----------------------------
@@ -45,6 +44,8 @@ lucC_plot_raster(raster_obj = rb_sits,
 #----------------------------
 # 2- Discover Secondary Vegetation - LUC Calculus
 #----------------------------
+
+
 
 # 1. Verify if forest RECUR ins econd interval
 system.time(
