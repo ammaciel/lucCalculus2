@@ -49,7 +49,7 @@ timeline
 
 # library(sits)
 # create a RasterBrick metadata file based on the information about the files
-raster.tb <- sits::sits_coverage(files = file, name = "Sample_region", timeline = timeline, bands = "ndvi")
+raster.tb <- sits::sits_coverage(service = "RASTER", files = file, name = "Sample_region", timeline = timeline, bands = "ndvi")
 raster.tb
 
 # new variable with raster object
@@ -350,7 +350,7 @@ timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004
 
 # library(sits)
 # create a RasterBrick metadata file based on the information about the files
-raster.tb <- sits::sits_coverage(files = file, name = "Sample_region_SecVeg", timeline = timeline, bands = "ndvi")
+raster.tb <- sits::sits_coverage(service = "RASTER", files = file, name = "Sample_region_SecVeg", timeline = timeline, bands = "ndvi")
 
 # new variable with raster object
 rb_sits2 <- raster.tb$r_objs[[1]][[1]]
