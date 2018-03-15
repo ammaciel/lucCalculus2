@@ -361,3 +361,28 @@ lucC_plot_raster(raster_obj = rb_sits, timeline = timeline, label = label2, cust
 
 lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = a, timeline = timeline, label = label2, custom_palette = TRUE, RGB_color = colors_2, relabel = FALSE, plot_ncol = 6)
 
+
+
+
+#----------------------------------
+library(dplyr)
+# You can also unnest multiple columns simultaneously
+df <- tibble(
+  a = list(c("a", "b", "x"), "c"),
+  b = list(c(1:2,4), 3),
+  c = c(11, 22)
+)
+
+df$a
+
+df %>% tidyr::unnest(a, b)
+df
+
+# If you omit the column names, it'll unnest all list-cols
+df %>% tidyr::unnest()
+
+# You can also choose to preserve one or more list-cols
+df %>% tidyr::unnest(a, .preserve = b)
+
+
+

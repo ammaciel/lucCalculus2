@@ -18,12 +18,13 @@ start.time <- Sys.time()
 all.the.files <- list.files("~/Desktop/INPE_2018/Classi_MT_SVM/raster_2SecVeg", full=TRUE, pattern = ".tif")
 all.the.files
 
-number_SV_For <- NULL
+number_SV_For <- list()
+#number_SV_For <- NULL
 
 for (i in 1:length(all.the.files)) {
 
   # file
-  #file <- all.the.files[15]
+  # file <- all.the.files[15]
   file <- all.the.files[i]
   #file
 
@@ -36,7 +37,7 @@ for (i in 1:length(all.the.files)) {
   # create a RasterBrick metadata file based on the information about the files
   raster.tb <- sits::sits_coverage(service = "RASTER", name = file_name, timeline = timeline, bands = "ndvi", files = file)
 
-  message(paste0("Load RasterBrick! Name: ", raster.tb$name, " ...\n", sep = ""))
+  message(paste0("\nLoad RasterBrick! Name: ", raster.tb$name, " ...\n", sep = ""))
 
   # new variable with raster object
   rb_sits <- raster.tb$r_objs[[1]][[1]]
@@ -65,7 +66,7 @@ for (i in 1:length(all.the.files)) {
   Forest_secondary.mtx <- lucC_merge(secondary.mtx, forest.mtx)
   #head(Forest_secondary.mtx)
 
-  number_SV_For <- lucC_merge(number_SV_For, Forest_secondary.mtx)
+  number_SV_For[[i]] <- Forest_secondary.mtx
 
 
   # message("Quantity of Secondary vegetation and Forest Ok! ...\n")
@@ -73,8 +74,10 @@ for (i in 1:length(all.the.files)) {
   message("--------------------------------------------------\n")
   # clear environment, except these elements
   rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "end.time", "number_SV_For"))])
-  gc(reset = TRUE)
+  gc(verbose = TRUE)
+  gc()
 
+  message("--------------------------------------------------\n")
 }
 
 #save to rda file
@@ -86,11 +89,48 @@ end.time <- Sys.time()
 time.taken <- end.time - start.time
 time.taken
 
+#---------------------
+load(file = "~/Desktop/INPE_2018/Classi_MT_SVM/raster_2SecVeg/number_SV_For.rda")
 
+head(number_SV_For)
+# library(magrittr)
 
+meltFromList <- function(x){
+  raster_data <- reshape2::melt(as.data.frame(x), id.vars = c("x","y"), na.rm = TRUE) #%>%
+    #stats::na.omit()
 
+  raster_data$x = as.numeric(as.character(raster_data$x)) # as.numeric(levels(point_df$x))[point_df$x]
+  raster_data$variable = as.character(as.character(raster_data$variable))
+  raster_data$y = as.numeric(as.character(raster_data$y))
 
+  raster_data <- raster_data[!duplicated(raster_data), ]
 
+  # count number of values
+  result <- data.frame(table(lubridate::year(raster_data$variable), raster_data$value))
+
+  return(result)
+}
+
+# Just iterate over the file paths
+# Calling one function that reads in the file and melts
+system.time(out <- lapply(number_SV_For, meltFromList))
+
+start <- proc.time() # Start clock
+# output.tb <- data.frame(do.call("rbind", parallel::mclapply( X = number_SV_For,
+#                                                             mc.cores=3, #parallel::detectCores(),
+#                                                             FUN = meltFromList)))
+output.tb <- parallel::mclapply(X = number_SV_For, mc.cores=3, FUN = meltFromList)
+
+time_elapsed_series <- proc.time() - start # End clock
+time_elapsed_series
+
+output.tb
+
+out <- output.tb
+
+do.call(rbind,lapply(out, function(x) {
+  colSums(x$Freq[,sapply(x$Freq, is.numeric)])
+}))
 
 
 

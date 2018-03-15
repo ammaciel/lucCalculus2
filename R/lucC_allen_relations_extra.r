@@ -428,16 +428,16 @@ lucC_merge <- function (first_raster = NULL, second_raster = NULL) {
   #
   if( isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0)) {
     # first raster
-    first_raster <- reshape2::melt(as.data.frame(first_raster), id.vars = c("x","y")) %>%
-      stats::na.omit()
+    first_raster <- reshape2::melt(as.data.frame(first_raster), id.vars = c("x","y"), na.rm = TRUE) # %>%
+    #  stats::na.omit()
     # remove factors
     first_raster$x = as.numeric(as.character(first_raster$x)) # as.numeric(levels(point_df$x))[point_df$x]
     first_raster$variable = as.character(as.character(first_raster$variable))
     first_raster$y = as.numeric(as.character(first_raster$y))
 
     # first raster
-    second_raster <- reshape2::melt(as.data.frame(second_raster), id.vars = c("x","y")) %>%
-      stats::na.omit()
+    second_raster <- reshape2::melt(as.data.frame(second_raster), id.vars = c("x","y"), na.rm = TRUE) #%>%
+      #stats::na.omit()
     # remove factors
     second_raster$x = as.numeric(as.character(second_raster$x)) # as.numeric(levels(point_df$x))[point_df$x]
     second_raster$variable = as.character(as.character(second_raster$variable))
