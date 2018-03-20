@@ -5,7 +5,7 @@
 \alias{lucC_plot_bar_events}
 \title{Plot Barplot Maps}
 \usage{
-lucC_plot_bar_events (data_mtx = NULL,
+lucC_plot_bar_events (data_mtx = NULL, data_frequency = NULL,
 custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250,
 relabel = FALSE, original_labels = NULL, new_labels = NULL,
 legend_text = "Legend:", column_legend = 2,
@@ -13,6 +13,8 @@ side_by_side = FALSE)
 }
 \arguments{
 \item{data_mtx}{Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS}
+
+\item{data_frequency}{Dataframe. A frequency table of a categorical variable from a data set}
 
 \item{custom_palette}{Boolean. A TRUE or FALSE value. If TRUE, user will provide its own color palette setting! Default is FALSE}
 

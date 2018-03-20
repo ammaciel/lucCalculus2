@@ -5,10 +5,12 @@
 \alias{lucC_result_measures}
 \title{Data.frame with statistical measures}
 \usage{
-lucC_result_measures (data_mtx = NULL, pixel_resolution = 250)
+lucC_result_measures (data_mtx = NULL, data_frequency = NULL, pixel_resolution = 250)
 }
 \arguments{
 \item{data_mtx}{Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS}
+
+\item{data_frequency}{Dataframe. A frequency table of a categorical variable from a data set}
 
 \item{pixel_resolution}{Numeric. Is a spatial resolution of the pixel. Default is 250 meters considering MODIS 250 m. See more at \url{https://modis.gsfc.nasa.gov/about/specifications.php}.}
 }
@@ -17,7 +19,7 @@ Data frame with statistical measures
 }
 \description{
 Provide a data.frame with main statistical measures to resultd from LUC Calculus application such as: Area (km2),
-Cumulative Sum (CumSum), Relative Frequency and Cumulative Relative Frequency
+Cumulative Sum, Relative Frequency and Cumulative Relative Frequency
 }
 \examples{
 \dontrun{

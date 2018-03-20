@@ -158,13 +158,14 @@ lucC_plot_sequence_events <- function(data_mtx = NULL, custom_palette = FALSE, R
 #'
 #' @description Plot barplot over time
 #'
-#' @usage lucC_plot_bar_events (data_mtx = NULL,
+#' @usage lucC_plot_bar_events (data_mtx = NULL, data_frequency = NULL,
 #' custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250,
 #' relabel = FALSE, original_labels = NULL, new_labels = NULL,
 #' legend_text = "Legend:", column_legend = 2,
 #' side_by_side = FALSE)
 #'
 #' @param data_mtx         Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS
+#' @param data_frequency   Dataframe. A frequency table of a categorical variable from a data set
 #' @param custom_palette   Boolean. A TRUE or FALSE value. If TRUE, user will provide its own color palette setting! Default is FALSE
 #' @param RGB_color        Character. A vector with color names to map legend, for example, c("Green","Blue"). Default is setting scale_colour_hue
 #' @param pixel_resolution Numeric. Is a spatial resolution of the pixel. Default is 250 meters considering MODIS 250 m. See more at \url{https://modis.gsfc.nasa.gov/about/specifications.php}.
@@ -195,22 +196,30 @@ lucC_plot_sequence_events <- function(data_mtx = NULL, custom_palette = FALSE, R
 #'}
 #'
 
-lucC_plot_bar_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Legend:", column_legend = 2, side_by_side = FALSE){
+lucC_plot_bar_events <- function(data_mtx = NULL, data_frequency = NULL, custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Legend:", column_legend = 2, side_by_side = FALSE){
 
   # Ensure if parameters exists
-  ensurer::ensure_that(data_mtx, !is.null(data_mtx),
-                       err_desc = "data_mtx matrix, file must be defined!\nThis data can be obtained using predicates RECUR, HOLDS, EVOLVE and CONVERT.")
+  #ensurer::ensure_that(data_mtx, !is.null(data_mtx),
+  #                     err_desc = "data_mtx matrix, file must be defined!\nThis data can be obtained using predicates RECUR, HOLDS, EVOLVE and CONVERT.")
   ensurer::ensure_that(custom_palette, !is.null(custom_palette),
                        err_desc = "custom_palette must be defined, if wants use its own color palette setting! Default is FALSE")
   ensurer::ensure_that(pixel_resolution, !is.null(pixel_resolution),
                        err_desc = "pixel_resolution must be defined! Default is 250 meters on basis of MODIS image")
 
-  # to data frame
-  input_data <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"))
-  input_data <- input_data[!duplicated(input_data), ]
-
-  # count number of values
-  mapBar <- data.frame(table(lubridate::year(input_data$variable), input_data$value))
+  # input data matrix or a frequency table
+  if (!is.null(data_mtx)){
+    # to data frame
+    input_data <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"))
+    input_data <- input_data[!duplicated(input_data), ]
+    # count number of values
+    mapBar <- data.frame(table(lubridate::year(input_data$variable), input_data$value))
+  } else if (!is.null(data_frequency)){
+    # already
+    mapBar <- data_frequency
+    colnames(mapBar) <- c("Var1", "Var2", "Freq")
+  } else {
+    stop("\nProvide at least a 'data_mtx' or a 'data_frequency' to plot graphics!\n")
+  }
 
   # insert own colors palette
   if(custom_palette == TRUE){
@@ -285,12 +294,13 @@ lucC_plot_bar_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_co
 #'
 #' @description Plot frequency line over time
 #'
-#' @usage lucC_plot_frequency_events (data_mtx = NULL,
+#' @usage lucC_plot_frequency_events (data_mtx = NULL, data_frequency = NULL,
 #' custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250,
 #' relabel = FALSE, original_labels = NULL, new_labels = NULL,
 #' legend_text = "Legend:", column_legend = 2)
 #'
 #' @param data_mtx         Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS
+#' @param data_frequency   Dataframe. A frequency table of a categorical variable from a data set
 #' @param custom_palette   Boolean. A TRUE or FALSE value. If TRUE, user will provide its own color palette setting! Default is FALSE
 #' @param RGB_color        Character. A vector with color names to map legend, for example, c("Green","Blue"). Default is setting scale_colour_hue
 #' @param pixel_resolution Numeric. Is a spatial resolution of the pixel. Default is 250 meters considering MODIS 250 m. See more at \url{https://modis.gsfc.nasa.gov/about/specifications.php}.
@@ -320,22 +330,30 @@ lucC_plot_bar_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_co
 #'}
 #'
 
-lucC_plot_frequency_events <- function(data_mtx = NULL, custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Legend:", column_legend = 2){
+lucC_plot_frequency_events <- function(data_mtx = NULL, data_frequency = NULL, custom_palette = FALSE, RGB_color = NULL, pixel_resolution = 250, relabel = FALSE, original_labels = NULL, new_labels = NULL, legend_text = "Legend:", column_legend = 2){
 
   # Ensure if parameters exists
-  ensurer::ensure_that(data_mtx, !is.null(data_mtx),
-                       err_desc = "data_mtx matrix, file must be defined!\nThis data can be obtained using predicates RECUR, HOLDS, EVOLVE and CONVERT.")
+  #ensurer::ensure_that(data_mtx, !is.null(data_mtx),
+  #                     err_desc = "data_mtx matrix, file must be defined!\nThis data can be obtained using predicates RECUR, HOLDS, EVOLVE and CONVERT.")
   ensurer::ensure_that(custom_palette, !is.null(custom_palette),
                        err_desc = "custom_palette must be defined, if wants use its own color palette setting! Default is FALSE")
   ensurer::ensure_that(pixel_resolution, !is.null(pixel_resolution),
                        err_desc = "pixel_resolution must be defined! Default is 250 meters on basis of MODIS image")
 
-  # to data frame
-  input_data <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"))
-  input_data <- input_data[!duplicated(input_data), ]
-
-  # count number of values
-  mapFreq <- data.frame(table(lubridate::year(input_data$variable), input_data$value))
+  # input data matrix or a frequency table
+  if (!is.null(data_mtx)){
+    # to data frame
+    input_data <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"))
+    input_data <- input_data[!duplicated(input_data), ]
+    # count number of values
+    mapFreq <- data.frame(table(lubridate::year(input_data$variable), input_data$value))
+  } else if (!is.null(data_frequency)){
+    # already
+    mapFreq <- data_frequency
+    colnames(mapFreq) <- c("Var1", "Var2", "Freq")
+  } else {
+    stop("\nProvide at least a 'data_mtx' or a 'data_frequency' to plot graphics!\n")
+  }
 
   # insert own colors palette
   if(custom_palette == TRUE){

@@ -23,7 +23,7 @@ NULL
 
 
 #' @importFrom utils globalVariables
-utils::globalVariables(c("points_input_map.list", "map_input_df", "points_events_map.list",".", "value.x", "value.y", "Classes", "Area_km2", "CumSum", "Relative_Frequency", "check"))
+utils::globalVariables(c("points_input_map.list", "map_input_df", "points_events_map.list",".", "value.x", "value.y", "Classes", "Area_km2", "Cumulative_Sum", "Relative_Frequency", "check"))
 
 
 #' @title Example CSV with a timeline
