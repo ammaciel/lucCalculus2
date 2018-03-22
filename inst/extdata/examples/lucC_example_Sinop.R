@@ -115,7 +115,7 @@ lucC_plot_bar_events(data_mtx = rb_sits_new, pixel_resolution = 232, custom_pale
 # 2. save the update matrix as GeoTIFF images
 lucC_save_GeoTIFF(raster_obj = rb_sits,
                   data_mtx = rb_sits_new,
-                  path_raster_folder = "inst/extdata/raster/rasterSinopSecVeg")
+                  path_raster_folder = "inst/extdata/raster/rasterSinopSecVeg", as_RasterBrick = FALSE)
 
 
 
@@ -149,6 +149,16 @@ rb_sits2
 label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
 label2
 
+# colors
+colors_2 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff", "red")
+
+
+# plot raster brick
+lucC_plot_raster(raster_obj = rb_sits2,
+                 timeline = timeline, label = label2,
+                 custom_palette = TRUE, RGB_color = colors_2, plot_ncol = 6)
+
+
 
 #----------------------------
 # 5- Discover Forest and Secondary vegetation - LUC Calculus
@@ -157,12 +167,12 @@ label2
 secondary.mtx <- lucC_pred_holds(raster_obj = rb_sits2, raster_class = "Secondary_vegetation",
                                  time_interval = c("2001-09-01","2016-09-01"),
                                  relation_interval = "contains", label = label2, timeline = timeline)
-secondary.mtx
+head(secondary.mtx)
 
 forest.mtx <- lucC_pred_holds(raster_obj = rb_sits2, raster_class = "Forest",
                               time_interval = c("2001-09-01","2016-09-01"),
                               relation_interval = "contains", label = label2, timeline = timeline)
-forest.mtx
+head(forest.mtx)
 
 Forest_secondary.mtx <- lucC_merge(secondary.mtx, forest.mtx)
 head(Forest_secondary.mtx)
@@ -174,15 +184,6 @@ lucC_plot_bar_events(data_mtx = Forest_secondary.mtx,
 # Compute values
 measuresFor_Sec <- lucC_result_measures(data_mtx = Forest_secondary.mtx, pixel_resolution = 232)
 measuresFor_Sec
-
-#-----------------
-# define new color squeme - added Secondary Vegetation value
-colors_2 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff", "red")
-
-# plot
-lucC_plot_raster(raster_obj = rb_sits2, timeline = timeline,
-                 label = label2, custom_palette = TRUE,
-                 RGB_color = colors_2, relabel = FALSE, plot_ncol = 6)
 
 
 
