@@ -89,9 +89,8 @@ time.taken
 #---------------------
 load(file = "~/Desktop/INPE_2018/Classi_MT_SVM/raster_2SecVeg/number_SV_For.rda")
 
-
 output_freq <- lucC_extract_frequency(data_mtx.list = number_SV_For, cores_in_parallel = 3)
-
+output_freq
 
 #----------------------
 # plot results
@@ -107,6 +106,122 @@ measuresFor_Sec <- lucC_result_measures(data_frequency = output_freq, pixel_reso
 measuresFor_Sec
 
 
+#-------------------------------------------
 
+# all files in folder
+all.the.files <- list.files("~/Desktop/INPE_2018/Classi_MT_SVM/raster_2SecVeg", full=TRUE, pattern = ".tif")
+all.the.files
+
+list_raster <- list()
+
+for (i in 1:length(all.the.files)) {
+
+  file <- all.the.files[i]
+
+  # create timeline with classified data from SVM method
+  timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
+
+  file_name <- basename(tools::file_path_sans_ext(file))
+
+  # library(sits)
+  # create a RasterBrick metadata file based on the information about the files
+  raster.tb <- sits::sits_coverage(service = "RASTER", name = file_name, timeline = timeline, bands = "ndvi", files = file)
+
+  message(paste0("Load RasterBrick! Name: ", raster.tb$name, " ...\n", sep = ""))
+
+  # new variable with raster object
+  rb_sits <- raster.tb$r_objs[[1]][[1]]
+
+  list_raster[[i]] <- rb_sits
+
+}
+
+list_raster$fun <- max
+list_raster$na.rm <- TRUE
+
+# mosaic
+MT_mergeSV <- do.call(raster::mosaic, list_raster)
+
+raster::writeRaster(MT_mergeSV, filename="~/Desktop/fig_TESE/figureMT.tif", format="GTiff", overwrite=TRUE)
+
+
+
+#-----------
+# open files
+file <- c("~/Desktop/INPE_2018/Classi_MT_SVM/raster_2SecVeg/New_0000_0000.tif")
+
+# all files in folder
+#all.the.files <- list.files("~/Desktop/INPE_2018/Classi_MT_SVM/raster_1splitted", full=TRUE, pattern = ".tif")
+#all.the.files
+
+  # create timeline with classified data from SVM method
+  timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
+
+  file_name <- basename(tools::file_path_sans_ext(file))
+
+  #library(sits)
+  # create a RasterBrick metadata file based on the information about the files
+  raster.tb <- sits::sits_coverage(service = "RASTER", files = file, name = file_name, timeline = timeline, bands = "ndvi")
+
+  message(paste0("\nLoad RasterBrick! Name: ", raster.tb$name, " ...\n", sep = ""))
+
+  # new variable
+  rb_sits <- raster.tb$r_objs[[1]][[1]]
+
+  label <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation"))
+
+  load(file = "~/Desktop/INPE_2018/Classi_MT_SVM/raster_2SecVeg/number_SV_For.rda")
+  b <- number_SV_For[[1]]
+
+  data_new <- lucC_update_raster_result(raster_obj = rb_sits, data_mtx = b, timeline = timeline, label = label)
+
+  data_new
+
+  library(raster)
+  # set up an 'empty' raster, here via an extent object derived from your data
+  e <- extent(s100[,1:2])
+  e <- e + 1000 # add this as all y's are the same
+
+  df = data.frame(data_new)
+  new_raster <- raster::rasterFromXYZ(df)
+  names(new_raster) <- raster_obj@data@names
+
+  plot(new_raster)
+
+  #
+  # class_name <- unique(data_mtx[3:ncol(data_mtx)][!duplicated(as.vector(data_mtx[3:ncol(data_mtx)])) & !is.na(data_mtx[3:ncol(data_mtx)])] )
+  # class_name
+  #
+  # class <- which(label2 %in% class_name)
+  #
+  # temp <- data_mtx
+  #
+  # for( i in 1:length(class_name)){
+  #   temp <- replace(temp, temp == class_name[i], class[i])
+  # }
+  # temp
+
+  # a <- replace(number_SV_For[[1]], number_SV_For[[1]] == "Forest", 1)
+  # a <- replace(a, a == "Secondary_Vegetation", 2)
+
+lucC_save_GeoTIFF(raster_obj = rb_sits, data_mtx = data_new, path_raster_folder = "~/Desktop/raster_MT_0000", as_RasterBrick = FALSE)
+
+lucC_plot_raster(rb_sits, timeline, label = label2 )
+
+lucC_plot_raster_result(rb_sits, data_mtx = data_new, timeline, label = label, shape_point = ".", plot_ncol = 4 )
+
+
+#-------
+
+library(Rcpp)
+cppFunction('int add(int x, int y, int z) {
+  int sum = x + y + z;
+  return sum;
+}')
+# add works like a regular R function
+add
+#> function (x, y, z)
+#> .Primitive(".Call")(<pointer: 0x7f5164309df0>, x, y, z)
+add(1, 2, 3)
 
 

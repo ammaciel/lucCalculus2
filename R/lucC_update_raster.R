@@ -13,7 +13,7 @@
 ##                                                             ##
 #################################################################
 
-#' @title Update a Rasterrick with pixel replaced
+#' @title Update a RasterBrick with pixel replaced
 #' @name lucC_update_raster
 #' @aliases lucC_update_raster
 #' @author Adeline M. Maciel
@@ -114,4 +114,114 @@ lucC_update_raster <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
   return(raster_df_update)
 
 }
+
+
+
+
+#' @title Update a RasterBrick with result from predicates
+#' @name lucC_update_raster_result
+#' @aliases lucC_update_raster_result
+#' @author Adeline M. Maciel
+#' @docType data
+#'
+#' @description Update a RasterBrick with new values of pixel discovered from LUC Calculus formalism to create GeoTIFF files
+#'
+#' @usage lucC_update_raster_result(raster_obj = NULL, data_mtx = NULL,
+#' timeline = NULL, label = NULL)
+#'
+#' @param raster_obj       Raster. A raster stack with classified images
+#' @param data_mtx         Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS
+#' @param timeline         Character. A list of all dates of classified raster, timeline
+#' @param label             Character. All labels of each value of pixel from classified raster
+#'
+#' @keywords datasets
+#' @return Matrix with raster and pixels to create a RasterBrick with result
+#' @importFrom ensurer ensure_that
+#' @importFrom lubridate year
+#' @importFrom dplyr mutate  select left_join
+#' @importFrom reshape2 melt dcast
+#' @importFrom stats na.omit
+#' @export
+#'
+#' @examples \dontrun{
+#'
+#' rb_new <- lucC_update_raster_result(raster_obj = rb_sits, data_mtx = third_raster.df,
+#' timeline = timeline, label = label)
+#' rb_new
+#'
+#'}
+#'
+
+# plot maps for input data
+lucC_update_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline = NULL, label = NULL) {
+
+  # Ensure if parameters exists
+  ensurer::ensure_that(raster_obj, !is.null(raster_obj),
+                       err_desc = "raster_obj tibble, file must be defined!\nThis data can be obtained using lucC predicates holds or occurs.")
+  ensurer::ensure_that(data_mtx, !is.null(data_mtx),
+                       err_desc = "data_mtx matrix, file must be defined!\nThis data can be obtained using predicates RECUR, HOLDS, EVOLVE and CONVERT.")
+  ensurer::ensure_that(timeline, !is.null(timeline),
+                       err_desc = "timeline must be defined!")
+
+  #-------------------- prepare rasterBrick --------------------------------
+
+  options(digits = 20)
+
+  # original raster
+  df <- raster::rasterToPoints(raster_obj) %>%
+    data.frame()
+
+  # replace colnames to timeline
+  colnames(df)[c(3:ncol(df))] <- as.character(lubridate::year(timeline))
+  raster_df <- reshape2::melt(df, id.vars = c("x","y"))
+
+  # all values are 0
+  raster_df$variable = as.numeric(as.character(raster_df$variable))
+  raster_df$value = 0
+
+  #-------------------- prepare matrix with events --------------------------------
+  # replace new clase by new pixel value
+  class_name <- unique(data_mtx[3:ncol(data_mtx)][!duplicated(as.vector(data_mtx[3:ncol(data_mtx)])) & !is.na(data_mtx[3:ncol(data_mtx)])] )
+
+  class <- which(label %in% class_name)
+
+  for( i in 1:length(class_name)){
+    data_mtx <- replace(data_mtx, data_mtx == class_name[i], class[i])
+  }
+
+  # data matrix to new raster
+  new_df <- as.data.frame(data_mtx)
+  colnames(new_df)[c(3:ncol(new_df))] <- as.character(lubridate::year(colnames(new_df)[c(3:ncol(new_df))]))
+
+  point_df <- reshape2::melt(new_df, id.vars = c("x","y"), na.rm = TRUE)
+
+  # remove factors
+  point_df$x = as.numeric(as.character(point_df$x)) # as.numeric(levels(point_df$x))[point_df$x]
+  point_df$y = as.numeric(as.character(point_df$y))
+  point_df$variable = as.numeric(as.character(point_df$variable))
+
+  # ------------------ replace point_df in raster_df ---------------------
+
+  # replace in entire raster
+  raster_df_temp <- dplyr::left_join(raster_df, point_df, by = c("x" = "x", "y" = "y", "variable" = "variable")) %>%
+    dplyr::mutate(value = ifelse(!is.na(.$value.y), .$value.y, .$value.x)) %>%
+    dplyr::select(-value.x, -value.y) %>%
+    .[order(.$variable),]
+
+  # remove duplicated lines
+  raster_df_temp <- raster_df_temp[!duplicated(raster_df_temp), ]
+
+  raster_df_update <- reshape2::dcast(raster_df_temp, x+y ~ variable, value.var= "value")
+  colnames(raster_df_update)[c(3:ncol(raster_df_update))] <- as.character(timeline)
+
+  raster_df_update
+
+  return(raster_df_update)
+
+}
+
+
+
+
+
 
