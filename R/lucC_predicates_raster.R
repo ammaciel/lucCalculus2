@@ -74,6 +74,9 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
          final_result = TRUE or FALSE\n")
   }
 
+  rm(raster_obj)
+  gc()
+
   if (!is.null(time_interval) & isTRUE(time_interval[1] <= time_interval[2])) {
 
     # checking if first or second interval values are correct
@@ -138,6 +141,9 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
   ## test rows entire FALSE values
   # dplyr::anti_join(longLatFromRaster,longLatFromRaster.mtx)
 
+  rm(longLatFromRaster)
+  gc()
+
   # define timeline from raster output_holds
   timeline_holds = timeline[ timeline >= timeline[date_start] & timeline <= timeline[date_end]]
 
@@ -159,9 +165,9 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
   longLatFromRaster.mtx[,c(3:ncol(longLatFromRaster.mtx))] <-
     as.character(ifelse(longLatFromRaster.mtx[,c(3:ncol(longLatFromRaster.mtx))] == 1, class_name, NA))
 
-  result <- longLatFromRaster.mtx
+  longLatFromRaster.mtx
 
-  return(result)
+  return(longLatFromRaster.mtx)
 }
 
 
@@ -261,6 +267,9 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
          final_result = TRUE or FALSE\n")
   }
 
+  rm(raster_obj)
+  gc()
+
   # check time intervals
   if (!is.null(time_interval1) & !is.null(time_interval2) & all(time_interval1 < time_interval2)) {
     # checking if first or second interval values are valid
@@ -307,6 +316,9 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
     }
 
     res2.out <- cbind(res2.1[,c(1:2)], t(apply(res2.1[,c(3:ncol(res2.1))], 1, .different_class)))
+
+    rm(res2.1)
+    gc()
 
     result <- merge(res1 , res2.out, by=c("x","y"))
     result <- result[!duplicated(result), ]
@@ -385,6 +397,9 @@ lucC_pred_evolve <- function(raster_obj = NULL, raster_class1 = NULL, time_inter
          raster_class ('Forest') and must be defined!\n
          final_result = TRUE or FALSE\n")
   }
+
+  rm(raster_obj)
+  gc()
 
   # check time intervals
   if (!is.null(time_interval1) & !is.null(time_interval2) & all(time_interval1 < time_interval2)) {
@@ -491,6 +506,9 @@ lucC_pred_convert <- function(raster_obj = NULL, raster_class1 = NULL, time_inte
          raster_class ('Forest') and must be defined!\n
          final_result = TRUE or FALSE\n")
   }
+
+  rm(raster_obj)
+  gc()
 
   # check time intervals
   if (!is.null(time_interval1) & !is.null(time_interval2) & all(time_interval1 < time_interval2)) {

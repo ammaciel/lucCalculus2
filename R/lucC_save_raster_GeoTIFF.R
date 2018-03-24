@@ -57,6 +57,8 @@ lucC_save_GeoTIFF <- function(raster_obj = NULL, data_mtx = NULL, path_raster_fo
   ensurer::ensure_that(path_raster_folder, !is.null(path_raster_folder),
                        err_desc = "path_raster_folder must be defined! Enter a path to SAVE your GeoTIFF images!")
 
+  options(digits = 12)
+
   # Create directory if doesn't exist
   output_dir <- file.path(path_raster_folder)
 
