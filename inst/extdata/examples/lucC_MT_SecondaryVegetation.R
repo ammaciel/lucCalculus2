@@ -44,7 +44,11 @@ all.the.files
 start.time <- Sys.time()
 
 for (i in 1:length(all.the.files)) {
+<<<<<<< HEAD
   #for (i in 1:length(list_MT)) {
+=======
+#for (i in 1:length(list_MT)) {
+>>>>>>> eac3b6db90123ad4d750419fe967166d86ff27d4
 
   # file
   file <- all.the.files[i]
@@ -175,3 +179,8 @@ time.taken <- end.time - start.time
 time.taken
 
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> eac3b6db90123ad4d750419fe967166d86ff27d4
