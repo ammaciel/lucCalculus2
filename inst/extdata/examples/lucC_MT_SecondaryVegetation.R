@@ -1,8 +1,5 @@
 library(lucCalculus)
 
-# start time
-start.time <- Sys.time()
-
 #----------------------------
 # 1- Open idividual images and create a RasterBrick with each one and metadata ith SITS
 #----------------------------
@@ -12,7 +9,8 @@ start.time <- Sys.time()
 
 # ------------- define variables to use in sits -------------
 # open files
-file <- c("~/Desktop/INPE_2018/Classi_MT_SVM/raster_mt_by_year_2004.tif")
+#file <- c("~/Desktop/INPE_2018/Classi_MT_SVM/raster_mt_by_year_2004.tif")
+file <- c("~/TESTE/raster_mt_by_year_2004.tif")
 # create timeline with classified data from SVM method
 timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
 
@@ -31,22 +29,26 @@ rb_sits <- raster.tb$r_objs[[1]][[1]]
 #label <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_area", "Water"))
 label <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_area", "Water"))
 
+list_MT <- lucC_create_blocks(rb_sits, number_blocks_xy = 2, save_images = TRUE)
 
-list_MT <- lucC_create_blocks(rb_sits, number_blocks_xy = 5, save_images = TRUE)
-
-lucC_merge_blocks(path_open_GeoTIFFs = "/home/inpe/github_projects/lucCalculus")
-
+#lucC_merge_blocks(path_open_GeoTIFFs = "/home/inpe/github_projects/lucCalculus")
+lucC_merge_blocks(path_open_GeoTIFFs = "~/lucCalculus", number_raster = 4)
+#
 
 # all files in folder
 #all.the.files <- list.files("~/Desktop/INPE_2018/Classi_MT_SVM/raster_1splitted", full=TRUE, pattern = ".tif")
-#all.the.files
+all.the.files <- list.files("~/TESTE/MT", full=TRUE, pattern = ".tif")
+all.the.files
+
+# start time
+start.time <- Sys.time()
 
 for (i in 1:length(all.the.files)) {
+#for (i in 1:length(list_MT)) {
 
   # file
-  #file <- all.the.files[15]
   file <- all.the.files[i]
-  #file
+  #file <- list_MT[i]
 
   # create timeline with classified data from SVM method
   timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
@@ -81,10 +83,10 @@ for (i in 1:length(all.the.files)) {
   #----------------------------
   # 1. RECUR predicate indicates a class that appear again
   #system.time(
-    forest_recur <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
-                                    time_interval1 = c("2001-09-01","2001-09-01"),
-                                    time_interval2 = c("2003-09-01","2016-09-01"),
-                                    label = label, timeline = timeline)
+  forest_recur <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
+                                  time_interval1 = c("2001-09-01","2001-09-01"),
+                                  time_interval2 = c("2003-09-01","2016-09-01"),
+                                  label = label, timeline = timeline)
   #)
   #head(forest_recur)
 
@@ -97,22 +99,25 @@ for (i in 1:length(all.the.files)) {
   classes <- as.character(c("Cerrado", "Fallow_Cotton", "Pasture", "Soy", "Sugarcane", "Urban_area", "Water"))
 
   #system.time(
-    # percor all classes
-    for(i in seq_along(classes)){
-      print(classes[i])
-      temp <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = classes[i],
-                               time_interval1 = c("2001-09-01","2001-09-01"), relation_interval1 = "equals",
-                               raster_class2 = "Forest",
-                               time_interval2 = c("2002-09-01","2016-09-01"), relation_interval2 = "contains",
-                               label = label, timeline = timeline)
+  # percor all classes
+  for(i in seq_along(classes)){
+    print(classes[i])
+    temp <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = classes[i],
+                             time_interval1 = c("2001-09-01","2001-09-01"), relation_interval1 = "equals",
+                             raster_class2 = "Forest",
+                             time_interval2 = c("2002-09-01","2016-09-01"), relation_interval2 = "contains",
+                             label = label, timeline = timeline)
 
-      forest_evolve <- lucC_merge(forest_evolve, temp)
-    }
+    forest_evolve <- lucC_merge(forest_evolve, temp)
+  }
   #)
   message("EVOLVE ok! ...\n")
 
   # 3. Merge both forest_recur and forest_evolve datas
   forest_secondary <- lucC_merge(forest_evolve, forest_recur)
+
+  rm(forest_recur, forest_evolve, forest_secondary)
+  gc()
 
   # # plot
   # lucC_plot_bar_events(forest_secondary, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend:")
@@ -137,7 +142,7 @@ for (i in 1:length(all.the.files)) {
 
   number_label <- length(label)+1
   # 1. update original RasterBrick with new class
-  rb_sits_new <- lucC_update_raster(raster_obj = rb_sits,
+  rb_sits_new <- lucC_raster_update(raster_obj = rb_sits,
                                     data_mtx = forest_sec,           # without 2001
                                     timeline = timeline,
                                     class_to_replace = "Forest",     # only class Forest
@@ -160,7 +165,7 @@ for (i in 1:length(all.the.files)) {
   message("--------------------------------------------------\n")
   # clear environment, except these elements
   rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "end.time"))])
-  gc(reset = TRUE)
+  gc()
 
 }
 
@@ -168,4 +173,7 @@ for (i in 1:length(all.the.files)) {
 end.time <- Sys.time()
 time.taken <- end.time - start.time
 time.taken
+
+
+
 

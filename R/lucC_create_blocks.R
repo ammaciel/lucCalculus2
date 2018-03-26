@@ -106,9 +106,10 @@ lucC_create_blocks <- function(raster_obj = NULL, number_blocks_xy = 6, save_ima
 #' @docType data
 #'
 #' @description Merge GeoTIFF splitted into parts. \url{https://stackoverflow.com/questions/29784829/r-raster-package-split-image-into-multiples}
-#' @usage lucC_merge_blocks (path_open_GeoTIFFs = NULL)
+#' @usage lucC_merge_blocks (path_open_GeoTIFFs = NULL, number_raster = 1)
 #'
 #' @param path_open_GeoTIFFs   Character. Name a path folder to OPEN raster images data.
+#' @param number_raster        Integer. Number of GeoTIFF files.
 #'
 #' @keywords datasets
 #' @return RasterBrick Mosaic.
@@ -118,12 +119,12 @@ lucC_create_blocks <- function(raster_obj = NULL, number_blocks_xy = 6, save_ima
 #'
 #' @examples \dontrun{
 #'
-#' lucC_merge_blocks(path_open_GeoTIFFs = NULL)
+#' lucC_merge_blocks(path_open_GeoTIFFs = NULL, number_raster = 1)
 #'
 #'}
 #'
 
-lucC_merge_blocks <- function(path_open_GeoTIFFs = NULL){
+lucC_merge_blocks <- function(path_open_GeoTIFFs = NULL, number_raster = 1){
 
  # Ensure if parameters exists
   ensurer::ensure_that(path_open_GeoTIFFs, !is.null(path_open_GeoTIFFs),
@@ -131,7 +132,7 @@ lucC_merge_blocks <- function(path_open_GeoTIFFs = NULL){
 
   # read each piece back in R
   list <- list()
-  for(i in 1:9){ # change this 9 depending on your number of pieces
+  for(i in 1:number_raster){ # change this 9 depending on your number of pieces
     rx <- raster::brick(paste0(path_open_GeoTIFFs,"/Raster_Splitted_",i,".tif",sep=""))
     list[[i]] <- rx
   }
