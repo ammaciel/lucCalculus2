@@ -31,7 +31,7 @@
 #' @keywords datasets
 #' @return List with all the pieces in case you want to keep them in the memory.
 #' @importFrom ensurer ensure_that
-#' @importFrom raster ncell rasterToPolygons extent crop writeRaster
+#' @importFrom raster ncell aggregate rasterToPolygons extent crop writeRaster
 #' @export
 #'
 #' @examples \dontrun{
@@ -50,7 +50,7 @@ lucC_create_blocks <- function(raster_obj = NULL, number_blocks_xy = 6, save_ima
 
   h <- ceiling(ncol(raster_obj)/number_blocks_xy)
   v <- ceiling(nrow(raster_obj)/number_blocks_xy)
-  agg <- aggregate(raster_obj, fact = c(h,v))
+  agg <- raster::aggregate(raster_obj, fact = c(h,v))
   agg[] <- 1:raster::ncell(agg)
   agg_poly <- raster::rasterToPolygons(agg)
   names(agg_poly) <- "polis"
@@ -132,8 +132,8 @@ lucC_merge_blocks <- function(path_open_GeoTIFFs = NULL){
   # read each piece back in R
   list <- list()
   for(i in 1:9){ # change this 9 depending on your number of pieces
-    rx <- raster::brick(paste("/Raster_Splitted_",i,".tif",sep=""))
-    lis2[[i]] <- rx
+    rx <- raster::brick(paste0(path_open_GeoTIFFs,"/Raster_Splitted_",i,".tif",sep=""))
+    list[[i]] <- rx
   }
   # mosaic them and save output
   list$fun <- max
