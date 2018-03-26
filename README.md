@@ -1,8 +1,8 @@
-<h2>SITS using Land Use Change Calculus (sits.LUC.Calculus) (LUC Calculus)</h2>
+<h2>Land Use Change Calculus (lucCalculus)</h2>
 
 This package implements the LUC Calculus for reasoning about land use change events. Based on a set of classified time series, we build expressions to answer specific questions, such as <i>Which events of "Forest" areas were replaced by "Pasture"?</i>
 
-With package "sits.LUC.Calculus" is possible to build questions using Allen's interval temporal logic relationships and also others extended from their study. I suggest the reader read <a href="http://cse.unl.edu/~choueiry/Documents/Allen-CACM1983.pdf"> (Allen 1983)</a> and <a href="http://www.cs.ucf.edu/~lboloni/Teaching/EEL6938_2007/papers/Allen-GeneralTheoryActionTime.pdf"> (Allen 1984) </a> for more details. Besides, is possible to generate graphics with event information and plot maps with results. Using these events the user can to perform analysis on time series data to discover important land use changes.
+With package "lucCalculus" is possible to build questions using Allen's interval temporal logic relationships and also others extended from their study. I suggest the reader read <a href="http://cse.unl.edu/~choueiry/Documents/Allen-CACM1983.pdf"> (Allen 1983)</a> and <a href="http://www.cs.ucf.edu/~lboloni/Teaching/EEL6938_2007/papers/Allen-GeneralTheoryActionTime.pdf"> (Allen 1984) </a> for more details. Besides, is possible to generate graphics with event information and plot maps with results. Using these events the user can to perform analysis on time series data to discover important land use changes.
 
 Classification method and others tools to Satellite Image Time Series analysis can be found using package sits at <a href="https://github.com/e-sensing/sits">https://github.com/e-sensing/sits</a>
 
@@ -12,7 +12,7 @@ Classification method and others tools to Satellite Image Time Series analysis c
   <li><a href="http://www.r-project.org/">R</a></li>
   <li><a href="http://www.rstudio.com/">Rstudio</a></li>
   <li>A set of classified GeoTIFF images by year </li>
-  <li>The sits.LUC.Calculus requires "devtools" package is available. </li> 
+  <li>The lucCalculus requires "devtools" package is available. </li> 
 </ul>
 
 <h3>How to use the package:</h3>
@@ -20,17 +20,17 @@ Classification method and others tools to Satellite Image Time Series analysis c
   <li>Open RStudio</li>
   <li>Install devtools <code>install.packages("devtools")</code> </li>
   <li>Load devtools <code>library(devtools)</code> </li>
-  <li>Install the sits.LUC.Calculus package <code>install_github("ammaciel/sits.LUC.Calculus")</code> </li>
+  <li>Install the lucCalculus package <code>install_github("ammaciel/lucCalculus")</code> </li>
 </ul>
 
 <br />
 <h3>Example 1</h3>
 
- - Load the sits.LUC.Calculus package <code>library(sits.LUC.Calculus)</code>
+ - Load the lucCalculus package <code>library(lucCalculus)</code>
 
  - Create a RasterBrick from a set of classified images
 
-<pre class="R"> library(sits.LUC.Calculus)
+<pre class="R"> library(lucCalculus)
 #-----------------------
 # 0. Open images and create a RasterBrick with each one and metadata with SITS
 #-----------------------
