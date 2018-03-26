@@ -7,33 +7,33 @@ library(lucCalculus)
 # create a RasterBrick from individual raster saved previously
 # lucC_create_RasterBrick(path_open_GeoTIFFs = "~/Desktop/INPE_2018/Classi_MT_SVM/raster_mt_by_year_2004", path_save_RasterBrick = "~/Desktop")
 
-# ------------- define variables to use in sits -------------
-# open files
-#file <- c("~/Desktop/INPE_2018/Classi_MT_SVM/raster_mt_by_year_2004.tif")
-file <- c("~/TESTE/raster_mt_by_year_2004.tif")
-# create timeline with classified data from SVM method
-timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
-
-file_name <- basename(tools::file_path_sans_ext(file))
-
-#library(sits)
-# create a RasterBrick metadata file based on the information about the files
-raster.tb <- sits::sits_coverage(service = "RASTER", files = file, name = file_name, timeline = timeline, bands = "ndvi")
-
-message(paste0("\nLoad RasterBrick! Name: ", raster.tb$name, " ...\n", sep = ""))
-
-# new variable
-rb_sits <- raster.tb$r_objs[[1]][[1]]
-
-# ------------- define variables to plot raster -------------
-#label <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_area", "Water"))
-label <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_area", "Water"))
-
-list_MT <- lucC_create_blocks(rb_sits, number_blocks_xy = 2, save_images = TRUE)
-
-#lucC_merge_blocks(path_open_GeoTIFFs = "/home/inpe/github_projects/lucCalculus")
-lucC_merge_blocks(path_open_GeoTIFFs = "~/lucCalculus", number_raster = 4)
+# # ------------- define variables to use in sits -------------
+# # open files
+# #file <- c("~/Desktop/INPE_2018/Classi_MT_SVM/raster_mt_by_year_2004.tif")
+# file <- c("~/TESTE/raster_mt_by_year_2004.tif")
+# # create timeline with classified data from SVM method
+# timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
 #
+# file_name <- basename(tools::file_path_sans_ext(file))
+#
+# #library(sits)
+# # create a RasterBrick metadata file based on the information about the files
+# raster.tb <- sits::sits_coverage(service = "RASTER", files = file, name = file_name, timeline = timeline, bands = "ndvi")
+#
+# message(paste0("\nLoad RasterBrick! Name: ", raster.tb$name, " ...\n", sep = ""))
+#
+# # new variable
+# rb_sits <- raster.tb$r_objs[[1]][[1]]
+#
+# # ------------- define variables to plot raster -------------
+# #label <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_area", "Water"))
+# label <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_area", "Water"))
+#
+# list_MT <- lucC_create_blocks(rb_sits, number_blocks_xy = 2, save_images = TRUE)
+#
+# #lucC_merge_blocks(path_open_GeoTIFFs = "/home/inpe/github_projects/lucCalculus")
+# lucC_merge_blocks(path_open_GeoTIFFs = "~/lucCalculus", number_raster = 4)
+# #
 
 # all files in folder
 #all.the.files <- list.files("~/Desktop/INPE_2018/Classi_MT_SVM/raster_1splitted", full=TRUE, pattern = ".tif")
@@ -44,7 +44,7 @@ all.the.files
 start.time <- Sys.time()
 
 for (i in 1:length(all.the.files)) {
-#for (i in 1:length(list_MT)) {
+  #for (i in 1:length(list_MT)) {
 
   # file
   file <- all.the.files[i]
@@ -173,7 +173,5 @@ for (i in 1:length(all.the.files)) {
 end.time <- Sys.time()
 time.taken <- end.time - start.time
 time.taken
-
-
 
 
