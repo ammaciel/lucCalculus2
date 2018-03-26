@@ -1,4 +1,4 @@
-library(sits.LUC.Calculus)
+library(lucCalculus)
 
 # start time
 

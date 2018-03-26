@@ -1,4 +1,4 @@
-library(sits.LUC.Calculus)
+library(lucCalculus)
 
 # start time
 start.time <- Sys.time()
@@ -34,7 +34,7 @@ label <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", 
 
 list_MT <- lucC_create_blocks(rb_sits, number_blocks_xy = 5, save_images = TRUE)
 
-lucC_merge_blocks(path_open_GeoTIFFs = "/home/inpe/github_projects/sits.LUC.Calculus")
+lucC_merge_blocks(path_open_GeoTIFFs = "/home/inpe/github_projects/lucCalculus")
 
 
 # all files in folder

@@ -1,4 +1,4 @@
-library(sits.LUC.Calculus)
+library(lucCalculus)
 
 #----------------------------
 # 1- Open idividual images and create a RasterBrick with each one and metadata with SITS
