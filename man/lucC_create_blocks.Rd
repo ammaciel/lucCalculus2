@@ -5,24 +5,25 @@
 \alias{lucC_create_blocks}
 \title{Create blocks from RasterBrick in accordance with number of cells}
 \usage{
-lucC_create_blocks (raster_obj = NULL, number_cells = 250)
+lucC_create_blocks (raster_obj = NULL, number_blocks_xy = 6, save_images = TRUE)
 }
 \arguments{
 \item{raster_obj}{Raster. A raster stack with classified images}
 
-\item{number_cells}{Numeric. A number of cells to split the raster in small parts. Default is 250.}
+\item{number_blocks_xy}{Numeric. A number of peaces to split raster, consider 2 peaces the raster will be cropped into 4 blocks. Default is 6}
+
+\item{save_images}{Boolean. Write raster in file. Default is TRUE}
 }
 \value{
-List of raster splitted by blocks
+List with all the pieces in case you want to keep them in the memory.
 }
 \description{
-Provide a data.frame with main measures to resultd from LUC Calculus application such as: Area (km2),
-Cumulative Sum (CumSum), Relative Frequency and Cumulative Relative Frequency
+Provide a data.frame with spatially aggregats the original raster it turns each aggregated cell into a polygon then the extent of each polygon is used to crop the original raster. \url{https://stackoverflow.com/questions/29784829/r-raster-package-split-image-into-multiples}
 }
 \examples{
 \dontrun{
 
-lucC_create_blocks(raster_obj = rb_sits2, number_cells = 250)
+lucC_create_blocks(raster_obj = rb_sits2, number_blocks_xy = 6, save_images = TRUE)
 
 }
 

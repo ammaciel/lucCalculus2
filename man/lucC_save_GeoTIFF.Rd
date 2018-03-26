@@ -27,7 +27,7 @@ Save new_raster reclassified in a diretory defined by user
 \dontrun{
 
 # save rasters in folder
-lucC_save_GeoTIFF (raster_obj = rb_sits, data_mtx = new_raster,
+lucC_save_GeoTIFF (raster_obj_crs = rb_sits, data_mtx = new_raster,
 path_raster_folder = "~/Desktop/raster", as_RasterBrick = FALSE)
 
 }

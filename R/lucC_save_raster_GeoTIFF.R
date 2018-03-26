@@ -40,7 +40,7 @@
 #' @examples \dontrun{
 #'
 #' # save rasters in folder
-#' lucC_save_GeoTIFF (raster_obj = rb_sits, data_mtx = new_raster,
+#' lucC_save_GeoTIFF (raster_obj_crs = rb_sits, data_mtx = new_raster,
 #' path_raster_folder = "~/Desktop/raster", as_RasterBrick = FALSE)
 #'
 #'}
@@ -76,19 +76,23 @@ lucC_save_GeoTIFF <- function(raster_obj = NULL, data_mtx = NULL, path_raster_fo
   # crs from original raster
   raster::crs(new_raster) <- raster_obj@crs
 
+  rm(raster_obj)
+  gc()
+
   message("Saving... \n")
 
   if(as_RasterBrick == FALSE){
     # write as a geoTIFF file using the raster package by each layer
     raster::writeRaster(new_raster,
                         filename= paste0(path_raster_folder,"/New", sep = ""),
-                        bylayer=TRUE, suffix = names(new_raster), format="GTiff", overwrite=TRUE)
+                        bylayer=TRUE, suffix = names(new_raster), format="GTiff",
+                        datatype="INT1U", overwrite=TRUE)
   } else {
     file_name <- basename(path_raster_folder)
     # write as a geoTIFF file using the raster package as a RasterBrick file
     raster::writeRaster(new_raster,
                         filename= paste0(path_raster_folder,"/New_", file_name, sep = ""),
-                        bylayer=FALSE, format="GTiff", overwrite=TRUE)
+                        bylayer=FALSE, format="GTiff", datatype="INT1U", overwrite=TRUE)
   }
 
   cat("\nGeoTIFF images saved successfully in directory: '", path_raster_folder, "'\n")

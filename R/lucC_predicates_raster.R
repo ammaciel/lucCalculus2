@@ -36,7 +36,7 @@
 #' @param time_interval     Interval. A time interval to verify if class is over or not
 #' @param relation_interval Character. If a location HOLDS during all time interval 'equals' or can be appear in any
 #'                          times 'contains'. Default is 'contains'
-#' @param label             Character. All labels of each value of pixel from classified raster
+#' @param label             Character Vector. All labels of each value of pixel from classified raster
 #' @param timeline          Character. A list of all dates of classified raster, timeline
 #'
 #' @keywords datasets
@@ -231,7 +231,7 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
 #' @param raster_class     Character. Name of the class of interest, such as 'Forest', to research
 #' @param time_interval1   Interval. A first time interval to verify if class is over or not
 #' @param time_interval2   Interval. A second and non-overlapped time interval to verify if class is over or not
-#' @param label            Character. All labels of each value of pixel from classified raster
+#' @param label            Character Vector. All labels of each value of pixel from classified raster
 #' @param timeline         Character. A list of all dates of classified raster, timeline
 #'
 #' @keywords datasets
@@ -358,8 +358,8 @@ lucC_pred_recur <- function(raster_obj = NULL, raster_class = NULL, time_interva
 #' @param time_interval2     Interval. A second interval to verify if class is over or not
 #' @param relation_interval2 Character. If a location HOLDS during all time interval 'equals' or can be appear in any
 #'                           times 'contains'. Default is 'contains'
-#' @param label             Character. All labels of each value of pixel from classified raster
-#' @param timeline          Character. A list of all dates of classified raster, timeline
+#' @param label              Character Vector. All labels of each value of pixel from classified raster
+#' @param timeline           Character. A list of all dates of classified raster, timeline
 #'
 #' @keywords datasets
 #' @return Matrix with all states which holds during a time interval
@@ -467,7 +467,7 @@ lucC_pred_evolve <- function(raster_obj = NULL, raster_class1 = NULL, time_inter
 #' @param time_interval2     Interval. A second interval to verify if class is over or not
 #' @param relation_interval2 Character. If a location HOLDS during all time interval 'equals' or can be appear in any
 #'                           times 'contains'. Default is 'equals'
-#' @param label              Character. All labels of each value of pixel from classified raster
+#' @param label              Character Vector. All labels of each value of pixel from classified raster
 #' @param timeline           Character. A list of all dates of classified raster, timeline
 #'
 #' @keywords datasets

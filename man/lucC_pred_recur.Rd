@@ -19,7 +19,7 @@ label = NULL, timeline = NULL)
 
 \item{time_interval2}{Interval. A second and non-overlapped time interval to verify if class is over or not}
 
-\item{label}{Character. All labels of each value of pixel from classified raster}
+\item{label}{Character Vector. All labels of each value of pixel from classified raster}
 
 \item{timeline}{Character. A list of all dates of classified raster, timeline}
 }

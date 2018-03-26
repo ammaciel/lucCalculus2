@@ -137,20 +137,21 @@ lucC_raster_update <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
 
 
 #' @title Update a RasterBrick with result from predicates
-#' @name lucC_raster_result
-#' @aliases lucC_raster_result
+#' @name lucC_save_raster_result
+#' @aliases lucC_save_raster_result
 #' @author Adeline M. Maciel
 #' @docType data
 #'
 #' @description Update a RasterBrick with new values of pixel discovered from LUC Calculus formalism to create GeoTIFF files
 #'
-#' @usage lucC_raster_result(raster_obj = NULL, data_mtx = NULL,
-#' timeline = NULL, label = NULL)
+#' @usage lucC_save_raster_result(raster_obj = NULL, data_mtx = NULL,
+#' timeline = NULL, label = NULL, path_raster_folder = NULL)
 #'
-#' @param raster_obj       Raster. A raster stack with classified images
-#' @param data_mtx         Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS
-#' @param timeline         Character. A list of all dates of classified raster, timeline
-#' @param label             Character. All labels of each value of pixel from classified raster
+#' @param raster_obj          Raster. A raster stack with classified images
+#' @param data_mtx            Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS
+#' @param timeline            Character. A list of all dates of classified raster, timeline
+#' @param label               Character Vector. All labels of each value of pixel from classified raster
+#' @param path_raster_folder  Character. Name a path folder to save raster images data. If  doesn't exist, a new directory is created
 #'
 #' @keywords datasets
 #' @return Matrix with raster and pixels to create a RasterBrick with result
@@ -163,15 +164,15 @@ lucC_raster_update <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
 #'
 #' @examples \dontrun{
 #'
-#' rb_new <- lucC_raster_result(raster_obj = rb_sits, data_mtx = third_raster.df,
-#' timeline = timeline, label = label)
+#' rb_new <- lucC_save_raster_result(raster_obj = rb_sits, data_mtx = third_raster.df,
+#' timeline = timeline, label = label, path_raster_folder = NULL)
 #' rb_new
 #'
 #'}
 #'
 
 # plot maps for input data
-lucC_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline = NULL, label = NULL) {
+lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline = NULL, label = NULL, path_raster_folder = NULL) {
 
   # Ensure if parameters exists
   ensurer::ensure_that(raster_obj, !is.null(raster_obj),
@@ -180,14 +181,15 @@ lucC_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
                        err_desc = "data_mtx matrix, file must be defined!\nThis data can be obtained using predicates RECUR, HOLDS, EVOLVE and CONVERT.")
   ensurer::ensure_that(timeline, !is.null(timeline),
                        err_desc = "timeline must be defined!")
+  ensurer::ensure_that(path_raster_folder, !is.null(path_raster_folder),
+                       err_desc = "path_raster_folder must be defined! Enter a path to SAVE your GeoTIFF images!")
+
+  options(digits = 12)
 
   #-------------------- prepare rasterBrick --------------------------------
   # original raster
   df <- raster::rasterToPoints(raster_obj) %>%
     data.frame()
-
-  rm(raster_obj)
-  gc()
 
   # replace colnames to timeline
   colnames(df)[c(3:ncol(df))] <- as.character(lubridate::year(timeline))
@@ -250,7 +252,9 @@ lucC_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
   #   spread(variable, value)
   colnames(raster_df_update)[c(3:ncol(raster_df_update))] <- as.character(timeline)
 
-  rm(raster_df_temp)
+  lucC_save_GeoTIFF(raster_obj = raster_obj, data_mtx = raster_df_temp, path_raster_folder = path_raster_folder, as_RasterBrick = FALSE)
+
+  rm(raster_obj, raster_df_temp)
   gc()
 
   return(raster_df_update)

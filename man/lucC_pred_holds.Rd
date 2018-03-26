@@ -19,7 +19,7 @@ relation_interval = "contains", label = NULL, timeline = NULL)
 \item{relation_interval}{Character. If a location HOLDS during all time interval 'equals' or can be appear in any
 times 'contains'. Default is 'contains'}
 
-\item{label}{Character. All labels of each value of pixel from classified raster}
+\item{label}{Character Vector. All labels of each value of pixel from classified raster}
 
 \item{timeline}{Character. A list of all dates of classified raster, timeline}
 }
