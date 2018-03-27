@@ -145,16 +145,12 @@ lucC_plot_raster_result(raster_obj = rb_sits,
                         label = label, custom_palette = TRUE,
                         RGB_color = colors_1, relabel = FALSE) #, shape_point = ".")
 
-
 # create images output
-rb_sits_new <- lucC_raster_result(raster_obj = rb_sits,
-                                  data_mtx = forest_evolve,       # without 2001
-                                  timeline = timeline, label = label)         # new pixel value
+rb_sits_new <- lucC_save_raster_result(raster_obj = rb_sits,
+                                  data_mtx = forest_recur,       # without 2001
+                                  timeline = timeline, label = label, path_raster_folder = "~/Desktop/Ne3")         # new pixel value
 rb_sits_new
 
-
-lucC_save_GeoTIFF(raster_obj = rb_sits,
-                  data_mtx = rb_sits_new, path_raster_folder = "~/Desktop/Neee", as_RasterBrick = FALSE)
 
 #----------------------------
 # 4 - Update original raster to add new pixel value
