@@ -35,7 +35,7 @@
 #' @importFrom ensurer ensure_that
 #' @importFrom lubridate year
 #' @importFrom dplyr mutate  select left_join
-#' @importFrom reshape2 melt dcast
+#' @importFrom tidyr gather spread
 #' @importFrom stats na.omit
 #' @export
 #'
@@ -71,7 +71,9 @@ lucC_raster_update <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
 
   # replace colnames to timeline
   colnames(df)[c(3:ncol(df))] <- as.character(lubridate::year(timeline))
-  raster_df <- reshape2::melt(df, id.vars = c("x","y"))
+  #raster_df <- reshape2::melt(df, id.vars = c("x","y"))
+  raster_df <- df %>%
+    tidyr::gather(variable, value, -x, -y)
 
   rm(df)
   gc()
@@ -90,13 +92,16 @@ lucC_raster_update <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
   # replace new clase by new pixel value
   new_df[c(3:ncol(new_df))] <- ifelse(new_df[c(3:ncol(new_df))] == class_to_replace, new_pixel_value, "")
 
-  point_df <- reshape2::melt(new_df, id.vars = c("x","y")) %>%
+  # point_df <- reshape2::melt(new_df, id.vars = c("x","y")) %>%
+  #   stats::na.omit()
+  point_df <- new_df %>%
+    tidyr::gather(variable, value, -x, -y) %>%
     stats::na.omit()
 
   # remove factors
   point_df$x = as.numeric(as.character(point_df$x)) # as.numeric(levels(point_df$x))[point_df$x]
-  point_df$variable = as.character(as.character(point_df$variable))
   point_df$y = as.numeric(as.character(point_df$y))
+  point_df$variable = as.character(as.character(point_df$variable))
 
   rm(new_df)
   gc()
@@ -123,7 +128,10 @@ lucC_raster_update <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
   # remove duplicated lines
   raster_df_temp <- raster_df_temp[!duplicated(raster_df_temp), ]
 
-  raster_df_update <- reshape2::dcast(raster_df_temp, x+y ~ variable, value.var= "value")
+  #raster_df_update <- reshape2::dcast(raster_df_temp, x+y ~ variable, value.var= "value")
+  raster_df_update <- raster_df_temp %>%
+    tidyr::spread(variable, value)
+
   colnames(raster_df_update)[c(3:ncol(raster_df_update))] <- as.character(timeline)
 
   rm(raster_df_temp)
@@ -158,7 +166,7 @@ lucC_raster_update <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
 #' @importFrom ensurer ensure_that
 #' @importFrom lubridate year
 #' @importFrom dplyr mutate  select left_join
-#' @importFrom reshape2 melt dcast
+#' @importFrom tidyr gather spread
 #' @importFrom stats na.omit
 #' @export
 #'
@@ -193,8 +201,9 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
 
   # replace colnames to timeline
   colnames(df)[c(3:ncol(df))] <- as.character(lubridate::year(timeline))
-  raster_df <- reshape2::melt(df, id.vars = c("x","y"))
-  #raster_df1 <- tidyr::gather(df, variable, value, -x, -y) # other way
+  #raster_df <- reshape2::melt(df, id.vars = c("x","y"))
+  raster_df <- df %>%
+    tidyr::gather(variable, value, -x, -y)
 
   rm(df)
   gc()
@@ -220,13 +229,16 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   rm(data_mtx)
   gc()
 
-  point_df <- reshape2::melt(new_df, id.vars = c("x","y")) %>%
+  # point_df <- reshape2::melt(new_df, id.vars = c("x","y")) %>%
+  #   stats::na.omit()
+  point_df <- new_df %>%
+    tidyr::gather(variable, value, -x, -y) %>%
     stats::na.omit()
 
   # remove factors
   point_df$x = as.numeric(as.character(point_df$x)) # as.numeric(levels(point_df$x))[point_df$x]
-  point_df$variable = as.character(as.character(point_df$variable))
   point_df$y = as.numeric(as.character(point_df$y))
+  point_df$variable = as.character(as.character(point_df$variable))
 
   rm(new_df)
   gc()
@@ -244,12 +256,10 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   # remove duplicated lines
   raster_df_temp <- raster_df_temp[!duplicated(raster_df_temp), ]
 
-  raster_df_update <- reshape2::dcast(raster_df_temp, x+y ~ variable, value.var= "value")
-  # m.tips %>% group_by(day,time,variable) %>% summarize(value = mean(value)) %>%
-  #   spread(variable,value)
-  #
-  # m.tips %>% group_by(smoker, variable) %>% summarize(value = mean(value)) %>%
-  #   spread(variable, value)
+  #raster_df_update <- reshape2::dcast(raster_df_temp, x+y ~ variable, value.var= "value")
+  raster_df_update <- raster_df_temp %>%
+    tidyr::spread(variable, value)
+
   colnames(raster_df_update)[c(3:ncol(raster_df_update))] <- as.character(timeline)
 
   lucC_save_GeoTIFF(raster_obj = raster_obj, data_mtx = raster_df_temp, path_raster_folder = path_raster_folder, as_RasterBrick = FALSE)

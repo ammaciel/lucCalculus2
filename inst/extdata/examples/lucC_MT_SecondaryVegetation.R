@@ -40,24 +40,21 @@ library(lucCalculus)
 all.the.files <- list.files("~/TESTE/MT", full=TRUE, pattern = ".tif")
 all.the.files
 
-
-# start time
-start.time <- Sys.time()
-
 #-------------
 #Carrega os pacotes necessários para realizar o paralelismo
 library(foreach)
-library(doParallel)
 
 #Checa quantos núcleos existem
-# ncl<-detectCores()
-# ncl
-
+ncl <- parallel::detectCores()-2
+ncl
 #Registra os clusters a serem utilizados
-cl <- makeCluster(6) #ncl
-registerDoParallel(cl)
-getDoParWorkers()
+cl <- parallel::makeCluster(ncl) #ncl
+doParallel::registerDoParallel(6)
+foreach::getDoParWorkers()
 #-------------
+
+# start time
+start.time <- Sys.time()
 
 result.list <- list()
 sec_veg.tb <- NULL
@@ -70,8 +67,7 @@ sec_veg.tb <- foreach(i = 1:length(all.the.files), .combine=rbind, .packages= c(
   #file <- list_MT[i]
 
   # create timeline with classified data from SVM method
-  timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "20
-09-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
+  timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
 
   file_name <- basename(tools::file_path_sans_ext(file))
 
@@ -163,7 +159,8 @@ sec_veg.tb <- foreach(i = 1:length(all.the.files), .combine=rbind, .packages= c(
   # 3 - Update original raster to add new pixel value
   #----------------------------
   message("Start update pixel in RasterBrick ...\n")
-  number_label <- length(label)1
+
+  number_label <- length(label) + 1
   # 1. update original RasterBrick with new class
   rb_sits_new <- lucC_raster_update(raster_obj = rb_sits,
                                     data_mtx = forest_sec,           # without 2001
@@ -195,7 +192,7 @@ sec_veg.tb <- foreach(i = 1:length(all.the.files), .combine=rbind, .packages= c(
 }
 
 #Stop clusters
-stopCluster(cl)
+parallel::stopCluster(cl)
 
 # end time
 print(Sys.time() - start.time)

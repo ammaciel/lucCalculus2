@@ -48,6 +48,7 @@
 #' @importFrom dplyr mutate
 #' @importFrom stats setNames
 #' @importFrom raster rasterToPoints
+#' @importFrom tidyr gather
 #' @export
 #'
 #' @examples \dontrun{
@@ -82,9 +83,9 @@ lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, c
   colnames(df) <- c("x", "y")
   # change other by year of timeline
   colnames(df)[c(3:ncol(df))] <- as.character(lubridate::year(timeline))
-  # melt data
-  raster_df <- reshape2::melt(df, id = c("x","y"))
-  #raster_df1 <- tidyr::gather(df, variable, value, -x, -y) # other way
+  # long format data
+  #raster_df <- reshape2::melt(df, id = c("x","y"))
+  raster_df <- tidyr::gather(df, variable, value, -x, -y) # other way
 
   # replace legend's number by text
   from <- as.character(sort(unique(raster_df$value)))

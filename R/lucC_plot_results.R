@@ -42,7 +42,7 @@
 #' @import ggplot2
 #' @importFrom ensurer ensure_that
 #' @importFrom scales hue_pal
-#' @importFrom reshape2 melt
+#' @importFrom tidyr gather
 #' @importFrom dplyr mutate group_indices_
 #' @importFrom stats na.omit
 #' @export
@@ -70,7 +70,11 @@ lucC_plot_sequence_events <- function(data_mtx = NULL, custom_palette = FALSE, R
                        err_desc = "End date must be defined! Default is '2016-12-31'!")
 
   # to data.frame
-  mapSeq <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"), na.rm = TRUE)
+  #mapSeq <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"), na.rm = TRUE)
+  mapSeq <- as.data.frame(data_mtx) %>%
+    tidyr::gather(variable, value, -x, -y) %>%
+    stats::na.omit()
+
   mapSeq <- mapSeq[!duplicated(mapSeq), ]
 
   # create new columns to use in geom_segment
@@ -182,7 +186,7 @@ lucC_plot_sequence_events <- function(data_mtx = NULL, custom_palette = FALSE, R
 #' @importFrom ensurer ensure_that
 #' @importFrom lubridate year
 #' @importFrom scales hue_pal
-#' @importFrom reshape2 melt
+#' @importFrom tidyr gather
 #' @export
 #'
 #' @examples \dontrun{
@@ -209,7 +213,11 @@ lucC_plot_bar_events <- function(data_mtx = NULL, data_frequency = NULL, custom_
   # input data matrix or a frequency table
   if (!is.null(data_mtx)){
     # to data frame
-    input_data <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"), na.rm = TRUE)
+    #input_data <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"), na.rm = TRUE)
+    input_data <- as.data.frame(data_mtx) %>%
+      tidyr::gather(variable, value, -x, -y) %>%
+      stats::na.omit()
+
     input_data <- input_data[!duplicated(input_data), ]
     # count number of values
     mapBar <- data.frame(table(lubridate::year(input_data$variable), input_data$value))
@@ -316,7 +324,7 @@ lucC_plot_bar_events <- function(data_mtx = NULL, data_frequency = NULL, custom_
 #' @importFrom ensurer ensure_that
 #' @importFrom lubridate year
 #' @importFrom scales hue_pal
-#' @importFrom reshape2 melt
+#' @importFrom tidyr gather
 #' @export
 #'
 #' @examples \dontrun{
@@ -343,7 +351,11 @@ lucC_plot_frequency_events <- function(data_mtx = NULL, data_frequency = NULL, c
   # input data matrix or a frequency table
   if (!is.null(data_mtx)){
     # to data frame
-    input_data <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"), na.rm = TRUE)
+    #input_data <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"), na.rm = TRUE)
+    input_data <- as.data.frame(data_mtx) %>%
+      tidyr::gather(variable, value, -x, -y) %>%
+      stats::na.omit()
+
     input_data <- input_data[!duplicated(input_data), ]
     # count number of values
     mapFreq <- data.frame(table(lubridate::year(input_data$variable), input_data$value))

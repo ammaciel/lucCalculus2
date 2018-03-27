@@ -54,8 +54,8 @@
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom lubridate year
 #' @importFrom dplyr mutate
-#' @importFrom stats na.omit
-#' @importFrom stats setNames
+#' @importFrom tidyr gather
+#' @importFrom stats na.omit setNames
 #' @importFrom raster rasterToPoints
 #' @export
 #'
@@ -91,12 +91,14 @@ lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   # change other by year
   colnames(events_df)[c(3:ncol(events_df))] <- as.character(lubridate::year(colnames(events_df)[c(3:ncol(events_df))]))
   # melt data
-  points_df <- reshape2::melt(events_df, id = c("x","y"))
+  #points_df <- reshape2::melt(events_df, id = c("x","y"))
+  points_df <- events_df %>%
+    tidyr::gather(variable, value, -x, -y) %>%
+    stats::na.omit()
+
   # remove factor
   points_df$x = as.numeric(as.character(points_df$x)) #as.numeric(levels(points_df$x))[points_df$x]
   points_df$y = as.numeric(as.character(points_df$y))
-
-  points_df <- stats::na.omit(points_df)
 
   # --------- end: events result LUC Calculus -----------
 
@@ -110,7 +112,9 @@ lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   # change other by year of timeline
   colnames(df)[c(3:ncol(df))] <- as.character(lubridate::year(timeline))
   # melt data
-  raster_df <- reshape2::melt(df, id = c("x","y"))
+  #raster_df <- reshape2::melt(df, id = c("x","y"))
+  raster_df <- df %>%
+    tidyr::gather(variable, value, -x, -y)
 
   # replace legend's number by text
   from <- as.character(sort(unique(raster_df$value)))

@@ -21,6 +21,7 @@ Imports: dplyr,
       RColorBrewer,
       reshape2,
       scales,
+      stats,
       tidyr,
       utils
 Remotes:

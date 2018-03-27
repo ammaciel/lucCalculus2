@@ -296,7 +296,7 @@ lucC_relation_precedes <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @keywords datasets
 #' @return Data set with merge of two data sets that values are in the same interval
-#' @importFrom reshape2 melt dcast
+#' @importFrom tidyr gather spread
 #' @importFrom stats na.omit
 #' @export
 #'
@@ -354,14 +354,20 @@ lucC_relation_occurs <- function (first_raster = NULL, second_raster = NULL) {
     points_same_coord <- merge(first_raster, second_raster, by = c("x","y"))
 
     if (isTRUE(nrow(points_same_coord) > 0)){
-      point_df <- reshape2::melt(as.data.frame(points_same_coord), id.vars = c("x","y")) %>%
+      #point_df <- reshape2::melt(as.data.frame(points_same_coord), id.vars = c("x","y")) %>%
+      #  stats::na.omit()
+      point_df <- as.data.frame(points_same_coord) %>%
+        tidyr::gather(variable, value, -x, -y) %>%
         stats::na.omit()
+
       # remove .x and .y
       point_df$variable <- gsub("[$.xy\\.,]", "", point_df$variable)
       # remove duplicated lines
       point_df <- point_df[!duplicated(point_df), ]
       # return matrix format
-      result <- reshape2::dcast(point_df, x+y ~ variable, value.var= "value")
+      #result <- reshape2::dcast(point_df, x+y ~ variable, value.var= "value")
+      result <- point_df %>%
+        tidyr::spread(variable, value)
 
       return(result)
     } else {
@@ -392,7 +398,7 @@ lucC_relation_occurs <- function (first_raster = NULL, second_raster = NULL) {
 #'
 #' @keywords datasets
 #' @return Data set merged with two data sets that values are in the same interval
-#' @importFrom reshape2 melt dcast
+#' @importFrom tidyr gather spread
 #' @importFrom dplyr bind_rows
 #' @importFrom stats na.omit
 #' @export
@@ -425,30 +431,40 @@ lucC_merge <- function (first_raster = NULL, second_raster = NULL) {
   first_raster <- as.data.frame(first_raster)
   second_raster <- as.data.frame(second_raster)
 
-  #
   if( isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0)) {
     # first raster
-    first_raster <- reshape2::melt(as.data.frame(first_raster), id.vars = c("x","y"), na.rm = TRUE) # %>%
-    #  stats::na.omit()
-    # remove factors
-    first_raster$x = as.numeric(as.character(first_raster$x)) # as.numeric(levels(point_df$x))[point_df$x]
-    first_raster$variable = as.character(as.character(first_raster$variable))
-    first_raster$y = as.numeric(as.character(first_raster$y))
+    # first_raster <- reshape2::melt(as.data.frame(first_raster), id.vars = c("x","y"), na.rm = TRUE) # %>%
+    # #  stats::na.omit()
 
-    # first raster
-    second_raster <- reshape2::melt(as.data.frame(second_raster), id.vars = c("x","y"), na.rm = TRUE) #%>%
-      #stats::na.omit()
+    first_raster <- first_raster %>%
+      tidyr::gather(variable, value, -x, -y)  %>%
+      stats::na.omit()
+
     # remove factors
-    second_raster$x = as.numeric(as.character(second_raster$x)) # as.numeric(levels(point_df$x))[point_df$x]
-    second_raster$variable = as.character(as.character(second_raster$variable))
+    first_raster$x = as.numeric(as.character(first_raster$x))
+    first_raster$y = as.numeric(as.character(first_raster$y))
+    first_raster$variable = as.character(as.character(first_raster$variable))
+
+    # second raster
+    #second_raster <- reshape2::melt(as.data.frame(second_raster), id.vars = c("x","y"), na.rm = TRUE) #%>%
+    #  #stats::na.omit()
+    second_raster <- second_raster %>%
+      tidyr::gather(variable, value, -x, -y)  %>%
+      stats::na.omit()
+
+    # remove factors
+    second_raster$x = as.numeric(as.character(second_raster$x))
     second_raster$y = as.numeric(as.character(second_raster$y))
+    second_raster$variable = as.character(as.character(second_raster$variable))
 
     # merge them
     result.temp <- dplyr::bind_rows(first_raster, second_raster)
     # remove duplicated lines
     result.temp <- result.temp[!duplicated(result.temp), ]
     # return matrix format
-    result <- reshape2::dcast(result.temp, x+y ~ variable, value.var= "value")
+    #result <- reshape2::dcast(result.temp, x+y ~ variable, value.var= "value")
+    result <- result.temp %>%
+      tidyr::spread(variable, value)
 
     if (nrow(result) > 0){
       return(result)

@@ -34,8 +34,8 @@
 #' @return Data frame with statistical measures
 #' @import ggplot2
 #' @importFrom ensurer ensure_that
-#' @importFrom reshape2 melt
-#' @importFrom dplyr mutate bind_cols bind_cols
+#' @importFrom tidyr gather
+#' @importFrom dplyr mutate bind_cols group_by
 #' @export
 #'
 #' @examples \dontrun{
@@ -56,7 +56,10 @@ lucC_result_measures <- function(data_mtx = NULL, data_frequency = NULL, pixel_r
   # input data matrix or a frequency table
   if (!is.null(data_mtx)){
     # to data frame
-    input_data <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"))
+    #input_data <- reshape2::melt(as.data.frame(data_mtx), id = c("x","y"))
+    input_data <- as.data.frame(data_mtx) %>%
+      tidyr::gather(variable, value, -x, -y)
+
     input_data <- input_data[!duplicated(input_data), ]
     # count number of values
     dataMeasures.df <- data.frame(table(lubridate::year(input_data$variable), input_data$value)) %>%

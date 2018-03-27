@@ -125,7 +125,7 @@ lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = forest_evolve,
 #-------------------
 
 # 3. Merge both forest_recur and forest_evolve datas
-forest_secondary <- lucC_merge(forest_evolve, forest_recur)
+system.time(forest_secondary <- lucC_merge(forest_evolve, forest_recur))
 head(forest_secondary)
 
 # plot
