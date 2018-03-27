@@ -31,7 +31,7 @@
 #' @keywords datasets
 #' @return List with all the pieces in case you want to keep them in the memory.
 #' @importFrom ensurer ensure_that
-#' @importFrom raster ncell aggregate rasterToPolygons extent crop writeRaster
+#' @importFrom raster aggregate ncell rasterToPolygons extent crop writeRaster
 #' @export
 #'
 #' @examples \dontrun{
@@ -106,10 +106,11 @@ lucC_create_blocks <- function(raster_obj = NULL, number_blocks_xy = 6, save_ima
 #' @docType data
 #'
 #' @description Merge GeoTIFF splitted into parts. \url{https://stackoverflow.com/questions/29784829/r-raster-package-split-image-into-multiples}
-#' @usage lucC_merge_blocks (path_open_GeoTIFFs = NULL, number_raster = 1)
+#' @usage lucC_merge_blocks (path_open_GeoTIFFs = NULL, number_raster = 1, pattern_name = NULL)
 #'
 #' @param path_open_GeoTIFFs   Character. Name a path folder to OPEN raster images data.
 #' @param number_raster        Integer. Number of GeoTIFF files.
+#' @param pattern_name         Character. A pattern in name of GeoTIFF to mosaic them
 #'
 #' @keywords datasets
 #' @return RasterBrick Mosaic.
@@ -119,12 +120,12 @@ lucC_create_blocks <- function(raster_obj = NULL, number_blocks_xy = 6, save_ima
 #'
 #' @examples \dontrun{
 #'
-#' lucC_merge_blocks(path_open_GeoTIFFs = NULL, number_raster = 1)
+#' lucC_merge_blocks(path_open_GeoTIFFs = NULL, number_raster = 1, pattern_name = "MT_year_")
 #'
 #'}
 #'
 
-lucC_merge_blocks <- function(path_open_GeoTIFFs = NULL, number_raster = 1){
+lucC_merge_blocks <- function(path_open_GeoTIFFs = NULL, number_raster = 1, pattern_name = NULL){
 
  # Ensure if parameters exists
   ensurer::ensure_that(path_open_GeoTIFFs, !is.null(path_open_GeoTIFFs),
@@ -133,14 +134,14 @@ lucC_merge_blocks <- function(path_open_GeoTIFFs = NULL, number_raster = 1){
   # read each piece back in R
   list <- list()
   for(i in 1:number_raster){ # change this 9 depending on your number of pieces
-    rx <- raster::brick(paste0(path_open_GeoTIFFs,"/Raster_Splitted_",i,".tif",sep=""))
+    rx <- raster::brick(paste0(path_open_GeoTIFFs,"/", pattern_name, i,".tif",sep=""))
     list[[i]] <- rx
   }
   # mosaic them and save output
   list$fun <- max
   rast.mosaic <- do.call(raster::mosaic, list)
 
-  raster::writeRaster(rast.mosaic, filename = paste0(path_open_GeoTIFFs,"/Mosaic_rasterBrick", sep=""),
+  raster::writeRaster(rast.mosaic, filename = paste0(path_open_GeoTIFFs,"/Mosaic_", pattern_name, sep=""),
               format="GTiff", datatype="INT1U", overwrite=TRUE)
 
 }

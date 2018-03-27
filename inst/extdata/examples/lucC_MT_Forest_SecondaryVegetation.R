@@ -15,7 +15,8 @@ start.time <- Sys.time()
 #file <- c("~/Desktop/INPE_2018/Classi_MT_SVM/raster_mt_by_year_2004.tif")
 
 # all files in folder
-all.the.files <- list.files("~/Desktop/INPE_2018/Classi_MT_SVM/raster_2SecVeg", full=TRUE, pattern = ".tif")
+#all.the.files <- list.files("~/Desktop/INPE_2018/Classi_MT_SVM/raster_2SecVeg", full=TRUE, pattern = ".tif")
+all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
 all.the.files
 
 # save as list
@@ -70,7 +71,7 @@ for (i in 1:length(all.the.files)) {
 
   # clear environment, except these elements
   rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "end.time", "number_SV_For"))])
-  gc(verbose = TRUE)
+  gc()
   gc()
 
   message("--------------------------------------------------\n")
@@ -177,33 +178,6 @@ file <- c("~/Desktop/INPE_2018/Classi_MT_SVM/raster_2SecVeg/New_0000_0000.tif")
 
   data_new
 
-  library(raster)
-  # set up an 'empty' raster, here via an extent object derived from your data
-  e <- extent(s100[,1:2])
-  e <- e + 1000 # add this as all y's are the same
-
-  df = data.frame(data_new)
-  new_raster <- raster::rasterFromXYZ(df)
-  names(new_raster) <- raster_obj@data@names
-
-  plot(new_raster)
-
-  #
-  # class_name <- unique(data_mtx[3:ncol(data_mtx)][!duplicated(as.vector(data_mtx[3:ncol(data_mtx)])) & !is.na(data_mtx[3:ncol(data_mtx)])] )
-  # class_name
-  #
-  # class <- which(label2 %in% class_name)
-  #
-  # temp <- data_mtx
-  #
-  # for( i in 1:length(class_name)){
-  #   temp <- replace(temp, temp == class_name[i], class[i])
-  # }
-  # temp
-
-  # a <- replace(number_SV_For[[1]], number_SV_For[[1]] == "Forest", 1)
-  # a <- replace(a, a == "Secondary_Vegetation", 2)
-
 lucC_save_GeoTIFF(raster_obj = rb_sits, data_mtx = data_new, path_raster_folder = "~/Desktop/raster_MT_0000", as_RasterBrick = FALSE)
 
 lucC_plot_raster(rb_sits, timeline, label = label2 )
@@ -211,17 +185,5 @@ lucC_plot_raster(rb_sits, timeline, label = label2 )
 lucC_plot_raster_result(rb_sits, data_mtx = data_new, timeline, label = label, shape_point = ".", plot_ncol = 4 )
 
 
-#-------
-
-library(Rcpp)
-cppFunction('int add(int x, int y, int z) {
-  int sum = x + y + z;
-  return sum;
-}')
-# add works like a regular R function
-add
-#> function (x, y, z)
-#> .Primitive(".Call")(<pointer: 0x7f5164309df0>, x, y, z)
-add(1, 2, 3)
 
 

@@ -36,30 +36,42 @@ library(lucCalculus)
 # #
 
 # all files in folder
-#all.the.files <- list.files("~/Desktop/INPE_2018/Classi_MT_SVM/raster_1splitted", full=TRUE, pattern = ".tif")
+# all.the.files <- list.files("~/Desktop/INPE_2018/Classi_MT_SVM/raster_1splitted", full=TRUE, pattern = ".tif")
 all.the.files <- list.files("~/TESTE/MT", full=TRUE, pattern = ".tif")
 all.the.files
+
 
 # start time
 start.time <- Sys.time()
 
-for (i in 1:length(all.the.files)) {
-<<<<<<< HEAD
-  #for (i in 1:length(list_MT)) {
-=======
-<<<<<<< HEAD
-  #for (i in 1:length(list_MT)) {
-=======
-#for (i in 1:length(list_MT)) {
->>>>>>> eac3b6db90123ad4d750419fe967166d86ff27d4
->>>>>>> e0a12bf626ee04f6ed4320f0b59d4b76c52d2f02
+#-------------
+#Carrega os pacotes necessários para realizar o paralelismo
+library(foreach)
+library(doParallel)
+
+#Checa quantos núcleos existem
+# ncl<-detectCores()
+# ncl
+
+#Registra os clusters a serem utilizados
+cl <- makeCluster(6) #ncl
+registerDoParallel(cl)
+getDoParWorkers()
+#-------------
+
+result.list <- list()
+sec_veg.tb <- NULL
+
+#for (i in 1:length(all.the.files)) {
+sec_veg.tb <- foreach(i = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar%  {
 
   # file
   file <- all.the.files[i]
   #file <- list_MT[i]
 
   # create timeline with classified data from SVM method
-  timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
+  timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "20
+09-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
 
   file_name <- basename(tools::file_path_sans_ext(file))
 
@@ -90,6 +102,7 @@ for (i in 1:length(all.the.files)) {
   # 2- Discover Secondary Vegetation - LUC Calculus
   #----------------------------
   # 1. RECUR predicate indicates a class that appear again
+  message("Start RECUR ...\n")
   #system.time(
   forest_recur <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
                                   time_interval1 = c("2001-09-01","2001-09-01"),
@@ -105,6 +118,8 @@ for (i in 1:length(all.the.files)) {
 
   # classes without Forest based on original label
   classes <- as.character(c("Cerrado", "Fallow_Cotton", "Pasture", "Soy", "Sugarcane", "Urban_area", "Water"))
+
+  message("Start EVOLVE ...\n")
 
   #system.time(
   # percor all classes
@@ -122,10 +137,7 @@ for (i in 1:length(all.the.files)) {
   message("EVOLVE ok! ...\n")
 
   # 3. Merge both forest_recur and forest_evolve datas
-  forest_secondary <- lucC_merge(forest_evolve, forest_recur)
-
-  rm(forest_recur, forest_evolve, forest_secondary)
-  gc()
+  forest_secondary <- lucC_merge(forest_recur, forest_evolve)
 
   # # plot
   # lucC_plot_bar_events(forest_secondary, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend:")
@@ -133,6 +145,9 @@ for (i in 1:length(all.the.files)) {
   # 4. Remove column 2001 because it' is not used to replace pixels's only support column
   forest_sec <- lucC_remove_columns(data_mtx = forest_secondary, name_columns = c("2001-09-01"))
   #head(forest_sec)
+
+  rm(forest_recur, forest_evolve, forest_secondary)
+  gc()
 
   ## plot
   # lucC_plot_bar_events(forest_sec, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend:")
@@ -147,8 +162,8 @@ for (i in 1:length(all.the.files)) {
   #----------------------------
   # 3 - Update original raster to add new pixel value
   #----------------------------
-
-  number_label <- length(label)+1
+  message("Start update pixel in RasterBrick ...\n")
+  number_label <- length(label)1
   # 1. update original RasterBrick with new class
   rb_sits_new <- lucC_raster_update(raster_obj = rb_sits,
                                     data_mtx = forest_sec,           # without 2001
@@ -164,10 +179,12 @@ for (i in 1:length(all.the.files)) {
   # new name
   new_file_name <- paste0(dirname(file),"/", file_name, "_new", sep = "")
 
+  result.list[[i]] <- rb_sits_new
+
   # 2. save the update matrix as GeoTIFF RasterBrick
   lucC_save_GeoTIFF(raster_obj = rb_sits,
                     data_mtx = rb_sits_new,
-                    path_raster_folder = new_file_name, as_RasterBrick = TRUE ) # FALSE before
+                    path_raster_folder = new_file_name, as_RasterBrick = FALSE ) # FALSE before
 
 
   message("--------------------------------------------------\n")
@@ -177,17 +194,9 @@ for (i in 1:length(all.the.files)) {
 
 }
 
+#Stop clusters
+stopCluster(cl)
+
 # end time
-end.time <- Sys.time()
-time.taken <- end.time - start.time
-time.taken
+print(Sys.time() - start.time)
 
-
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-
-
->>>>>>> eac3b6db90123ad4d750419fe967166d86ff27d4
->>>>>>> e0a12bf626ee04f6ed4320f0b59d4b76c52d2f02

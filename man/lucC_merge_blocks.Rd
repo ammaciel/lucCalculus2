@@ -5,10 +5,14 @@
 \alias{lucC_merge_blocks}
 \title{Create blocks from RasterBrick in accordance with number of cells}
 \usage{
-lucC_merge_blocks (path_open_GeoTIFFs = NULL)
+lucC_merge_blocks (path_open_GeoTIFFs = NULL, number_raster = 1, pattern_name = NULL)
 }
 \arguments{
 \item{path_open_GeoTIFFs}{Character. Name a path folder to OPEN raster images data.}
+
+\item{number_raster}{Integer. Number of GeoTIFF files.}
+
+\item{pattern_name}{Character. A pattern in name of GeoTIFF to mosaic them}
 }
 \value{
 RasterBrick Mosaic.
@@ -19,7 +23,7 @@ Merge GeoTIFF splitted into parts. \url{https://stackoverflow.com/questions/2978
 \examples{
 \dontrun{
 
-lucC_merge_blocks(path_open_GeoTIFFs = NULL)
+lucC_merge_blocks(path_open_GeoTIFFs = NULL, number_raster = 1, pattern_name = "MT_year_")
 
 }
 
