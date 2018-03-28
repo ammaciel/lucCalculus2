@@ -6,26 +6,25 @@ all.the.files
 
 #-------------
 # #Carrega os pacotes necessários para realizar o paralelismo
-# library(foreach)
+library(foreach)
 #
 # #Checa quantos núcleos existem
-# ncl <- parallel::detectCores()-2
-# ncl
-# #Registra os clusters a serem utilizados
-# cl <- parallel::makeCluster(ncl) #ncl
-# doParallel::registerDoParallel(6)
-# foreach::getDoParWorkers()
+ncl <- parallel::detectCores()-10
+ncl
+#Registra os clusters a serem utilizados
+cl <- parallel::makeCluster(ncl) #ncl
+doParallel::registerDoParallel(2)
+foreach::getDoParWorkers()
 #-------------
 
 # start time
 start.time <- Sys.time()
 
 number_SV_For <- list()
-#for_sv.tb <- NULL
+for_sv.tb <- NULL
 
+for_sv.tb <- foreach(i = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar%  {
 #for (i in 1:length(all.the.files)) {
-#for_sv.tb <- foreach(i = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar%  {
-for (i in 1:length(all.the.files)) {
   # file
   file <- all.the.files[i]
 
@@ -73,7 +72,7 @@ for (i in 1:length(all.the.files)) {
   number_SV_For[[i]] <- Forest_secondary.mtx
 
   # save result of secondary vegetation
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = Forest_secondary.mtx, timeline = timeline, label = label2, path_raster_folder = "~/TESTE/MT/MT_SecVeg" )
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = Forest_secondary.mtx, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/MT_SecVeg/", file_name, sep = ""))
 
   # clear environment, except these elements
   rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "end.time", "number_SV_For"))])
@@ -87,8 +86,8 @@ message("Save data as list in .rda file ...\n")
 #save to rda file
 save(number_SV_For, file = "~/TESTE/MT/number_SV_For.rda")
 
-# #Stop clusters
-# parallel::stopCluster(cl)
+#Stop clusters
+parallel::stopCluster(cl)
 
 # end time
 print(Sys.time() - start.time)
@@ -110,12 +109,12 @@ output_freq <- lucC_extract_frequency(data_mtx.list = number_SV_For, cores_in_pa
 output_freq
 
 #----------------------
-# plot results
-lucC_plot_bar_events(data_frequency = output_freq,
-                     pixel_resolution = 231.656, custom_palette = FALSE, side_by_side = TRUE)
-
-lucC_plot_frequency_events(data_frequency = output_freq,
-                     pixel_resolution = 231.656, custom_palette = FALSE)
+# # plot results
+# lucC_plot_bar_events(data_frequency = output_freq,
+#                      pixel_resolution = 231.656, custom_palette = FALSE, side_by_side = TRUE)
+#
+# lucC_plot_frequency_events(data_frequency = output_freq,
+#                      pixel_resolution = 231.656, custom_palette = FALSE)
 
 # Compute values
 measuresFor_Sec <- lucC_result_measures(data_frequency = output_freq, pixel_resolution = 231.656)

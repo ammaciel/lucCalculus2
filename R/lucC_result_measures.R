@@ -123,9 +123,9 @@ lucC_result_measures <- function(data_mtx = NULL, data_frequency = NULL, pixel_r
 #' @return Data frame with statistical measures
 #' @import ggplot2
 #' @importFrom ensurer ensure_that
-#' @importFrom reshape2 melt
-#' @importFrom stats aggregate
+#' @importFrom stats aggregate na.omit
 #' @importFrom parallel mclapply
+#' @importFrom tidyr gather
 #' @export
 #'
 #' @examples \dontrun{
@@ -143,7 +143,10 @@ lucC_extract_frequency <- function(data_mtx.list = NULL, cores_in_parallel = 1){
 
   # function to melt each data.frame of a list
   .meltFromList <- function(x){
-    raster_data <- reshape2::melt(as.data.frame(x), id.vars = c("x","y"), na.rm = TRUE)
+    #raster_data <- reshape2::melt(as.data.frame(x), id.vars = c("x","y"), na.rm = TRUE)
+    raster_data <- as.data.frame(x) %>%
+      tidyr::gather(variable, value, -x, -y) %>%
+      stats::na.omit()
 
     raster_data$x = as.numeric(as.character(raster_data$x))
     raster_data$variable = as.character(as.character(raster_data$variable))

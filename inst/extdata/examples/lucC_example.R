@@ -258,11 +258,11 @@ lucC_plot_raster(raster_obj = rb_sits2, timeline = timeline,
 #-------------------------
 
 #------------- tests - convert
-sixth_raster.df <- lucC_pred_convert(raster_obj = rb_sits, raster_class1 = "Forest",
+sixth_raster.df <- lucC_pred_convert(raster_obj = rb_sits2, raster_class1 = "Forest",
                                      time_interval1 = c("2001-09-01","2001-09-01"), relation_interval1 = "equals",
                                      raster_class2 = "Cerrado",
                                      time_interval2 = c("2002-09-01","2016-09-01"), relation_interval2 = "contains",
-                                     label = label, timeline = timeline)
+                                     label = label2, timeline = timeline)
 sixth_raster.df
 
 lucC_plot_sequence_events(sixth_raster.df, custom_palette = FALSE, show_y_index = FALSE)
@@ -270,11 +270,11 @@ lucC_plot_bar_events(sixth_raster.df, custom_palette = FALSE)
 
 
 #------------- tests - evolve
-fifth_raster.df <- lucC_pred_evolve(raster_obj = rb_sits, raster_class1 = "Pasture",
-                                    time_interval1 = c("2001-09-01","2001-09-01"), relation_interval1 = "contains",
-                                    raster_class2 = "Forest",
-                                    time_interval2 = c("2002-09-01","2016-09-01"), relation_interval2 = "contains",
-                                    label = label, timeline = timeline)
+fifth_raster.df <- lucC_pred_evolve(raster_obj = rb_sits2, raster_class1 = "Pasture",
+                                    time_interval1 = c("2001-09-01","2004-09-01"), relation_interval1 = "contains",
+                                    raster_class2 = "Cerrado",
+                                    time_interval2 = c("2005-09-01","2016-09-01"), relation_interval2 = "contains",
+                                    label = label2, timeline = timeline)
 fifth_raster.df
 
 lucC_plot_sequence_events(fifth_raster.df, custom_palette = FALSE, show_y_index = FALSE)
@@ -283,14 +283,14 @@ lucC_plot_frequency_events(fifth_raster.df, custom_palette = FALSE, legend_text 
 
 
 #---------------
-a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
+a <- lucC_pred_holds(raster_obj = rb_sits2, raster_class = "Forest",
                      time_interval = c("2001-09-01","2003-09-01"),
-                     relation_interval = "equals", label = label, timeline = timeline)
+                     relation_interval = "equals", label = label2, timeline = timeline)
 a
 
-b <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
+b <- lucC_pred_holds(raster_obj = rb_sits2, raster_class = "Cerrado",
                      time_interval = c("2004-09-01","2007-09-01"),
-                     relation_interval = "contains", label = label, timeline = timeline)
+                     relation_interval = "contains", label = label2, timeline = timeline)
 b
 
 # before
@@ -320,75 +320,3 @@ lucC_plot_sequence_events(c4, custom_palette = FALSE, show_y_index = TRUE)
 lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = c3, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE) #, shape_point = "#")
 
 .
-.
-# create label with classified data from SVM method
-label_2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_Area", "Water", "zecondary_vegetation"))
-label_2
-
-colors_2 <- c("#b3cc33", "#8ddbec", "#228b22", "#afe3c8", "#b6a896", "#e1cdb6", "#e5c6a0", "#b69872", "#b68549", "#dec000", "#cc18b4", "#0000f1", "red")
-
-
-lucC_plot_raster(raster_obj = r, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE) #, shape_point = "#")
-
-lucC_plot_raster(raster_obj = r, timeline = timeline, label = label_2, custom_palette = TRUE, RGB_color = colors_2, relabel = FALSE) #, shape_point = "#")
-
-
-
-rb_new <- lucC_update_raster(raster_obj = rb_sits, data_mtx = third_raster.df, timeline = timeline, class_to_replace = "Forest", new_pixel_value = 6)
-rb_new
-
-lucC_plot_bar_events(data_mtx = rb_new, pixel_resolution = 232, custom_palette = FALSE)
-
-lucC_save_GeoTIFF(raster_obj = rb_sits, data_mtx = rb_new, path_raster_folder = "~/Desktop/raster222")
-
-
-lucC_plot_raster(raster_obj = rb_sits, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE)
-
-
-#------------------------
-# Test if change original label by other
-#------------------------
-# original
-lucC_plot_raster(raster_obj = rb_sits, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE, plot_ncol = 6) #,
-
-colors_2 <- c("#b3cc33", "#8ddbec", "#228b22", "#afe3c8", "#b6a896", "#e1cdb6", "#e5c6a0", "#b69872", "#b68549", "#dec000", "#cc18b4", "#0000f1")
-
-label2 <- as.character(c("Pasture", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_Area", "Water"))
-label2
-
-#
-a <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Pasture",
-                     time_interval = c("2001-09-01","2016-09-01"),
-                     relation_interval = "contains", label = label2, timeline = timeline)
-a
-
-#
-lucC_plot_raster(raster_obj = rb_sits, timeline = timeline, label = label2, custom_palette = TRUE, RGB_color = colors_2, relabel = FALSE, plot_ncol = 6)
-
-lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = a, timeline = timeline, label = label2, custom_palette = TRUE, RGB_color = colors_2, relabel = FALSE, plot_ncol = 6)
-
-
-
-
-#----------------------------------
-library(dplyr)
-# You can also unnest multiple columns simultaneously
-df <- tibble(
-  a = list(c("a", "b", "x"), "c"),
-  b = list(c(1:2,4), 3),
-  c = c(11, 22)
-)
-
-df$a
-
-df %>% tidyr::unnest(a, b)
-df
-
-# If you omit the column names, it'll unnest all list-cols
-df %>% tidyr::unnest()
-
-# You can also choose to preserve one or more list-cols
-df %>% tidyr::unnest(a, .preserve = b)
-
-
-

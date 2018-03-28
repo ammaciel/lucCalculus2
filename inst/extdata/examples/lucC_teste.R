@@ -96,3 +96,28 @@ rm(raster_obj, raster_df_temp)
 gc()
 
 return(raster_df_update)
+
+
+
+.
+
+a1 <- c(1, 2, 3)
+a2 <- c(3, 4, 5)
+a3 <- c(a1, a2)
+
+a1 <- as.data.table(forest_recur)
+a2 <- as.data.table(forest_evolve)
+a3 <- c(a1, a2)
+a3
+
+
+
+a3$x
+
+
+
+data.tab
+
+
+.
+x <- as.matrix(100)
