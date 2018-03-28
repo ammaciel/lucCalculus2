@@ -1,10 +1,10 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
 <qgis version="2.18.9" minimumScale="inf" maximumScale="1e+08" hasScaleBasedVisibilityFlag="0">
   <pipe>
-    <rasterrenderer opacity="1" alphaBand="0" band="1" type="paletted">
+    <rasterrenderer opacity="1" alphaBand="-1" band="1" type="paletted">
       <rasterTransparency/>
       <colorPalette>
-        <paletteEntry value="0" color="#000000" label="0"/>
+        <paletteEntry value="0" color="#e7e7e7" label="0"/>
         <paletteEntry value="1" color="#b3cc33" label="1 Cerrado"/>
         <paletteEntry value="2" color="#8ddbec" label="2 Fallow_Cotton"/>
         <paletteEntry value="3" color="#228b22" label="3 Forest"/>

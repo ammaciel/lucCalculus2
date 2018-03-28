@@ -5,28 +5,27 @@ all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
 all.the.files
 
 #-------------
-#Carrega os pacotes necessários para realizar o paralelismo
-library(foreach)
-
-#Checa quantos núcleos existem
-ncl <- parallel::detectCores()-2
-ncl
-#Registra os clusters a serem utilizados
-cl <- parallel::makeCluster(ncl) #ncl
-doParallel::registerDoParallel(6)
-foreach::getDoParWorkers()
+# #Carrega os pacotes necessários para realizar o paralelismo
+# library(foreach)
+#
+# #Checa quantos núcleos existem
+# ncl <- parallel::detectCores()-2
+# ncl
+# #Registra os clusters a serem utilizados
+# cl <- parallel::makeCluster(ncl) #ncl
+# doParallel::registerDoParallel(6)
+# foreach::getDoParWorkers()
 #-------------
 
 # start time
 start.time <- Sys.time()
 
 number_SV_For <- list()
-for_sv.tb <- NULL
+#for_sv.tb <- NULL
 
 #for (i in 1:length(all.the.files)) {
-for_sv.tb <- foreach(i = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar%  {
-#for (i in 1:length(all.the.files)) {
-
+#for_sv.tb <- foreach(i = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar%  {
+for (i in 1:length(all.the.files)) {
   # file
   file <- all.the.files[i]
 
@@ -88,8 +87,8 @@ message("Save data as list in .rda file ...\n")
 #save to rda file
 save(number_SV_For, file = "~/TESTE/MT/number_SV_For.rda")
 
-#Stop clusters
-parallel::stopCluster(cl)
+# #Stop clusters
+# parallel::stopCluster(cl)
 
 # end time
 print(Sys.time() - start.time)

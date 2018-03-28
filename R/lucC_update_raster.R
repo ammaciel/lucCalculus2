@@ -79,7 +79,7 @@ lucC_raster_update <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
   gc()
 
   # remove factor
-  raster_df$variable = as.character(levels(raster_df$variable))[raster_df$variable]
+  # raster_df$variable = as.character(levels(raster_df$variable))[raster_df$variable]
 
   #-------------------- prepare matrix with events --------------------------------
   # data matrix to new raster

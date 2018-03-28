@@ -40,11 +40,10 @@ lucC_plot_raster(raster_obj = rb_sits,
                  timeline = timeline, label = label,
                  custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 5)
 
-rb_sits[rb_sits == 16] = 1
-raster::values(rb_sits)[raster::values(rb_sits) == 16] = 1
-x <- raster::reclassify(rb_sits, cbind(-Inf, 16, 1), right=FALSE)
+rb_sits <- raster::reclassify(rb_sits, cbind(15, 1))
+rb_sits
 
-lucC_plot_raster(raster_obj = x,
+lucC_plot_raster(raster_obj = rb_sits,
                  timeline = timeline, label = label,
                  custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 5)
 
@@ -107,8 +106,8 @@ lucC_plot_raster_result(raster_obj = rb_sits,
 
 # create images output
 rb_sits_VS <- lucC_save_raster_result(raster_obj = rb_sits,
-                                 data_mtx = forest_sec,       # without 2001
-                                 timeline = timeline, label = label, path_raster_folder = "~/Desktop/rasterItanhangaSec")         # new pixel value
+                                 data_mtx = forest_recur,       # without 2001
+                                 timeline = timeline, label = label, path_raster_folder = "~/Desktop/rasterItanhangaSec2") # new pixel value
 
 
 #----------------------------

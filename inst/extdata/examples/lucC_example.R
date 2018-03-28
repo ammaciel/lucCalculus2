@@ -140,15 +140,15 @@ lucC_plot_bar_events(forest_sec, custom_palette = FALSE, pixel_resolution = 232,
 
 # 5. Plot secondary vegetation over raster without column 2001 because it' is not used to replace pixels's only support column
 lucC_plot_raster_result(raster_obj = rb_sits,
-                        data_mtx = forest_evolve, #forest_sec,
+                        data_mtx = forest_sec, #forest_sec,
                         timeline = timeline,
                         label = label, custom_palette = TRUE,
                         RGB_color = colors_1, relabel = FALSE) #, shape_point = ".")
 
 # create images output
 rb_sits_new <- lucC_save_raster_result(raster_obj = rb_sits,
-                                  data_mtx = forest_recur,       # without 2001
-                                  timeline = timeline, label = label, path_raster_folder = "~/Desktop/Ne3")         # new pixel value
+                                  data_mtx = forest_sec,       # without 2001
+                                  timeline = timeline, label = label, path_raster_folder = "~/Desktop/Ne4")         # new pixel value
 rb_sits_new
 
 
@@ -156,12 +156,13 @@ rb_sits_new
 # 4 - Update original raster to add new pixel value
 #----------------------------
 
+num_label <- length(label) + 1
 # 1. update original RasterBrick with new class
 rb_sits_new <- lucC_raster_update(raster_obj = rb_sits,
                                   data_mtx = forest_sec,       # without 2001
                                   timeline = timeline,
                                   class_to_replace = "Forest",  # only class Forest
-                                  new_pixel_value = 13)         # new pixel value
+                                  new_pixel_value = num_label)         # new pixel value
 
 head(rb_sits_new)
 
@@ -170,7 +171,7 @@ lucC_plot_bar_events(data_mtx = rb_sits_new, pixel_resolution = 232, custom_pale
 # 2. save the update matrix as GeoTIFF RasterBrick
 lucC_save_GeoTIFF(raster_obj = rb_sits,
                   data_mtx = rb_sits_new,
-                  path_raster_folder = "inst/extdata/raster/raster_sampleSecVeg1", as_RasterBrick = TRUE ) # FALSE before
+                  path_raster_folder = "inst/extdata/raster/raster_sampleSecVeg", as_RasterBrick = FALSE ) # FALSE before
 
 #------------
 # create a RasterBrick from individual raster GeoTIFF, case saved as separate layers
@@ -240,7 +241,7 @@ lucC_plot_raster(raster_obj = rb_sits2, timeline = timeline,
 
 
 
-
+.
 
 
 

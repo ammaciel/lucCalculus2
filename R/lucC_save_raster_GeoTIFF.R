@@ -71,7 +71,7 @@ lucC_save_GeoTIFF <- function(raster_obj = NULL, data_mtx = NULL, path_raster_fo
 
   # matrix reclassified to raster format
   new_raster <- raster::rasterFromXYZ(data_mtx)
-  names(new_raster) <- raster_obj@data@names
+  #names(new_raster) <- raster_obj@data@names
 
   # crs from original raster
   raster::crs(new_raster) <- raster_obj@crs
@@ -179,6 +179,7 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
 
   for( i in 1:length(class_name)){
     #data_mtx <- replace(data_mtx, data_mtx == class_name[i], class[i])
+    #data_mtx[c(3:ncol(data_mtx))] <- replace(data_mtx[c(3:ncol(data_mtx))], data_mtx[c(3:ncol(data_mtx))] == class_name[i], class[i])
     data_mtx[c(3:ncol(data_mtx))] <- ifelse(data_mtx[c(3:ncol(data_mtx))] == class_name[i], class[i], NA)
   }
 
@@ -216,6 +217,8 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   # remove duplicated lines
   raster_df_temp <- raster_df_temp[!duplicated(raster_df_temp), ]
 
+  #raster_df_temp[is.na(raster_df_temp)] <- 0
+
   #raster_df_update <- reshape2::dcast(raster_df_temp, x+y ~ variable, value.var= "value")
   raster_df_update <- raster_df_temp %>%
     tidyr::spread(variable, value)
@@ -223,6 +226,7 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   colnames(raster_df_update)[c(3:ncol(raster_df_update))] <- as.character(timeline)
 
   lucC_save_GeoTIFF(raster_obj = raster_obj, data_mtx = raster_df_update, path_raster_folder = path_raster_folder, as_RasterBrick = FALSE)
+
   rm(raster_obj, raster_df_temp)
   gc()
 

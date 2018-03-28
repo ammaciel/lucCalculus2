@@ -4,12 +4,12 @@
     <rasterrenderer opacity="1" alphaBand="0" band="1" type="paletted">
       <rasterTransparency>
         <singleValuePixelList>
-          <pixelListEntry min="0" max="0" percentTransparent="100"/>
+          <pixelListEntry min="-1" max="-1" percentTransparent="100"/>
           <pixelListEntry min="18" max="64536" percentTransparent="100"/>
         </singleValuePixelList>
       </rasterTransparency>
       <colorPalette>
-        <paletteEntry value="0" color="#c8c8c8" label="0"/>
+        <paletteEntry value="0" color="#e5e5e5" label="0"/>
         <paletteEntry value="1" color="#b3cc33" label="1. Cerrado"/>
         <paletteEntry value="2" color="#d1f0f7" label="2. Crop_Cotton"/>
         <paletteEntry value="3" color="#8ddbec" label="3. Fallow_Cotton"/>

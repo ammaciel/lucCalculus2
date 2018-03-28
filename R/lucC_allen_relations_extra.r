@@ -423,7 +423,6 @@ lucC_relation_occurs <- function (first_raster = NULL, second_raster = NULL) {
 #'}
 #'
 
-#
 # 17. The 'lucC_relation_occurs'
 lucC_merge <- function (first_raster = NULL, second_raster = NULL) {
 
@@ -433,8 +432,7 @@ lucC_merge <- function (first_raster = NULL, second_raster = NULL) {
 
   if( isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0)) {
     # first raster
-    # first_raster <- reshape2::melt(as.data.frame(first_raster), id.vars = c("x","y"), na.rm = TRUE) # %>%
-    # #  stats::na.omit()
+    # first_raster <- reshape2::melt(as.data.frame(first_raster), id.vars = c("x","y"), na.rm = TRUE)
 
     first_raster <- first_raster %>%
       tidyr::gather(variable, value, -x, -y)  %>%
@@ -446,8 +444,7 @@ lucC_merge <- function (first_raster = NULL, second_raster = NULL) {
     first_raster$variable = as.character(as.character(first_raster$variable))
 
     # second raster
-    #second_raster <- reshape2::melt(as.data.frame(second_raster), id.vars = c("x","y"), na.rm = TRUE) #%>%
-    #  #stats::na.omit()
+    #second_raster <- reshape2::melt(as.data.frame(second_raster), id.vars = c("x","y"), na.rm = TRUE)
     second_raster <- second_raster %>%
       tidyr::gather(variable, value, -x, -y)  %>%
       stats::na.omit()
@@ -482,3 +479,39 @@ lucC_merge <- function (first_raster = NULL, second_raster = NULL) {
   }
 }
 
+
+# @importFrom plyr rbind.fill.matrix
+
+# #17. The 'lucC_relation_occurs'
+# lucC_merge <- function (first_raster = NULL, second_raster = NULL) {
+#
+#   # check is data set are empty
+#   first_raster <- first_raster
+#   second_raster <- second_raster
+#
+#   if( isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0)) {
+#
+#     first_raster <- as.matrix(first_raster)
+#     second_raster <- as.matrix(second_raster)
+#
+#     result <- plyr::rbind.fill.matrix(first_raster, second_raster) %>%
+#       as.data.frame()
+#
+#     result$x = as.numeric(as.character(result$x))
+#     result$y = as.numeric(as.character(result$y))
+#
+#     if (nrow(result) > 0){
+#       return(as.data.frame(result))
+#     } else {
+#       message("\nRelation MERGE cannot be applied!\n
+#           raster 1 and raster 2 has no relation!")
+#       return(result <- NULL)
+#     }
+#   } else if ( isTRUE(nrow(first_raster) > 0) | isTRUE(nrow(second_raster) > 0)) {
+#     result <- dplyr::bind_rows(first_raster, second_raster)
+#     return(as.data.frame(result))
+#
+#   } else {
+#     return(result <- NULL)
+#   }
+# }
