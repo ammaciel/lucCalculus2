@@ -96,6 +96,9 @@ lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
     tidyr::gather(variable, value, -x, -y) %>%
     stats::na.omit()
 
+  points_df <- points_df[order(points_df$variable),] # order by years
+  rownames(points_df) <- seq(length=nrow(points_df)) # reset row numbers
+
   # remove factor
   points_df$x = as.numeric(as.character(points_df$x)) #as.numeric(levels(points_df$x))[points_df$x]
   points_df$y = as.numeric(as.character(points_df$y))

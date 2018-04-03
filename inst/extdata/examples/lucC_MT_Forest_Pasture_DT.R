@@ -4,7 +4,7 @@ library(lucCalculus)
 all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
 all.the.files
 
-#-------------
+# #-------------
 # # #Carrega os pacotes necessários para realizar o paralelismo
 # library(foreach)
 # #
@@ -15,12 +15,12 @@ all.the.files
 # cl <- parallel::makeCluster(ncl) #ncl
 # doParallel::registerDoParallel(2)
 # foreach::getDoParWorkers()
-#-------------
+# #-------------
 
 # start time
 start.time <- Sys.time()
 
-number_SV_For <- list()
+number_F_P_Soy <- list()
 #for_sv.tb <- NULL
 
 #for_sv.tb <- foreach(i = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar%  {
@@ -45,37 +45,57 @@ for (i in 1:length(all.the.files)) {
 
   # ------------- define variables to plot raster -------------
   # original label - see QML file, same order
-  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation"))
+  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation"))
 
-  # original colors set - see QML file, same order
-  # colors_2 <- c("#b3cc33", "#8ddbec", "#228b22", "#afe3c8", "#b6a896", "#e1cdb6", "#e5c6a0", "#b69872", "#b68549", "#dec000", "#cc18b4", "#0000f1", "red" )
+  class1 <- c("Forest")
+  classes <- c("Pasture", "Soy") #
 
-  file_name <- basename(tools::file_path_sans_ext(file))
+  direct_transi.df <- NULL
 
-  message("Start Secondary Vegetation holds ...\n")
-  # secondary and forest
-  secondary.mtx <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Secondary_Vegetation",
-                                   time_interval = c("2001-09-01","2016-09-01"),
-                                   relation_interval = "contains", label = label2, timeline = timeline)
-  #head(secondary.mtx)
+  message("Start Convert ...\n")
+  # along of all classes
+  system.time(
+    for(x in 2:length(timeline)){
+      t_1 <- timeline[x-1]
+      t_2 <- timeline[x]
+      cat(paste0(t_1, ", ", t_2, sep = ""), "\n")
 
-  message("Start Forest holds ...\n")
-  forest.mtx <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Forest",
-                                time_interval = c("2001-09-01","2016-09-01"),
-                                relation_interval = "contains", label = label2, timeline = timeline)
-  #head(forest.mtx)
+      # moves across all classes
+      for(i in seq_along(classes)){
+        cat(classes[i], collapse = " ", "\n")
+        temp <- lucC_pred_convert(raster_obj = rb_sits, raster_class1 = class1,
+                                  time_interval1 = c(t_1,t_1), relation_interval1 = "equals",
+                                  raster_class2 = classes[i],
+                                  time_interval2 = c(t_2,t_2), relation_interval2 = "equals",
+                                  label = label2, timeline = timeline)
 
-  message("Merge Forest and Secondary Vegetation ...\n")
-  Forest_secondary.mtx <- lucC_merge(secondary.mtx, forest.mtx)
-  #head(Forest_secondary.mtx)
+        if (!is.null(temp)) {
+          temp <- lucC_remove_columns(data_mtx = temp, name_columns = as.character(t_1))
+        } else{
+          temp <- temp
+        }
 
-  number_SV_For[[i]] <- Forest_secondary.mtx
+        direct_transi.df <- lucC_merge(direct_transi.df, temp)
+      }
+      cat("\n")
+    }
+  )
 
-  # save result of secondary vegetation
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = Forest_secondary.mtx, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/MT_SecVeg/", file_name, sep = ""))
+  Forest_Pasture <- direct_transi.df
+  #head(Forest_Pasture)
+
+  message("Add to list ...\n")
+  #Forest_Pasture[ Forest_Pasture == "Pasture" ] <- "Pasture"
+  #Forest_Pasture[ Forest_Pasture == "Soy" ] <- "Soy"
+  #head(Forest_Pasture)
+
+  number_F_P_Soy[[i]] <- Forest_Pasture
+
+  message("Prepare image ...\n")
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = Forest_Pasture, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/MT_SecVeg/DLUCForPasSoy/", file_name, sep = ""))
 
   # clear environment, except these elements
-  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "end.time", "number_SV_For"))])
+  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "end.time", "number_F_P_Soy"))])
   gc()
   gc()
 
@@ -84,7 +104,7 @@ for (i in 1:length(all.the.files)) {
 
 message("Save data as list in .rda file ...\n")
 #save to rda file
-save(number_SV_For, file = "~/TESTE/MT/number_SV_For.rda")
+save(number_F_P_Soy, file = "~/TESTE/MT/number_F_P_Soy.rda")
 
 # #Stop clusters
 # parallel::stopCluster(cl)
@@ -92,7 +112,7 @@ save(number_SV_For, file = "~/TESTE/MT/number_SV_For.rda")
 # end time
 print(Sys.time() - start.time)
 
-rm(number_SV_For)
+rm(number_F_P_Soy)
 gc()
 
 #----------------------------------------------------
@@ -104,10 +124,10 @@ gc()
 start.time <- Sys.time()
 
 
-load(file = "~/TESTE/MT/number_SV_For.rda")
+load(file = "~/TESTE/MT/number_F_P_Soy.rda")
 
-output_freq <- lucC_extract_frequency(data_mtx.list = number_SV_For, cores_in_parallel = 6)
-#output_freq
+output_freq <- lucC_extract_frequency(data_mtx.list = number_F_P_Soy, cores_in_parallel = 6)
+output_freq
 
 #----------------------
 # # plot results
@@ -121,14 +141,13 @@ output_freq <- lucC_extract_frequency(data_mtx.list = number_SV_For, cores_in_pa
 measuresFor_Sec <- lucC_result_measures(data_frequency = output_freq, pixel_resolution = 231.656)
 measuresFor_Sec
 
-write.table(x = measuresFor_Sec, file = "~/TESTE/MT/measuresFor_Sec.csv", quote = FALSE, sep = ";", row.names = FALSE)
+write.table(x = measuresFor_Sec, file = "~/TESTE/MT/measuresFor_PastSoy.csv", quote = FALSE, sep = ";", row.names = FALSE)
 
-save(measuresFor_Sec, file = "~/TESTE/MT/measuresFor_Sec.rda")
+save(measuresFor_Sec, file = "~/TESTE/MT/measuresFor_PastSoy.rda")
 
 
 # end time
 print(Sys.time() - start.time)
 
 
-#-----------------------------
 
