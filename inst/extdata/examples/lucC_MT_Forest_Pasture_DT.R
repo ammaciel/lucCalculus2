@@ -1,5 +1,7 @@
 library(lucCalculus)
 
+options(digits = 12)
+
 # all files in folder
 all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
 all.the.files

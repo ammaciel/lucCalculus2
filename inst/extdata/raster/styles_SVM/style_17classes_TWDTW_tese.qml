@@ -1,7 +1,7 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
 <qgis version="2.18.9" minimumScale="inf" maximumScale="1e+08" hasScaleBasedVisibilityFlag="0">
   <pipe>
-    <rasterrenderer opacity="1" alphaBand="0" band="1" type="paletted">
+    <rasterrenderer opacity="1" alphaBand="-1" band="1" type="paletted">
       <rasterTransparency>
         <singleValuePixelList>
           <pixelListEntry min="-1" max="-1" percentTransparent="100"/>
@@ -9,7 +9,7 @@
         </singleValuePixelList>
       </rasterTransparency>
       <colorPalette>
-        <paletteEntry value="0" color="#e5e5e5" label="0"/>
+        <paletteEntry value="0" color="#e2e2e2" label="0"/>
         <paletteEntry value="1" color="#b3cc33" label="1. Cerrado"/>
         <paletteEntry value="2" color="#d1f0f7" label="2. Crop_Cotton"/>
         <paletteEntry value="3" color="#8ddbec" label="3. Fallow_Cotton"/>
@@ -26,7 +26,7 @@
         <paletteEntry value="14" color="#e5a352" label="14. Soybean_Fallow2"/>
         <paletteEntry value="15" color="#0000ff" label="15. Water"/>
         <paletteEntry value="16" color="#3a3aff" label="16. Water_mask"/>
-        <paletteEntry value="17" color="#e200ff" label="17. Secondary_vegetation"/>
+        <paletteEntry value="17" color="#ff0414" label="17. Secondary_vegetation"/>
       </colorPalette>
     </rasterrenderer>
     <brightnesscontrast brightness="0" contrast="0"/>

@@ -452,10 +452,11 @@ lucC_merge <- function (first_raster = NULL, second_raster = NULL) {
     # if exists location equals, serpate them of the other data set and after merge then
     if (isTRUE(nrow(row_both) > 0)){
       # long format
-      temp <- tidyr::gather(row_both, variable, value, -x, -y) %>%
-        stats::na.omit()
+      temp <- tidyr::gather(row_both, variable, value, -x, -y, na.rm = TRUE)
       # remove .x and .y
       temp$variable <- gsub("[$.xy\\.,]", "", temp$variable)
+      #remove duplicates
+      temp <- temp[!duplicated(temp), ]
       # result
       new_row_both <- tidyr::spread(temp, variable, value)
 

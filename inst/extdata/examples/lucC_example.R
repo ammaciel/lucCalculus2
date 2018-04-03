@@ -175,8 +175,8 @@ lucC_plot_bar_events(data_mtx = rb_sits_new, pixel_resolution = 232, custom_pale
 # 2. save the update matrix as GeoTIFF RasterBrick
 lucC_save_GeoTIFF(raster_obj = rb_sits,
                   data_mtx = rb_sits_new,
-                  #path_raster_folder = "inst/extdata/raster/raster_sampleSecVeg", as_RasterBrick = FALSE ) # FALSE before
-                  path_raster_folder = "~/Desktop/raster_sampleSecVeg", as_RasterBrick = FALSE ) # FALSE before
+                  path_raster_folder = "inst/extdata/raster/raster_sampleSecVeg", as_RasterBrick = FALSE ) # FALSE before
+                  #path_raster_folder = "~/Desktop/raster_sampleSecVeg", as_RasterBrick = FALSE ) # FALSE before
 #------------
 # create a RasterBrick from individual raster GeoTIFF, case saved as separate layers
 #lucC_create_RasterBrick(path_open_GeoTIFFs = "inst/extdata/raster/raster_sampleSecVeg", path_save_RasterBrick = "inst/extdata/raster")

@@ -1,5 +1,8 @@
 library(lucCalculus)
 
+# always
+options(digits = 12)
+
 #----------------------------
 # 1- Open idividual images and create a RasterBrick with each one and metadata with SITS
 #----------------------------
@@ -28,11 +31,13 @@ rb_sits
 
 # ------------- define variables to plot raster -------------
 # original label - see QML file, same order
-label <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask"))
+#label <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask"))
+label <- as.character(c("Cerrado", "Double_cropping", "Single_cropping", "Forest", "Pasture", "Pasture", "Pasture", "Double_cropping", "Double_cropping", "Double_cropping", "Double_cropping", "Double_cropping", "Single_cropping", "Single_cropping", "Water", "Water"))
 label
 
 # colors
-colors_1 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
+#colors_1 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
+colors_1 <- c("#b3cc33", "#cd6155", "#e6b0aa", "#228b22", "#7ecfa4", "#afe3c8",  "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
 colors_1
 
 # plot raster brick
@@ -40,6 +45,7 @@ lucC_plot_raster(raster_obj = rb_sits,
                  timeline = timeline, label = label,
                  custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 5)
 
+# change pixel of water by Cerrado, because this class doesn't exist in this municipality
 rb_sits <- raster::reclassify(rb_sits, cbind(15, 1))
 rb_sits
 
@@ -66,7 +72,8 @@ head(forest_recur)
 # 2. Verify if occur forest EVOLVE from a different class in 2001
 forest_evolve <- NULL
 # classes without Forest
-classes <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask"))
+#classes <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask"))
+classes <- as.character(c("Cerrado", "Double_cropping", "Single_cropping", "Pasture", "Pasture", "Pasture", "Double_cropping", "Double_cropping", "Double_cropping", "Double_cropping", "Double_cropping", "Single_cropping", "Single_cropping", "Water", "Water"))
 
 # percor all classes
 system.time(
@@ -105,9 +112,13 @@ lucC_plot_raster_result(raster_obj = rb_sits,
 
 
 # create images output
-rb_sits_VS <- lucC_save_raster_result(raster_obj = rb_sits,
-                                 data_mtx = forest_recur,       # without 2001
-                                 timeline = timeline, label = label, path_raster_folder = "~/Desktop/rasterItanhangaSec2") # new pixel value
+lucC_save_raster_result(raster_obj = rb_sits,
+   data_mtx = forest_sec,       # without 2001
+   timeline = timeline, label = label, path_raster_folder = "~/Desktop/rasterItanhangaSec") # new pixel value
+
+lucC_save_raster_result(raster_obj = rb_sits,
+                        data_mtx = forest_evolve,       # without 2001
+                        timeline = timeline, label = label, path_raster_folder = "~/Desktop/rasterItanhangaEvo") # new pixel value
 
 
 #----------------------------
@@ -120,7 +131,7 @@ gc()
 n_label <- length(label) + 1
 
 # 1. update original RasterBrick with new class
-rb_sits_new <- lucC_update_raster(raster_obj = rb_sits,
+rb_sits_new <- lucC_raster_update(raster_obj = rb_sits,
                                   data_mtx = forest_sec,       # without 2001
                                   timeline = timeline,
                                   class_to_replace = "Forest",  # only class Forest
@@ -133,7 +144,8 @@ lucC_plot_bar_events(data_mtx = rb_sits_new, pixel_resolution = 232, custom_pale
 # 2. save the update matrix as GeoTIFF images
 lucC_save_GeoTIFF(raster_obj = rb_sits,
                   data_mtx = rb_sits_new,
-                  path_raster_folder = "inst/extdata/raster/rasterItanhangaSecVeg", as_RasterBrick = FALSE)
+                  #path_raster_folder = "inst/extdata/raster/rasterItanhangaSecVeg", as_RasterBrick = FALSE)
+                  path_raster_folder = "~/Desktop/rasterItanhangaSecVeg", as_RasterBrick = FALSE)
 
 
 

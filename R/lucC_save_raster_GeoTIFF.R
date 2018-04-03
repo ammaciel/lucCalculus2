@@ -124,6 +124,7 @@ lucC_save_GeoTIFF <- function(raster_obj = NULL, data_mtx = NULL, path_raster_fo
 #' @importFrom raster rasterToPoints
 #' @importFrom dplyr mutate select
 #' @importFrom tidyr gather spread
+#' @importFrom reshape2 dcast
 #' @export
 #'
 #' @examples \dontrun{
@@ -164,41 +165,27 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   gc()
 
   # remove factor
-  raster_df$value = 0
+  raster_df$value <- 0
 
   #-------------------- prepare matrix with events --------------------------------
   # replace new clase by new pixel value
   class_name <- unique(data_mtx[3:ncol(data_mtx)][!duplicated(as.vector(data_mtx[3:ncol(data_mtx)])) & !is.na(data_mtx[3:ncol(data_mtx)])] )
 
-  class <- which(label %in% class_name)
-  #data_mtx$x = as.numeric(as.character(data_mtx$x))
-  #data_mtx$y = as.numeric(as.character(data_mtx$y))
-  #data_mtx[3:ncol(data_mtx)] = as.character(as.character(data_mtx[3:ncol(data_mtx)]))
+  # return index the first match
+  class <- match(class_name, label)  # which(label %in% class_name)
 
-  if(length(class_name) != length(class)) {
-    class <- class[length(class_name)]
-  } else {
-    class <- class
-  }
-
-  for( i in 1:length(class_name)){
-    #data_mtx <- replace(data_mtx, data_mtx == class_name[i], class[i])
-    #data_mtx[c(3:ncol(data_mtx))] <- replace(data_mtx[c(3:ncol(data_mtx))], data_mtx[c(3:ncol(data_mtx))] == class_name[i], class[i])
-    data_mtx[c(3:ncol(data_mtx))] <- ifelse(data_mtx[c(3:ncol(data_mtx))] == class_name[i], class[i], NA)
-  }
+  # replace string by values
+  temp <- data.frame(A = class_name, B = class)
+  data_mtx[c(3:ncol(data_mtx))] <- lapply(data_mtx[c(3:ncol(data_mtx))], function(x) temp[match(x, temp$A), "B"])
 
   # data matrix to new raster
-  new_df <- data_mtx
-  colnames(new_df)[c(3:ncol(new_df))] <- as.character(lubridate::year(colnames(new_df)[c(3:ncol(new_df))]))
-
-  rm(data_mtx)
-  gc()
+  colnames(data_mtx)[c(3:ncol(data_mtx))] <- as.character(lubridate::year(colnames(data_mtx)[c(3:ncol(data_mtx))]))
 
   #point_df <- reshape2::melt(new_df, id.vars = c("x","y"), na.rm = TRUE)
-  point_df <- new_df %>%
+  point_df <- data_mtx %>%
     tidyr::gather(variable, value, -x, -y, na.rm = TRUE)
 
-  rm(new_df)
+  rm(data_mtx)
   gc()
 
   # remove factors
@@ -213,7 +200,7 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   gc()
 
   # change original by new values - ok
-  raster_rows_both <- base::merge(a, b, by = c("x","y","variable"), all = TRUE)
+  raster_rows_both <- base::merge(a, b, by = c("x","y","variable")) #, all = TRUE)
   raster_rows_both[,] <- lapply(raster_rows_both, function(x) {as.numeric(as.character(x))}) # remove factor
 
   raster_rows_both <- raster_rows_both %>%
@@ -224,25 +211,22 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   rm(a, b)
   gc()
 
-  # remove duplicated lines
-  raster_rows_both <- raster_rows_both[!duplicated(raster_rows_both), ]
-
-  #raster_df_update <- reshape2::dcast(raster_rows_both, x+y ~ variable, value.var= "value")
-  raster_df_update <- raster_rows_both %>%
-    tidyr::spread(variable, value)
+  #raster_rows_both <- dplyr::mutate(raster_rows_both, row = 1:nrow(raster_rows_both))
+  raster_df_update <- reshape2::dcast(raster_rows_both, x + y ~ variable, value.var= 'value', fun.aggregate = sum)
+  # raster_df_update <- raster_rows_both %>%
+  #   dplyr::mutate(row = 1:nrow(.)) %>%  # because error "Error: Duplicate identifiers for rows..."
+  #   tidyr::spread(variable, value) %>%
+  #   dplyr::select(-row)
 
   rm(raster_rows_both)
   gc()
 
   # pass to complete date, but we prefer leaver only with years
-  colnames(raster_df_update)[c(3:ncol(raster_df_update))] <- as.character(timeline)
+  # colnames(raster_df_update)[c(3:ncol(raster_df_update))] <- as.character(timeline)
 
   lucC_save_GeoTIFF(raster_obj = raster_obj, data_mtx = raster_df_update, path_raster_folder = path_raster_folder, as_RasterBrick = FALSE)
 
-  rm(raster_obj)
-  gc()
-
-  return(raster_df_update)
+  #return(raster_df_update)
 
 }
 
