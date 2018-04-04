@@ -144,8 +144,8 @@ lucC_plot_bar_events(data_mtx = rb_sits_new, pixel_resolution = 232, custom_pale
 # 2. save the update matrix as GeoTIFF images
 lucC_save_GeoTIFF(raster_obj = rb_sits,
                   data_mtx = rb_sits_new,
-                  #path_raster_folder = "inst/extdata/raster/rasterItanhangaSecVeg", as_RasterBrick = FALSE)
-                  path_raster_folder = "~/Desktop/rasterItanhangaSecVeg", as_RasterBrick = FALSE)
+                  path_raster_folder = "inst/extdata/raster/rasterItanhangaSecVeg", as_RasterBrick = FALSE)
+                  #path_raster_folder = "~/Desktop/rasterItanhangaSecVeg", as_RasterBrick = FALSE)
 
 
 
@@ -176,18 +176,16 @@ rb_sits2 <- raster.tb$r_objs[[1]][[1]]
 rb_sits2
 
 # new class Seconary vegetation
-label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
+label2 <- as.character(c("Cerrado", "Double_cropping", "Single_cropping", "Forest", "Pasture", "Pasture", "Pasture", "Double_cropping", "Double_cropping", "Double_cropping", "Double_cropping", "Double_cropping", "Single_cropping", "Single_cropping", "Water", "Water", "Secondary_vegetation"))
 label2
 
 # colors
-colors_2 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff", "red")
-
+colors_2 <- c("#b3cc33", "#cd6155", "#e6b0aa", "#228b22", "#7ecfa4", "green", "#afe3c8", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
 
 # plot raster brick
 lucC_plot_raster(raster_obj = rb_sits2,
                  timeline = timeline, label = label2,
                  custom_palette = TRUE, RGB_color = colors_2, plot_ncol = 6)
-
 
 
 #----------------------------
@@ -215,82 +213,20 @@ lucC_plot_bar_events(data_mtx = Forest_secondary.mtx,
 measuresFor_Sec <- lucC_result_measures(data_mtx = Forest_secondary.mtx, pixel_resolution = 232)
 measuresFor_Sec
 
-# save raster
-new_raster <- lucC_update_raster_result(raster_obj = rb_sits2, data_mtx = Forest_secondary.mtx, timeline = timeline, label = label2)
-
-# save the update matrix as GeoTIFF images
-lucC_save_GeoTIFF(raster_obj = rb_sits2,
-                  data_mtx = new_raster,
-                  path_raster_folder = "inst/extdata/raster/rasterIta_F_SV", as_RasterBrick = FALSE)
-
-lucC_save_GeoTIFF(raster_obj = rb_sits2,
-                  data_mtx = new_raster,
-                  path_raster_folder = "inst/extdata/raster/rasterIta_F_SV", as_RasterBrick = FALSE)
-
-# save the update matrix as GeoTIFF images
-lucC_plot_raster(raster_obj = rb_sits2, timeline = timeline, label = label2,
-                 plot_ncol = 6, custom_palette = TRUE, RGB_color = colors_2)
-
-
-
-# create a RasterBrick from individual raster saved previously
-lucC_create_RasterBrick(path_open_GeoTIFFs = "inst/extdata/raster/rasterSinopResultForestVegSec", path_save_RasterBrick = "inst/extdata/raster")
-
-# ------------- define variables to use in sits -------------
-# open files with new pixel secondary vegetation
-file <- c("inst/extdata/raster/rasterSinopResultForestVegSec.tif")
-file
-
-# create timeline with classified data from SVM method
-timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
-timeline
-
-#library(sits)
-# create a RasterBrick metadata file based on the information about the files
-raster.tb <- sits::sits_coverage(files = file, name = "SinopVegSec", timeline = timeline, bands = "ndvi")
-raster.tb
-
-# new variable
-rb_sits3 <- raster.tb$r_objs[[1]][[1]]
-rb_sits3
-
-# new class Seconary vegetation
-label3 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
-
-# colors
-colors_3 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff", "red")
-
-
-# plot raster brick
-lucC_plot_raster(raster_obj = rb_sits3,
-                 timeline = timeline, label = label3,
-                 custom_palette = TRUE, RGB_color = colors_2, plot_ncol = 6)
-
-.
-
-plot(rb_sits3)
-
-
-
-
-
-
-
-
 
 
 #----------------------------
 # 6- Discover Land use transitions - LUC Calculus
 #----------------------------
-label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture", "Pasture", "Pasture", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
-label2
-
 # create timeline with classified data from SVM method
 timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
 timeline
 
+label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture", "Pasture", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Soy", "Soy", "Water", "Water", "Secondary_vegetation"))
+label2
+
 class1 <- c("Forest")
-classes <- c("Pasture", "Secondary_vegetation") #
+classes <- c("Pasture", "Soy") #
 
 direct_transi.df <- NULL
 
@@ -303,7 +239,7 @@ system.time(
 
     # moves across all classes
     for(i in seq_along(classes)){
-      cat(classes[i], collapse = " ")
+      cat(classes[i], collapse = " ", "\n")
       temp <- lucC_pred_convert(raster_obj = rb_sits2, raster_class1 = class1,
                                 time_interval1 = c(t_1,t_1), relation_interval1 = "equals",
                                 raster_class2 = classes[i],
@@ -325,12 +261,12 @@ system.time(
 Forest_Pasture <- direct_transi.df
 head(Forest_Pasture)
 
-Forest_Pasture[ Forest_Pasture == "Pasture" ] <- "Forest_Pasture"
-head(Forest_Pasture)
+#Forest_Pasture[ Forest_Pasture == "Pasture" ] <- "Forest_Pasture"
+#head(Forest_Pasture)
 
 # plot results
-lucC_plot_bar_events(data_mtx = Forest_Pasture,
-                     pixel_resolution = 232, custom_palette = FALSE, side_by_side = FALSE)
+lucC_plot_frequency_events(data_mtx = direct_transi.df,
+                     pixel_resolution = 232, custom_palette = FALSE)
 
 # Compute values
 measures_Forest_Pasture <- lucC_result_measures(data_mtx = Forest_Pasture, pixel_resolution = 232)

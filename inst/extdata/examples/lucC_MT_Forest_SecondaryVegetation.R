@@ -73,11 +73,12 @@ for (i in 1:length(all.the.files)) {
 
   number_SV_For[[i]] <- Forest_secondary.mtx
 
+  message("Save image in provided path ...\n")
   # save result of secondary vegetation
   lucC_save_raster_result(raster_obj = rb_sits, data_mtx = Forest_secondary.mtx, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/MT_SecVeg/", file_name, sep = ""))
 
   # clear environment, except these elements
-  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "end.time", "number_SV_For"))])
+  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "end.time", "number_SV_For", "i"))])
   gc()
   gc()
 

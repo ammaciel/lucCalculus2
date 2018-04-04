@@ -1,5 +1,7 @@
 library(lucCalculus)
 
+options(digits = 12)
+
 #----------------------------
 # 1- Open idividual images and create a RasterBrick with each one and metadata ith SITS
 #----------------------------
@@ -42,16 +44,16 @@ all.the.files
 
 #-------------
 #Carrega os pacotes necessários para realizar o paralelismo
-library(foreach)
+#library(foreach)
 
-#Checa quantos núcleos existem
-ncl <- parallel::detectCores()-2
-ncl
-#Registra os clusters a serem utilizados
-cl <- parallel::makeCluster(ncl) #ncl
-doParallel::registerDoParallel(6)
-foreach::getDoParWorkers()
-#-------------
+# #Checa quantos núcleos existem
+# ncl <- parallel::detectCores()-2
+# ncl
+# #Registra os clusters a serem utilizados
+# cl <- parallel::makeCluster(ncl) #ncl
+# doParallel::registerDoParallel(6)
+# foreach::getDoParWorkers()
+# #-------------
 
 # start time
 start.time <- Sys.time()
@@ -59,8 +61,8 @@ start.time <- Sys.time()
 result.list <- list()
 sec_veg.tb <- NULL
 
-#for (i in 1:length(all.the.files)) {
-sec_veg.tb <- foreach(i = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar%  {
+for (i in 1:length(all.the.files)) {
+#sec_veg.tb <- foreach(i = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar%  {
 
   # file
   file <- all.the.files[i]
@@ -186,13 +188,13 @@ sec_veg.tb <- foreach(i = 1:length(all.the.files), .combine=rbind, .packages= c(
 
   message("--------------------------------------------------\n")
   # clear environment, except these elements
-  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "end.time"))])
+  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "end.time", "result.list"))])
   gc()
 
 }
 
 #Stop clusters
-parallel::stopCluster(cl)
+#parallel::stopCluster(cl)
 
 # end time
 print(Sys.time() - start.time)
