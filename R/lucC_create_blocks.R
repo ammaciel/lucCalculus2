@@ -159,12 +159,12 @@ lucC_merge_rasters <- function(path_open_GeoTIFFs = NULL, number_raster = 4, pat
     }
   }
 
-  message("\nRasters that will be merged:\n")
+  message("\nStart merge rasters ...\n\n")
   # mosaic them and save output
   list$fun <- max
   rast.mosaic <- do.call(raster::mosaic, list)
 
-  message("Start merge files:\n")
+  message("Save merged raster ...\n")
   raster::writeRaster(rast.mosaic, filename = paste0(path_open_GeoTIFFs,"/Mosaic_", pattern_name, sep=""),
               format="GTiff", datatype="INT1U", overwrite=TRUE)
 

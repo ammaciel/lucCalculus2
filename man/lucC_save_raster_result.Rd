@@ -6,7 +6,7 @@
 \title{Update a RasterBrick with result from predicates}
 \usage{
 lucC_save_raster_result(raster_obj = NULL, data_mtx = NULL,
-timeline = NULL, label = NULL, path_raster_folder = NULL)
+timeline = NULL, label = NULL, path_raster_folder = NULL, as_RasterBrick = FALSE)
 }
 \arguments{
 \item{raster_obj}{Raster. A raster stack with classified images}
@@ -18,6 +18,8 @@ timeline = NULL, label = NULL, path_raster_folder = NULL)
 \item{label}{Character Vector. All labels of each value of pixel from classified raster}
 
 \item{path_raster_folder}{Character. Name a path folder to save raster images data. If  doesn't exist, a new directory is created}
+
+\item{as_RasterBrick}{Boolean. If FALSE, each layer will be saved in separate file. If TRUE, write a RasterBrick in a file. Default is FALSE.}
 }
 \value{
 Matrix with raster and pixels to create a RasterBrick with result
@@ -29,7 +31,7 @@ Update a RasterBrick with new values of pixel discovered from LUC Calculus forma
 \dontrun{
 
 rb_new <- lucC_save_raster_result(raster_obj = rb_sits, data_mtx = third_raster.df,
-timeline = timeline, label = label, path_raster_folder = NULL)
+timeline = timeline, label = label, path_raster_folder = NULL, as_RasterBrick = FALSE)
 rb_new
 
 }

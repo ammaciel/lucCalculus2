@@ -109,13 +109,14 @@ lucC_save_GeoTIFF <- function(raster_obj = NULL, data_mtx = NULL, path_raster_fo
 #' @description Update a RasterBrick with new values of pixel discovered from LUC Calculus formalism to create GeoTIFF files
 #'
 #' @usage lucC_save_raster_result(raster_obj = NULL, data_mtx = NULL,
-#' timeline = NULL, label = NULL, path_raster_folder = NULL)
+#' timeline = NULL, label = NULL, path_raster_folder = NULL, as_RasterBrick = FALSE)
 #'
 #' @param raster_obj          Raster. A raster stack with classified images
 #' @param data_mtx            Matrix. A matrix with values obtained from predicates RECUR, EVOLVE, CONVERT or HOLDS
 #' @param timeline            Character. A list of all dates of classified raster, timeline
 #' @param label               Character Vector. All labels of each value of pixel from classified raster
 #' @param path_raster_folder  Character. Name a path folder to save raster images data. If  doesn't exist, a new directory is created
+#' @param as_RasterBrick      Boolean. If FALSE, each layer will be saved in separate file. If TRUE, write a RasterBrick in a file. Default is FALSE.
 #'
 #' @keywords datasets
 #' @return Matrix with raster and pixels to create a RasterBrick with result
@@ -130,14 +131,14 @@ lucC_save_GeoTIFF <- function(raster_obj = NULL, data_mtx = NULL, path_raster_fo
 #' @examples \dontrun{
 #'
 #' rb_new <- lucC_save_raster_result(raster_obj = rb_sits, data_mtx = third_raster.df,
-#' timeline = timeline, label = label, path_raster_folder = NULL)
+#' timeline = timeline, label = label, path_raster_folder = NULL, as_RasterBrick = FALSE)
 #' rb_new
 #'
 #'}
 #'
 
 # plot maps for input data
-lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline = NULL, label = NULL, path_raster_folder = NULL) {
+lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline = NULL, label = NULL, path_raster_folder = NULL, as_RasterBrick = FALSE) {
 
   # Ensure if parameters exists
   ensurer::ensure_that(raster_obj, !is.null(raster_obj),
@@ -224,7 +225,7 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   # pass to complete date, but we prefer leaver only with years
   # colnames(raster_df_update)[c(3:ncol(raster_df_update))] <- as.character(timeline)
 
-  lucC_save_GeoTIFF(raster_obj = raster_obj, data_mtx = raster_df_update, path_raster_folder = path_raster_folder, as_RasterBrick = FALSE)
+  lucC_save_GeoTIFF(raster_obj = raster_obj, data_mtx = raster_df_update, path_raster_folder = path_raster_folder, as_RasterBrick = as_RasterBrick)
 
   #return(raster_df_update)
 
