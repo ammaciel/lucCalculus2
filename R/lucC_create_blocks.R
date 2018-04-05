@@ -102,14 +102,14 @@ lucC_create_blocks <- function(raster_obj = NULL, number_blocks_xy = 6, save_ima
 # return(raster_blocks.list)
 
 
-#' @title Create blocks from RasterBrick in accordance with number of cells
-#' @name lucC_merge_blocks
-#' @aliases lucC_merge_blocks
+#' @title Merge blocks of RasterBrick or Rasters in accordance with number of blocks
+#' @name lucC_merge_rasters
+#' @aliases lucC_merge_rasters
 #' @author Adeline M. Maciel
 #' @docType data
 #'
 #' @description Merge GeoTIFF splitted into parts. \url{https://stackoverflow.com/questions/29784829/r-raster-package-split-image-into-multiples}
-#' @usage lucC_merge_blocks (path_open_GeoTIFFs = NULL, number_raster = 4,
+#' @usage lucC_merge_rasters (path_open_GeoTIFFs = NULL, number_raster = 4,
 #' pattern_name = NULL, is.rasterBrick = FALSE)
 #'
 #' @param path_open_GeoTIFFs   Character. Name a path folder to OPEN raster images data.
@@ -125,13 +125,13 @@ lucC_create_blocks <- function(raster_obj = NULL, number_blocks_xy = 6, save_ima
 #'
 #' @examples \dontrun{
 #'
-#' lucC_merge_blocks(path_open_GeoTIFFs = NULL, number_raster = 4,
+#' lucC_merge_rasters(path_open_GeoTIFFs = NULL, number_raster = 4,
 #'                   pattern_name = "MT_year_", is.rasterBrick = FALSE)
 #'
 #'}
 #'
 
-lucC_merge_blocks <- function(path_open_GeoTIFFs = NULL, number_raster = 4, pattern_name = NULL, is.rasterBrick = FALSE){
+lucC_merge_rasters <- function(path_open_GeoTIFFs = NULL, number_raster = 4, pattern_name = NULL, is.rasterBrick = FALSE){
 
  # Ensure if parameters exists
   ensurer::ensure_that(path_open_GeoTIFFs, !is.null(path_open_GeoTIFFs),
@@ -159,7 +159,7 @@ lucC_merge_blocks <- function(path_open_GeoTIFFs = NULL, number_raster = 4, patt
     }
   }
 
-  message("\nFiles will be merged:\n")
+  message("\nRasters that will be merged:\n")
   # mosaic them and save output
   list$fun <- max
   rast.mosaic <- do.call(raster::mosaic, list)
@@ -168,6 +168,7 @@ lucC_merge_blocks <- function(path_open_GeoTIFFs = NULL, number_raster = 4, patt
   raster::writeRaster(rast.mosaic, filename = paste0(path_open_GeoTIFFs,"/Mosaic_", pattern_name, sep=""),
               format="GTiff", datatype="INT1U", overwrite=TRUE)
 
+  message("\nMosaic finished!\n")
 }
 
 
