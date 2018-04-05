@@ -8,26 +8,26 @@ options(digits = 12)
 all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
 all.the.files
 
-#-------------
-# #Carrega os pacotes necessários para realizar o paralelismo
-library(foreach)
-#
-# #Checa quantos núcleos existem
-ncl <- parallel::detectCores()-10
-ncl
-#Registra os clusters a serem utilizados
-cl <- parallel::makeCluster(ncl) #ncl
-doParallel::registerDoParallel(2)
-foreach::getDoParWorkers()
-#-------------
+# #-------------
+# # #Carrega os pacotes necessários para realizar o paralelismo
+# library(foreach)
+# #
+# # #Checa quantos núcleos existem
+# ncl <- parallel::detectCores()-10
+# ncl
+# #Registra os clusters a serem utilizados
+# cl <- parallel::makeCluster(ncl) #ncl
+# doParallel::registerDoParallel(2)
+# foreach::getDoParWorkers()
+# #-------------
 
 # start time
 start.time <- Sys.time()
 
 number_Soy_others <- list()
 
-convert.df <- foreach(y = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar% {
-  #for (y in 1:length(all.the.files)) {
+#convert.df <- foreach(y = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar% {
+for (y in 1:length(all.the.files)) {
   # file
   file <- all.the.files[y]
 
@@ -108,10 +108,10 @@ message("Save data as list in .rda file ...\n")
 #save to rda file
 save(number_Soy_others, file = "~/TESTE/MT/DLUCSoyOthers/number_Soy_others.rda")
 
-#-------------
-#Stop clusters
-parallel::stopCluster(cl)
-#-------------
+# #-------------
+# #Stop clusters
+# parallel::stopCluster(cl)
+# #-------------
 
 # end time
 print(Sys.time() - start.time)
