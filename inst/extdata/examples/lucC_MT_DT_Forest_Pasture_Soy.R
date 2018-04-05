@@ -1,4 +1,4 @@
-# Forest to Pasture and Soy
+# Forest to Pasture, Cerrado and Soy
 
 library(lucCalculus)
 

@@ -337,6 +337,71 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
 # }
 
 
+#' @title Save a RasterBrick by layers
+#' @name lucC_save_rasterBrick_layers
+#' @aliases lucC_save_rasterBrick_layers
+#' @author Adeline M. Maciel
+#' @docType data
+#'
+#' @description Save a RasterBrick into individual layers files GeoTIFFs
+#'
+#' @usage lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = NULL)
+#'
+#' @param path_name_GeoTIFF_Brick  Character. Name file and path folder to SPLIT rasterBrick by layers
+#'
+#' @keywords datasets
+#' @return A set of GeoTIFF separate images
+#' @importFrom ensurer ensure_that
+#' @importFrom raster raster writeRaster brick
+#' @importFrom tools file_path_sans_ext
+#' @export
+#'
+#' @examples \dontrun{
+#'
+#' lucC_save_raster_result(path_name_GeoTIFF_Brick =
+#' "/home/inpe/Desktop/TesteIta/Mosaic_Raster_Splitted_.tif")
+#'
+#'}
+#'
+
+# plot maps for input data
+lucC_save_rasterBrick_layers <- function(path_name_GeoTIFF_Brick = NULL) {
+
+  # Ensure if parameters exists
+  ensurer::ensure_that(path_name_GeoTIFF_Brick, !is.null(path_name_GeoTIFF_Brick),
+                       err_desc = "path_name_GeoTIFF_Brick file, must be defined! Enter a path to OPEN your GeoTIFF image RasterBrick.")
+
+  message("Verifying if GeoTIFF image exist ...")
+
+  # chack file exists
+  if(file.exists(path_name_GeoTIFF_Brick)){
+     cat(path_name_GeoTIFF_Brick, sep = "\n")
+     raster <- raster::brick(path_name_GeoTIFF_Brick)
+  } else
+    stop("There is no path or file with this name!\n")
+
+  path_save <- basename(tools::file_path_sans_ext(path_name_GeoTIFF_Brick))
+
+  # Create directory if doesn't exist
+  output_dir <- file.path(paste0(dirname(path_name_GeoTIFF_Brick), "/", path_save, sep = ""))
+
+  if (!dir.exists(output_dir)){
+    message("\nCreated new directory because the path provided doesn't exist! ...\n")
+    dir.create(output_dir)
+    path_raster_folder <- output_dir
+  } else {
+    path_raster_folder <- path_raster_folder
+  }
+
+  message("Saving... \n")
+
+  # write as a geoTIFF file using the raster package by layer
+  raster::writeRaster(raster,
+                      filename= paste0(path_raster_folder,"/New_", sep = ""),
+                      bylayer=TRUE, suffix = names(raster), format="GTiff",
+                      datatype="INT1U", overwrite=TRUE)
+
+}
 
 
 

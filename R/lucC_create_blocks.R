@@ -69,7 +69,10 @@ lucC_create_blocks <- function(raster_obj = NULL, number_blocks_xy = 6, save_ima
                               format="GTiff", datatype="INT1U", overwrite=TRUE)
     }
   }
-  return(r_list)
+
+  path <- getwd()
+  message("\nRaster splitted saved in path ", path, "\n")
+
 }
 
 # lucC_create_blocks <- function(raster_obj = NULL, number_cells = 250){
@@ -106,11 +109,13 @@ lucC_create_blocks <- function(raster_obj = NULL, number_blocks_xy = 6, save_ima
 #' @docType data
 #'
 #' @description Merge GeoTIFF splitted into parts. \url{https://stackoverflow.com/questions/29784829/r-raster-package-split-image-into-multiples}
-#' @usage lucC_merge_blocks (path_open_GeoTIFFs = NULL, number_raster = 1, pattern_name = NULL)
+#' @usage lucC_merge_blocks (path_open_GeoTIFFs = NULL, number_raster = 4,
+#' pattern_name = NULL, is.rasterBrick = FALSE)
 #'
 #' @param path_open_GeoTIFFs   Character. Name a path folder to OPEN raster images data.
 #' @param number_raster        Integer. Number of GeoTIFF files.
 #' @param pattern_name         Character. A pattern in name of GeoTIFF to mosaic them
+#' @param is.rasterBrick       Boolean. If TRUE GeoTIFF is a RasterBrick, FALSE is a single layer. Default is FALSE
 #'
 #' @keywords datasets
 #' @return RasterBrick Mosaic.
@@ -120,27 +125,46 @@ lucC_create_blocks <- function(raster_obj = NULL, number_blocks_xy = 6, save_ima
 #'
 #' @examples \dontrun{
 #'
-#' lucC_merge_blocks(path_open_GeoTIFFs = NULL, number_raster = 1, pattern_name = "MT_year_")
+#' lucC_merge_blocks(path_open_GeoTIFFs = NULL, number_raster = 4,
+#'                   pattern_name = "MT_year_", is.rasterBrick = FALSE)
 #'
 #'}
 #'
 
-lucC_merge_blocks <- function(path_open_GeoTIFFs = NULL, number_raster = 1, pattern_name = NULL){
+lucC_merge_blocks <- function(path_open_GeoTIFFs = NULL, number_raster = 4, pattern_name = NULL, is.rasterBrick = FALSE){
 
  # Ensure if parameters exists
   ensurer::ensure_that(path_open_GeoTIFFs, !is.null(path_open_GeoTIFFs),
-                       err_desc = "path_open_GeoTIFFs tibble, must be defined! Enter a path to OPEN your GeoTIFF images.")
+                       err_desc = "path_open_GeoTIFFs file, must be defined, without last /! Enter a path to OPEN your GeoTIFF images.")
+
+  message("Verifying if GeoTIFF image exist ...")
+  # all files in folder
+  all.files <- list.files(path_open_GeoTIFFs, full.names = TRUE, pattern = paste0(pattern_name, "[0-9]\\.tif$", sep = ""))
+  if( length(all.files) > 0){
+    cat(all.files, sep = "\n")
+  } else
+    stop("There is no path or pattern_name file!\n")
 
   # read each piece back in R
   list <- list()
-  for(i in 1:number_raster){ # change this 9 depending on your number of pieces
-    rx <- raster::brick(paste0(path_open_GeoTIFFs,"/", pattern_name, i,".tif",sep=""))
-    list[[i]] <- rx
+  if(isTRUE(is.rasterBrick)){
+    for(i in 1:number_raster){ # change this 9 depending on your number of pieces
+      rx <- raster::brick(paste0(path_open_GeoTIFFs,"/", pattern_name, i,".tif", sep=""))
+      list[[i]] <- rx
+    }
+  } else if(is.rasterBrick == FALSE){
+    for(i in 1:number_raster){ # change this 9 depending on your number of pieces
+      rx <- raster::raster(paste0(path_open_GeoTIFFs,"/", pattern_name, i,".tif", sep=""))
+      list[[i]] <- rx
+    }
   }
+
+  message("\nFiles will be merged:\n")
   # mosaic them and save output
   list$fun <- max
   rast.mosaic <- do.call(raster::mosaic, list)
 
+  message("Start merge files:\n")
   raster::writeRaster(rast.mosaic, filename = paste0(path_open_GeoTIFFs,"/Mosaic_", pattern_name, sep=""),
               format="GTiff", datatype="INT1U", overwrite=TRUE)
 

@@ -1,4 +1,4 @@
-# Pasture to Soy, Secondary Vegetation and Cerrado
+# Cerrado to Pasture, Soy and Secondary vegetation
 
 library(lucCalculus)
 
@@ -24,7 +24,7 @@ all.the.files
 # start time
 start.time <- Sys.time()
 
-number_Soy_others <- list()
+number_Cerr_others <- list(NULL)
 
 #convert.df <- foreach(y = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar% {
 for (y in 1:length(all.the.files)) {
@@ -50,8 +50,8 @@ for (y in 1:length(all.the.files)) {
   # original label - see QML file, same order
   label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation"))
 
-  class1 <- c("Soy")
-  classes <- c("Pasture", "Secondary_Vegetation", "Cerrado") #
+  class1 <- c("Cerrado")
+  classes <- c("Pasture", "Soy", "Secondary_Vegetation") #
 
   direct_transi.df <- NULL
 
@@ -92,13 +92,13 @@ for (y in 1:length(all.the.files)) {
   #head(Forest_Pasture)
   message("Add to list index ", y, "... \n")
 
-  number_Soy_others[[y]] <- direct_transi.df
+  number_Cerr_others[[y]] <- direct_transi.df
 
   message("Prepare image ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCSoyOthers/", file_name, sep = ""))
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCCerradoOthers/", file_name, sep = ""))
 
   # clear environment, except these elements
-  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_Soy_others"))])
+  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_Cerr_others"))])
   gc()
 
   message("--------------------------------------------------\n")
@@ -106,17 +106,15 @@ for (y in 1:length(all.the.files)) {
 
 message("Save data as list in .rda file ...\n")
 #save to rda file
-save(number_Soy_others, file = "~/TESTE/MT/DLUCSoyOthers/number_Soy_others.rda")
+save(number_Cerr_others, file = "~/TESTE/MT/DLUCCerradoOthers/number_Cerr_others.rda")
 
-# #-------------
 # #Stop clusters
 # parallel::stopCluster(cl)
-# #-------------
 
 # end time
 print(Sys.time() - start.time)
 
-rm(number_Soy_others)
+rm(number_Cerr_others)
 gc()
 
 #----------------------------------------------------
@@ -128,9 +126,9 @@ gc()
 start.time <- Sys.time()
 
 
-load(file = "~/TESTE/MT/DLUCSoyOthers/number_Soy_others.rda")
+load(file = "~/TESTE/MT/DLUCCerradoOthers/number_Cerr_others.rda")
 
-output_freq <- lucC_extract_frequency(data_mtx.list = number_Soy_others, cores_in_parallel = 6)
+output_freq <- lucC_extract_frequency(data_mtx.list = number_Cerr_others, cores_in_parallel = 6)
 output_freq
 
 #----------------------
@@ -142,12 +140,12 @@ output_freq
 #                      pixel_resolution = 231.656, custom_palette = FALSE)
 
 # Compute values
-measuresSoy_others <- lucC_result_measures(data_frequency = output_freq, pixel_resolution = 231.656)
-measuresSoy_others
+measuresCerr_others <- lucC_result_measures(data_frequency = output_freq, pixel_resolution = 231.656)
+measuresCerr_others
 
-write.table(x = measuresSoy_others, file = "~/TESTE/MT/DLUCSoyOthers/measuresSoy_others.csv", quote = FALSE, sep = ";", row.names = FALSE)
+write.table(x = measuresCerr_others, file = "~/TESTE/MT/DLUCCerradoOthers/measuresCerr_others.csv", quote = FALSE, sep = ";", row.names = FALSE)
 
-save(measuresSoy_others, file = "~/TESTE/MT/DLUCSoyOthers/measuresSoy_others.rda")
+save(measuresCerr_others, file = "~/TESTE/MT/DLUCCerradoOthers/measuresCerr_others.rda")
 
 
 # end time

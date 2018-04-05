@@ -87,7 +87,7 @@ for (i in 1:length(all.the.files)) {
 
 message("Save data as list in .rda file ...\n")
 #save to rda file
-save(number_SV_For, file = "~/TESTE/MT/number_SV_For.rda")
+save(number_SV_For, file = "~/TESTE/MT/HoldsForestSecVeg/number_SV_For.rda")
 
 # #Stop clusters
 # parallel::stopCluster(cl)
@@ -107,7 +107,7 @@ gc()
 start.time <- Sys.time()
 
 
-load(file = "~/TESTE/MT/number_SV_For.rda")
+load(file = "~/TESTE/MT/HoldsForestSecVeg/number_SV_For.rda")
 
 output_freq <- lucC_extract_frequency(data_mtx.list = number_SV_For, cores_in_parallel = 6)
 #output_freq
@@ -124,9 +124,9 @@ output_freq <- lucC_extract_frequency(data_mtx.list = number_SV_For, cores_in_pa
 measuresFor_Sec <- lucC_result_measures(data_frequency = output_freq, pixel_resolution = 231.656)
 measuresFor_Sec
 
-write.table(x = measuresFor_Sec, file = "~/TESTE/MT/measuresFor_Sec.csv", quote = FALSE, sep = ";", row.names = FALSE)
+write.table(x = measuresFor_Sec, file = "~/TESTE/MT/HoldsForestSecVeg/measuresFor_Sec.csv", quote = FALSE, sep = ";", row.names = FALSE)
 
-save(measuresFor_Sec, file = "~/TESTE/MT/measuresFor_Sec.rda")
+save(measuresFor_Sec, file = "~/TESTE/MT/HoldsForestSecVeg/measuresFor_Sec.rda")
 
 
 # end time
