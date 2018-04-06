@@ -94,8 +94,11 @@ for (y in 1:length(all.the.files)) {
 
   number_F_P_Soy[[y]] <- direct_transi.df
 
-  message("Prepare image ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCForPasSoy/", file_name, sep = ""))
+  message("Prepare image 1 ...\n")
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCForPasSoy/", file_name, sep = ""), as_RasterBrick = FALSE)
+
+  message("Prepare image 2 ...\n")
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCForPasSoy/", file_name, sep = ""), as_RasterBrick = TRUE)
 
   # clear environment, except these elements
   rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_F_P_Soy"))])

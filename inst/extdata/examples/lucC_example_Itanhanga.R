@@ -148,11 +148,16 @@ lucC_save_GeoTIFF(raster_obj = rb_sits,
                   #path_raster_folder = "~/Desktop/rasterItanhangaSecVeg", as_RasterBrick = FALSE)
 
 
-
+#===================================================================================================
 #===================================================================================================
 #----------------------------
 # 4- Open idividual images reclassified and create a RasterBrick with each one and metadata ith SITS
 #----------------------------
+
+library(lucCalculus)
+
+# always
+options(digits = 12)
 
 # create a RasterBrick from individual raster saved previously
 lucC_create_RasterBrick(path_open_GeoTIFFs = "inst/extdata/raster/rasterItanhangaSecVeg", path_save_RasterBrick = "inst/extdata/raster")
@@ -226,7 +231,7 @@ label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "P
 label2
 
 class1 <- c("Forest")
-classes <- c("Pasture", "Soy") #
+classes <- c("Pasture", "Soy", "Secondary_vegetation") #
 
 direct_transi.df <- NULL
 
@@ -292,10 +297,13 @@ label2
 
 # create timeline with classified data from SVM method
 timeline2 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
-
 # soy moratorium
 timeline1 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01", "2006-09-01"))
 
+# # create timeline with classified data from SVM method
+# timeline2 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
+# # soy moratorium
+# timeline1 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2008-09-01", "2008-09-01", "2008-09-01", "2008-09-01", "2008-09-01", "2008-09-01", "2008-09-01", "2008-09-01"))
 
 # intereting classes
 soybean_before.df <- NULL
@@ -303,7 +311,7 @@ soybean_before.df <- NULL
 raster.data <- rb_sits2
 
 # along of all classes
-system.time(
+# system.time(
   for(x in 2:length(timeline2)){
     #x = 7
     t_1 <- timeline1[x-1]
@@ -333,17 +341,17 @@ system.time(
     }
     soybean_before.df <- lucC_merge(soybean_before.df, tempF)
   }
-)
+#)
 
 
-Soybean_Before_2006 <- soybean_before.df
-Soybean_Before_2006[ Soybean_Before_2006 == "Soybean" ] <- "Soybean_Before_2006"
-head(Soybean_Before_2006)
+#Soybean_Before_2006 <- soybean_before.df
+#Soybean_Before_2006[ Soybean_Before_2006 == "Soybean" ] <- "Soybean_Before_2006"
+#head(Soybean_Before_2006)
 
 # remove(temp, soybean_before.df, forest.df, pasture.df, soybean.df, fores_past.temp, tempF, t_1, t_2, x)
 
 # plot results
-lucC_plot_bar_events(data_mtx = Soybean_Before_2006, pixel_resolution = 231.656, custom_palette = FALSE, side_by_side = TRUE)
+lucC_plot_bar_events(data_mtx = soybean_before.df, pixel_resolution = 231.656, custom_palette = FALSE, side_by_side = TRUE)
 
 ## Compute values
 # Soybean_Before_2006.tb <- lucC_result_measures(data_mtx = Soybean_Before_2006, pixel_resolution = 231.656)
@@ -384,6 +392,11 @@ timeline2 <- lubridate::as_date(c("2006-09-01", "2007-09-01", "2008-09-01", "200
 # soy moratorium
 timeline1 <- lubridate::as_date(c("2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
 
+# # create timeline with classified data from SVM method
+# timeline2 <- lubridate::as_date(c("2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
+#
+# # soy moratorium
+# timeline1 <- lubridate::as_date(c("2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
 
 # intereting classes
 soybean_after.df <- NULL
@@ -423,14 +436,14 @@ system.time(
   }
 )
 
-Soybean_After_2006 <- soybean_after.df
-Soybean_After_2006[ Soybean_After_2006 == "Soybean" ] <- "Soybean_After_2006"
-head(Soybean_After_2006)
+#Soybean_After_2006 <- soybean_after.df
+#Soybean_After_2006[ Soybean_After_2006 == "Soybean" ] <- "Soybean_After_2006"
+#head(Soybean_After_2006)
 
 # remove(temp, soybean_before.df, forest.df, pasture.df, soybean.df, fores_past.temp, tempF, t_1, t_2, x)
 
 # plot results
-lucC_plot_bar_events(data_mtx = Soybean_After_2006, pixel_resolution = 231.656, custom_palette = FALSE, side_by_side = TRUE)
+lucC_plot_bar_events(data_mtx = soybean_after.df, pixel_resolution = 231.656, custom_palette = FALSE, side_by_side = TRUE)
 
 # # Compute values
 # Soybean_After_2006.tb <- lucC_result_measures(data_mtx = Soybean_After_2006, pixel_resolution = 231.656)

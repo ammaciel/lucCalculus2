@@ -1,4 +1,4 @@
-# Cerrado to Pasture, Soy and Secondary vegetation
+# Secondary Vegetation to Pasture, Cerrado and Soy
 
 library(lucCalculus)
 
@@ -24,7 +24,7 @@ all.the.files
 # start time
 start.time <- Sys.time()
 
-number_Cerr_others <- list(NULL)
+number_SecVeg_others <- list(NULL)
 
 #convert.df <- foreach(y = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar% {
 for (y in 1:length(all.the.files)) {
@@ -50,8 +50,8 @@ for (y in 1:length(all.the.files)) {
   # original label - see QML file, same order
   label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation"))
 
-  class1 <- c("Cerrado")
-  classes <- c("Pasture", "Soy", "Secondary_Vegetation") #
+  class1 <- c("Secondary_Vegetation")
+  classes <- c("Pasture", "Soy", "Cerrado") #
 
   direct_transi.df <- NULL
 
@@ -92,13 +92,16 @@ for (y in 1:length(all.the.files)) {
   #head(Forest_Pasture)
   message("Add to list index ", y, "... \n")
 
-  number_Cerr_others[[y]] <- direct_transi.df
+  number_SecVeg_others[[y]] <- direct_transi.df
 
-  message("Prepare image ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCCerradoOthers/", file_name, sep = ""))
+  message("Prepare image 1 ...\n")
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCSeconVegetOthers/", file_name, sep = ""), as_RasterBrick = FALSE)
+
+  message("Prepare image 2 ...\n")
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCSeconVegetOthers/", file_name, sep = ""), as_RasterBrick = TRUE)
 
   # clear environment, except these elements
-  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_Cerr_others"))])
+  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_SecVeg_others"))])
   gc()
 
   message("--------------------------------------------------\n")
@@ -106,7 +109,7 @@ for (y in 1:length(all.the.files)) {
 
 message("Save data as list in .rda file ...\n")
 #save to rda file
-save(number_Cerr_others, file = "~/TESTE/MT/DLUCCerradoOthers/number_Cerr_others.rda")
+save(number_SecVeg_others, file = "~/TESTE/MT/DLUCSeconVegetOthers/number_SecVeg_others.rda")
 
 # #Stop clusters
 # parallel::stopCluster(cl)
@@ -114,7 +117,7 @@ save(number_Cerr_others, file = "~/TESTE/MT/DLUCCerradoOthers/number_Cerr_others
 # end time
 print(Sys.time() - start.time)
 
-rm(number_Cerr_others)
+rm(number_SecVeg_others)
 gc()
 
 #----------------------------------------------------
@@ -126,9 +129,9 @@ gc()
 start.time <- Sys.time()
 
 
-load(file = "~/TESTE/MT/DLUCCerradoOthers/number_Cerr_others.rda")
+load(file = "~/TESTE/MT/DLUCSeconVegetOthers/number_SecVeg_others.rda")
 
-output_freq <- lucC_extract_frequency(data_mtx.list = number_Cerr_others, cores_in_parallel = 6)
+output_freq <- lucC_extract_frequency(data_mtx.list = number_SecVeg_others, cores_in_parallel = 6)
 output_freq
 
 #----------------------
@@ -140,12 +143,12 @@ output_freq
 #                      pixel_resolution = 231.656, custom_palette = FALSE)
 
 # Compute values
-measuresCerr_others <- lucC_result_measures(data_frequency = output_freq, pixel_resolution = 231.656)
-measuresCerr_others
+measuresSecVeg_others <- lucC_result_measures(data_frequency = output_freq, pixel_resolution = 231.656)
+measuresSecVeg_others
 
-write.table(x = measuresCerr_others, file = "~/TESTE/MT/DLUCCerradoOthers/measuresCerr_others.csv", quote = FALSE, sep = ";", row.names = FALSE)
+write.table(x = measuresSecVeg_others, file = "~/TESTE/MT/DLUCSeconVegetOthers/measuresSecVeg_others.csv", quote = FALSE, sep = ";", row.names = FALSE)
 
-save(measuresCerr_others, file = "~/TESTE/MT/DLUCCerradoOthers/measuresCerr_others.rda")
+save(measuresSecVeg_others, file = "~/TESTE/MT/DLUCSeconVegetOthers/measuresSecVeg_others.rda")
 
 
 # end time

@@ -66,3 +66,47 @@ for (y in 1:length(all.the.files)) {
 # end time
 print(Sys.time() - start.time)
 
+
+#----------------------------------------------------------------
+
+# RasterBrick Images
+#----------------------------------------------------------
+# Divide image in blocks, then merge again
+#----------------------------------------------------------
+
+library(lucCalculus)
+
+options(digits = 12)
+
+# start time
+start.time <- Sys.time()
+
+# merge blocks into a single image
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/DLUCCerradoOthers/All_blocks_Cerrado_others", number_raster = 4, pattern_name = "New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+# save each layer of brick as images
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/DLUCCerradoOthers/All_blocks_Cerrado_others/Mosaic_New_New_Raster_Splitted_.tif")
+
+# merge blocks into a single image
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/DLUCForPasSoy/All_blocks_Forest_others", number_raster = 4, pattern_name = "New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+# save each layer of brick as images
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/DLUCForPasSoy/All_blocks_Forest_others/Mosaic_New_New_Raster_Splitted_.tif")
+
+# merge blocks into a single image
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/DLUCPastSoySV/All_blocks_Pasture_others", number_raster = 4, pattern_name = "New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+# save each layer of brick as images
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/DLUCPastSoySV/All_blocks_Pasture_others/Mosaic_New_New_Raster_Splitted_.tif")
+
+# merge blocks into a single image
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/DLUCSeconVegetOthers/All_blocks_SecVeg_others", number_raster = 4, pattern_name = "New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+# save each layer of brick as images
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/DLUCSeconVegetOthers/All_blocks_SecVeg_others/Mosaic_New_New_Raster_Splitted_.tif")
+
+# merge blocks into a single image
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/DLUCSoyOthers/All_blocks_Soy_others", number_raster = 4, pattern_name = "New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+# save each layer of brick as images
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/DLUCSoyOthers/All_blocks_Soy_others/Mosaic_New_New_Raster_Splitted_.tif")
+
+
+# end time
+print(Sys.time() - start.time)
+
