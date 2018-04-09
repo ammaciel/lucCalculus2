@@ -131,25 +131,30 @@ lucC_relation_before <- function (first_raster = NULL, second_raster = NULL) {
       # case there is a meet between first and second interval
     } else if (isTRUE(lubridate::ymd(colnames(first_raster)[ncol(first_raster)]) ==
                       lubridate::ymd(colnames(second_raster)[3]) - lubridate::years(1))){
-      first_raster <- first_raster[(is.na(first_raster[,ncol(first_raster)]) | first_raster[,ncol(first_raster)] == ""), ]
-      first_raster <- first_raster[-ncol(first_raster)]
-      second_raster <- second_raster # second_raster[!(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
-    }
-    # case matrix have only one columns
-    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
-      # case there is only one value
-      first_raster <- base::as.matrix(t(first_raster))
-    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
-      # case there is only one value
-      second_raster <- base::as.matrix(t(second_raster))
-    else {
       first_raster <- first_raster
-      second_raster <- second_raster
+      # assuming that first_raster has one column, it is removed the first column from second_raster to before operation
+      second_raster <- second_raster[(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
+      second_raster <- second_raster[,-3]
     }
-  } else {
-    message("\nData with raster cannot be empty!\n")
-    return(result <- NULL)
-  }
+    if( NROW(first_raster) > 0 & NROW(second_raster) > 0){
+      # case matrix have only one columns
+      if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+        # case there is only one value
+        first_raster <- base::as.matrix(t(first_raster))
+      if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+        # case there is only one value
+        second_raster <- base::as.matrix(t(second_raster))
+      else {
+        first_raster <- first_raster
+        second_raster <- second_raster
+      }
+    } else {
+      message("\nData with raster cannot be empty!\n ")
+      return(result <- NULL)
+    }  } else {
+      message("\nData with raster cannot be empty!\n")
+      return(result <- NULL)
+    }
 
   if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set
@@ -233,25 +238,30 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
       # case there is a meet between first and second interval
     } else if (isTRUE(lubridate::ymd(colnames(first_raster)[3]) - lubridate::years(1) ==
                       lubridate::ymd(colnames(second_raster)[ncol(second_raster)]))){
-      first_raster <- first_raster # first_raster[!(is.na(first_raster[,3]) | first_raster[,3] == ""), ]
+      first_raster <- first_raster
+      # assuming that first_raster has one column, it is removed the last column from second_raster to after operation
       second_raster <- second_raster[(is.na(second_raster[, ncol(second_raster)]) | second_raster[, ncol(second_raster)] == ""), ]
       second_raster <- second_raster[-ncol(second_raster)]
     }
-    # case matrix have only one columns
-    if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
-      # case there is only one value
-      first_raster <- base::as.matrix(t(first_raster))
-    if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
-      # case there is only one value
-      second_raster <- base::as.matrix(t(second_raster))
-    else {
-      first_raster <- first_raster
-      second_raster <- second_raster
+    if( NROW(first_raster) > 0 & NROW(second_raster) > 0){
+      # case matrix have only one columns
+      if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
+        # case there is only one value
+        first_raster <- base::as.matrix(t(first_raster))
+      if (NCOL(second_raster) == 1 & is.null(ncol(second_raster)))
+        # case there is only one value
+        second_raster <- base::as.matrix(t(second_raster))
+      else {
+        first_raster <- first_raster
+        second_raster <- second_raster
+      }
+    } else {
+      message("\nData with raster cannot be empty!\n ")
+      return(result <- NULL)
+    }  } else {
+      message("\nData with raster cannot be empty!\n")
+      return(result <- NULL)
     }
-  } else {
-    message("\nData with raster cannot be empty!\n")
-    return(result <- NULL)
-  }
 
   if (isTRUE(nrow(first_raster) > 0) & isTRUE(nrow(second_raster) > 0))
     # build intervals for each raster data set

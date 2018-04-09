@@ -54,7 +54,6 @@ lucC_plot_raster(raster_obj = rb_sits,
                  custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 5)
 
 
-
 #----------------------------
 # 2- Discover Secondary Vegetation - LUC Calculus
 #----------------------------
