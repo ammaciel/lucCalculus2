@@ -127,13 +127,13 @@ lucC_relation_before <- function (first_raster = NULL, second_raster = NULL) {
     if (isTRUE(lubridate::ymd(colnames(first_raster)[ncol(first_raster)]) <
                lubridate::ymd(colnames(second_raster)[3]) - lubridate::years(1))){
       first_raster <- first_raster
-      second_raster <- second_raster[!(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
+      second_raster <- second_raster # second_raster[!(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
       # case there is a meet between first and second interval
     } else if (isTRUE(lubridate::ymd(colnames(first_raster)[ncol(first_raster)]) ==
                       lubridate::ymd(colnames(second_raster)[3]) - lubridate::years(1))){
-      first_raster <- first_raster[!(is.na(first_raster[,ncol(first_raster)]) | first_raster[,ncol(first_raster)] == ""), ]
-      second_raster <- second_raster[(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
-      second_raster <- second_raster[, -3]
+      first_raster <- first_raster[(is.na(first_raster[,ncol(first_raster)]) | first_raster[,ncol(first_raster)] == ""), ]
+      first_raster <- first_raster[-ncol(first_raster)]
+      second_raster <- second_raster # second_raster[!(is.na(second_raster[, 3]) | second_raster[, 3] == ""), ]
     }
     # case matrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))
@@ -228,14 +228,14 @@ lucC_relation_after <- function (first_raster = NULL, second_raster = NULL) {
     # case there is a gap after first interval
     if (isTRUE(lubridate::ymd(colnames(first_raster)[3]) - lubridate::years(1) >
                lubridate::ymd(colnames(second_raster)[ncol(second_raster)]))){
-      first_raster <- first_raster[!(is.na(first_raster[, 3]) | first_raster[, 3] == ""), ]
+      first_raster <- first_raster # first_raster[!(is.na(first_raster[, 3]) | first_raster[, 3] == ""), ]
       second_raster <- second_raster
       # case there is a meet between first and second interval
     } else if (isTRUE(lubridate::ymd(colnames(first_raster)[3]) - lubridate::years(1) ==
                       lubridate::ymd(colnames(second_raster)[ncol(second_raster)]))){
-      first_raster <- first_raster[(is.na(first_raster[,3]) | first_raster[,3] == ""), ]
-      first_raster <- first_raster[, -3]
-      second_raster <- second_raster[!(is.na(second_raster[, ncol(second_raster)]) | second_raster[, ncol(second_raster)] == ""), ]
+      first_raster <- first_raster # first_raster[!(is.na(first_raster[,3]) | first_raster[,3] == ""), ]
+      second_raster <- second_raster[(is.na(second_raster[, ncol(second_raster)]) | second_raster[, ncol(second_raster)] == ""), ]
+      second_raster <- second_raster[-ncol(second_raster)]
     }
     # case matrix have only one columns
     if (NCOL(first_raster) == 1 & is.null(ncol(first_raster)))

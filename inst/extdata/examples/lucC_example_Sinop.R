@@ -210,51 +210,6 @@ lucC_plot_raster(raster_obj = rb_sits2, timeline = timeline, label = label2,
 
 
 
-# create a RasterBrick from individual raster saved previously
-lucC_create_RasterBrick(path_open_GeoTIFFs = "inst/extdata/raster/rasterSinopResultForestVegSec", path_save_RasterBrick = "inst/extdata/raster")
-
-# ------------- define variables to use in sits -------------
-# open files with new pixel secondary vegetation
-file <- c("inst/extdata/raster/rasterSinopResultForestVegSec.tif")
-file
-
-# create timeline with classified data from SVM method
-timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
-timeline
-
-#library(sits)
-# create a RasterBrick metadata file based on the information about the files
-raster.tb <- sits::sits_coverage(files = file, name = "SinopVegSec", timeline = timeline, bands = "ndvi")
-raster.tb
-
-# new variable
-rb_sits3 <- raster.tb$r_objs[[1]][[1]]
-rb_sits3
-
-# new class Seconary vegetation
-label3 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask", "Secondary_vegetation"))
-
-# colors
-colors_3 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff", "red")
-
-
-# plot raster brick
-lucC_plot_raster(raster_obj = rb_sits3,
-                 timeline = timeline, label = label3,
-                 custom_palette = TRUE, RGB_color = colors_2, plot_ncol = 6)
-
-.
-
-plot(rb_sits3)
-
-
-
-
-
-
-
-
-
 
 #----------------------------
 # 6- Discover Land use transitions - LUC Calculus
@@ -377,14 +332,14 @@ system.time(
 )
 
 
-Soybean_Before_2006 <- soybean_before.df
-Soybean_Before_2006[ Soybean_Before_2006 == "Soybean" ] <- "Soybean_Before_2006"
-head(Soybean_Before_2006)
+#Soybean_Before_2006 <- soybean_before.df
+#Soybean_Before_2006[ Soybean_Before_2006 == "Soybean" ] <- "Soybean_Before_2006"
+#head(Soybean_Before_2006)
 
 # remove(temp, soybean_before.df, forest.df, pasture.df, soybean.df, fores_past.temp, tempF, t_1, t_2, x)
 
 # plot results
-lucC_plot_bar_events(data_mtx = Soybean_Before_2006, pixel_resolution = 231.656, custom_palette = FALSE, side_by_side = TRUE)
+lucC_plot_bar_events(data_mtx = soybean_before.df, pixel_resolution = 231.656, custom_palette = FALSE, side_by_side = TRUE)
 
 ## Compute values
 # Soybean_Before_2006.tb <- lucC_result_measures(data_mtx = Soybean_Before_2006, pixel_resolution = 231.656)
@@ -464,14 +419,14 @@ system.time(
   }
 )
 
-Soybean_After_2006 <- soybean_after.df
-Soybean_After_2006[ Soybean_After_2006 == "Soybean" ] <- "Soybean_After_2006"
-head(Soybean_After_2006)
+#Soybean_After_2006 <- soybean_after.df
+#Soybean_After_2006[ Soybean_After_2006 == "Soybean" ] <- "Soybean_After_2006"
+#head(Soybean_After_2006)
 
 # remove(temp, soybean_before.df, forest.df, pasture.df, soybean.df, fores_past.temp, tempF, t_1, t_2, x)
 
 # plot results
-lucC_plot_bar_events(data_mtx = Soybean_After_2006, pixel_resolution = 231.656, custom_palette = FALSE, side_by_side = TRUE)
+lucC_plot_bar_events(data_mtx = soybean_after.df, pixel_resolution = 231.656, custom_palette = FALSE, side_by_side = TRUE)
 
 # # Compute values
 # Soybean_After_2006.tb <- lucC_result_measures(data_mtx = Soybean_After_2006, pixel_resolution = 231.656)
