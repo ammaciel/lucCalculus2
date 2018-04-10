@@ -184,12 +184,30 @@ label2 <- as.character(c("Cerrado", "Double_cropping", "Single_cropping", "Fores
 label2
 
 # colors
-colors_2 <- c("#b3cc33", "#cd6155", "#e6b0aa", "#228b22", "#7ecfa4", "green", "#afe3c8", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
+colors_2 <- c("#b3cc33", "#cd6155", "#e6b0aa", "#228b22", "#7ecfa4", "#1e174d", "#afe3c8", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff") # "#228b22", "#7ecfa4", "blue"
 
 # plot raster brick
 lucC_plot_raster(raster_obj = rb_sits2,
                  timeline = timeline, label = label2,
                  custom_palette = TRUE, RGB_color = colors_2, plot_ncol = 6)
+
+#------------------------------------
+# select some layers
+layers <- c(1, 3, 5, 7, 9, 11, 13, 15)
+rb_sits_2years <- raster::subset(rb_sits2, layers)
+rb_sits_2years
+
+# create timeline with classified data from SVM method
+timeline_n <- lubridate::as_date(c("2001-09-01", "2003-09-01", "2005-09-01", "2007-09-01", "2009-09-01", "2011-09-01", "2013-09-01", "2015-09-01"))
+timeline_n
+
+png(filename = "~/Desktop/fig_TESE/ita_land_use_SV.png", width = 6.8, height = 5.5, units = 'in', res = 300)
+lucC_plot_raster(raster_obj = rb_sits_2years,
+                 timeline = timeline_n, label = label2,
+                 custom_palette = TRUE, RGB_color = colors_2, plot_ncol = 3)
+dev.off()
+
+
 
 
 #----------------------------
@@ -210,11 +228,17 @@ Forest_secondary.mtx <- lucC_merge(secondary.mtx, forest.mtx)
 head(Forest_secondary.mtx)
 
 # plot results
-lucC_plot_bar_events(data_mtx = Forest_secondary.mtx,
-                     pixel_resolution = 232, custom_palette = FALSE, side_by_side = TRUE)
+png(filename = "~/Desktop/fig_TESE/ita_bar_for_SV.png", width = 6.5, height = 4.5, units = 'in', res = 300)
+lucC_plot_bar_events(data_mtx = Forest_secondary.mtx, custom_palette = TRUE, RGB_color = c("black", "gray60"), #c("#228b22", "#7ecfa4"),
+                     pixel_resolution = 231.656, side_by_side = TRUE,
+                     relabel = TRUE, original_labels = c("Forest", "Secondary_vegetation"),
+                     new_labels = c("Forest", "Secondary vegetation"))
+# forest evolved and recur
+dev.off()
+
 
 lucC_plot_frequency_events(data_mtx = Forest_secondary.mtx,
-                     pixel_resolution = 232, custom_palette = FALSE)
+                     pixel_resolution = 231.656, custom_palette = FALSE)
 
 # Compute values
 measuresFor_Sec <- lucC_result_measures(data_mtx = Forest_secondary.mtx, pixel_resolution = 232)
