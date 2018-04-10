@@ -213,6 +213,9 @@ head(Forest_secondary.mtx)
 lucC_plot_bar_events(data_mtx = Forest_secondary.mtx,
                      pixel_resolution = 232, custom_palette = FALSE, side_by_side = TRUE)
 
+lucC_plot_frequency_events(data_mtx = Forest_secondary.mtx,
+                     pixel_resolution = 232, custom_palette = FALSE)
+
 # Compute values
 measuresFor_Sec <- lucC_result_measures(data_mtx = Forest_secondary.mtx, pixel_resolution = 232)
 measuresFor_Sec

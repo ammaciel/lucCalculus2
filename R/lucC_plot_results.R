@@ -271,6 +271,8 @@ lucC_plot_bar_events <- function(data_mtx = NULL, data_frequency = NULL, custom_
 
   # complete space in bars to have the same width of bars in geom_bar
   mapBar <- tidyr::complete(mapBar, Var1, Var2)
+  mapBar$Var1 <- as.factor(mapBar$Var1)
+  mapBar$Var2 <- as.factor(mapBar$Var2)
 
   g <- ggplot2::ggplot(mapBar,aes(x=mapBar$Var1, y=(mapBar$Freq*(pixel_resolution*pixel_resolution))/(1000*1000), fill=mapBar$Var2))+
     geom_bar(width = 0.7, stat="identity", position = bar_position)+
@@ -279,6 +281,7 @@ lucC_plot_bar_events <- function(data_mtx = NULL, data_frequency = NULL, custom_
     ylab(expression(paste("Area (",km^{2},")")))+
     xlab("Time")+
     scale_fill_manual(name= legend_text, values = my_palette, breaks = my_original_label, labels = my_new_labels) + #Legend
+    # scale_x_continuous(breaks=unique(mapBar$Var1), labels=unique(mapBar$Var1)) +
     #scale_fill_grey(name = "Legend:", start = 0, end = 0.8) +
     # theme(legend.position = "bottom",
     #       legend.text=element_text(size=11),  ###
@@ -403,6 +406,9 @@ lucC_plot_frequency_events <- function(data_mtx = NULL, data_frequency = NULL, c
     my_new_labels = unique(mapFreq$Var2)
   }
 
+  mapFreq$Var1 <- as.factor(mapFreq$Var1)
+  mapFreq$Var2 <- as.factor(mapFreq$Var2)
+
   g <- ggplot2::ggplot(mapFreq,aes(x=mapFreq$Var1, y=(mapFreq$Freq*(pixel_resolution*pixel_resolution))/(1000*1000), group = mapFreq$Var2, color = mapFreq$Var2))+
     geom_freqpoly(stat = "identity", size = 1)+
     geom_point( size = 2, shape = 16) +
@@ -411,6 +417,7 @@ lucC_plot_frequency_events <- function(data_mtx = NULL, data_frequency = NULL, c
     ylab(expression(paste("Area (",km^{2},")")))+
     xlab("Time")+
     scale_color_manual(name= legend_text, values = my_palette, breaks = my_original_label, labels = my_new_labels) + #Legend
+    #scale_x_continuous(breaks=unique(mapFreq$Var1), labels=unique(mapFreq$Var1)) +
     #scale_fill_grey(name = "Legend:", start = 0, end = 0.8) +
     # theme(legend.position = "bottom",
     #       legend.text=element_text(size=11),  ###

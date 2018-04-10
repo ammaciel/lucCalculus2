@@ -285,31 +285,11 @@ data.bar <- data[,1:3]
 lucC_plot_bar_events(data_frequency = data.bar, custom_palette = FALSE, pixel_resolution = 231.656)
 
 unique(data.bar$Classes)
-classes <- c("Forest_Pasture", "Forest_Soy", "Soy_After_2008", "Soy_Before_2008") # "Pasture_Soy",
+classes <- c("Forest_Pasture", "Forest_Soy", "Soy_After_2008", "Soy_Before_2008", "Pasture_Soy") #
 my_data <- data.bar[(data.bar$Classes %in% classes),]
 my_data
 
 lucC_plot_bar_events(data_frequency = my_data, custom_palette = FALSE, pixel_resolution = 231.656, side_by_side = TRUE)
 lucC_plot_frequency_events(data_frequency = my_data, custom_palette = FALSE, pixel_resolution = 231.656)
-
-
-
-
-library(tidyr)
-library(ggplot2)
-
-dat <- data.frame(A = rep(LETTERS[1:3], 3),
-                  B = rep(letters[1:3], each = 3),
-                  V = 1:9)[-2, ]
-dat %>%
-  spread(key = B, value = V, fill = NA) %>% # turn data to wide, using fill = NA to generate missing values
-  gather(key = B, value = V, -A) %>% # go back to long, with the missings
-  ggplot(aes(x = A, y = V, fill = B)) +
-  geom_col(position = position_dodge())
-
-dat %>%
-  complete(A, B) %>%
-  ggplot(aes(x = A, y = V, fill = B)) +
-  geom_col(position = position_dodge())
 
 
