@@ -186,7 +186,7 @@ lucC_plot_sequence_events <- function(data_mtx = NULL, custom_palette = FALSE, R
 #' @importFrom ensurer ensure_that
 #' @importFrom lubridate year
 #' @importFrom scales hue_pal
-#' @importFrom tidyr gather
+#' @importFrom tidyr gather complete
 #' @export
 #'
 #' @examples \dontrun{
@@ -268,6 +268,9 @@ lucC_plot_bar_events <- function(data_mtx = NULL, data_frequency = NULL, custom_
   } else {
     bar_position = "stack"
   }
+
+  # complete space in bars to have the same width of bars in geom_bar
+  mapBar <- tidyr::complete(mapBar, Var1, Var2)
 
   g <- ggplot2::ggplot(mapBar,aes(x=mapBar$Var1, y=(mapBar$Freq*(pixel_resolution*pixel_resolution))/(1000*1000), fill=mapBar$Var2))+
     geom_bar(width = 0.7, stat="identity", position = bar_position)+
