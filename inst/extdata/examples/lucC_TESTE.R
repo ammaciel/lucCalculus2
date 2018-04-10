@@ -116,6 +116,7 @@ head(forest_evolve)
 
 
 lucC_plot_bar_events(forest_evolve, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend:")
+lucC_plot_frequency_events(forest_evolve, custom_palette = FALSE, pixel_resolution = 232, legend_text = "Legend:")
 
 # 4. Remove column 2001 because it' is not used to replace pixels's only support column
 forest_ev <- lucC_remove_columns(data_mtx = forest_evolve, name_columns = c("2001-09-01"))
@@ -265,4 +266,24 @@ plot(before_2008$Area_km2)
 
 # case study secondary vegetation sinop
 # Effect soy moratorium Mt
+
+
+#-------------------------
+
+library(lucCalculus)
+
+options(digits = 12)
+
+# all files in folder
+all.the.files <- list.files("~/Desktop/MT_Chronos/Measures_DLUC", full=TRUE, pattern = ".csv")
+all.the.files
+
+files.list <- lapply(all.the.files, data.table::fread, sep=";")
+data <- data.table::rbindlist(files.list)
+data.bar <- data[,1:3]
+
+lucC_plot_bar_events(data_frequency = data.bar, custom_palette = FALSE, pixel_resolution = 231.656)
+
+lucC_plot_bar_events(data_frequency = data.bar, custom_palette = FALSE, pixel_resolution = 231.656, relabel = TRUE, original_labels = c("Cerrado_Pasture", "Cerrado_Secondary_Vegetation", "Cerrado_Soy", "Forest_Cerrado", "Forest_Pasture", "Forest_Soy", "Pasture_Cerrado", "Pasture_Secondary_Vegetation", "Pasture_Soy", "Secondary_Vegetation_Cerrado", "Secondary_Vegetation_Pasture", "Secondary_Vegetation_Soy", "Soy_Cerrado", "Soy_Pasture", "Soy_Secondary_Vegetation", "Forest", "Secondary_Vegetation", "Soy_After_2008", "Soy_Before_2008"), new_labels = c("Cerrado_Pasture", "Cerrado_Secondary_Vegetation", "Cerrado_Soy", "Forest_Cerrado", "Forest_Pasture", "Forest_Soy", "Pasture_Cerrado", "Pasture_Secondary_Vegetation", "Pasture_Soy", "Secondary_Vegetation_Cerrado", "Secondary_Vegetation_Pasture", "Secondary_Vegetation_Soy", "Soy_Cerrado", "Soy_Pasture", "Soy_Secondary_Vegetation", "Forest2222", "Secondary_Vegetation", "After_2008", "Before_2008"))
+
 

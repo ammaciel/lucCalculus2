@@ -243,7 +243,7 @@ lucC_plot_bar_events <- function(data_mtx = NULL, data_frequency = NULL, custom_
     my_palette = scales::hue_pal()(colour_count)
   }
 
-  original_leg_lab <- levels(droplevels(mapBar$Var2))
+  original_leg_lab <- unique(as.character(mapBar$Var2)) # levels(droplevels(mapBar$Var2))
   cat("Original legend labels: \n", original_leg_lab, "\n")
 
   # insert own legend text
@@ -381,7 +381,7 @@ lucC_plot_frequency_events <- function(data_mtx = NULL, data_frequency = NULL, c
     my_palette = scales::hue_pal()(colour_count)
   }
 
-  original_leg_lab <- levels(droplevels(mapFreq$Var2))
+  original_leg_lab <- unique(as.character(mapFreq$Var2)) # levels(droplevels(mapFreq$Var2))
   cat("Original legend labels: \n", original_leg_lab, "\n")
 
   # insert own legend text
