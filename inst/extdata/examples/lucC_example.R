@@ -332,3 +332,17 @@ lucC_plot_sequence_events(c4, custom_palette = FALSE, show_y_index = TRUE)
 lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = c3, timeline = timeline, label = label, custom_palette = TRUE, RGB_color = colors_1, relabel = FALSE) #, shape_point = "#")
 
 .
+
+
+
+
+#---------------------------------
+
+
+
+
+
+
+
+
+

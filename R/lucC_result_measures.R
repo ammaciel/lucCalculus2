@@ -123,9 +123,10 @@ lucC_result_measures <- function(data_mtx = NULL, data_frequency = NULL, pixel_r
 #' @return Data frame with statistical measures
 #' @import ggplot2
 #' @importFrom ensurer ensure_that
-#' @importFrom stats aggregate na.omit
+#' @importFrom stats na.omit
 #' @importFrom parallel mclapply
 #' @importFrom tidyr gather
+#' @importFrom dplyr group_by summarise
 #' @export
 #'
 #' @examples \dontrun{
@@ -165,7 +166,16 @@ lucC_extract_frequency <- function(data_mtx.list = NULL, cores_in_parallel = 1){
 
   # aggregate all list reshaped in a output of data
   output <- do.call(rbind, out)
-  result <- stats::aggregate(output$Freq, by=list(output$Var1, output$Var2), FUN = sum)
+  #result <- stats::aggregate(output$Freq, by=list(output$Var1, output$Var2), FUN = sum) # conflict with raster::aggregate
+
+  result <- output %>%
+    dplyr::group_by(., Var1, Var2) %>%
+    dplyr::summarise(., sum(Freq)) %>%
+    as.data.frame()
+
+  result$Var1 <- as.numeric(as.character(result$Var1)) # remove factor of first column
+  result <- result[ order(result$Var2, result$Var1), ]
+  rownames(result) <- NULL
 
   colnames(result) <- c("Years", "Classes", "Freq")
 
