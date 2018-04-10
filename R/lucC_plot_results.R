@@ -330,7 +330,7 @@ lucC_plot_bar_events <- function(data_mtx = NULL, data_frequency = NULL, custom_
 #' @importFrom ensurer ensure_that
 #' @importFrom lubridate year
 #' @importFrom scales hue_pal
-#' @importFrom tidyr gather
+#' @importFrom tidyr gather complete
 #' @export
 #'
 #' @examples \dontrun{
@@ -406,6 +406,8 @@ lucC_plot_frequency_events <- function(data_mtx = NULL, data_frequency = NULL, c
     my_new_labels = unique(mapFreq$Var2)
   }
 
+  # complete space in bars to have the same width of bars in geom_bar
+  mapFreq <- tidyr::complete(mapFreq, Var1, Var2)
   mapFreq$Var1 <- as.factor(mapFreq$Var1)
   mapFreq$Var2 <- as.factor(mapFreq$Var2)
 

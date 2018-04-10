@@ -282,7 +282,8 @@ files.list <- lapply(all.the.files, data.table::fread, sep=";")
 data <- data.table::rbindlist(files.list)
 data.bar <- data[,1:3]
 
-lucC_plot_bar_events(data_frequency = data.bar, custom_palette = FALSE, pixel_resolution = 231.656)
+lucC_plot_bar_events(data_frequency = data.bar, custom_palette = FALSE, pixel_resolution = 231.656, side_by_side = TRUE, column_legend = 3)
+lucC_plot_frequency_events(data_frequency = data.bar, custom_palette = FALSE, pixel_resolution = 231.656, column_legend = 3)
 
 unique(data.bar$Classes)
 classes <- c("Forest_Pasture", "Forest_Soy", "Soy_After_2008", "Soy_Before_2008", "Pasture_Soy") #
