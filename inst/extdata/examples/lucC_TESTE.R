@@ -380,12 +380,19 @@ data.bar <- data[,1:3]
 lucC_plot_bar_events(data_frequency = data.bar, custom_palette = FALSE, pixel_resolution = 231.656, side_by_side = TRUE, column_legend = 3)
 lucC_plot_frequency_events(data_frequency = data.bar, custom_palette = FALSE, pixel_resolution = 231.656, column_legend = 3)
 
+# soy moratorium
 unique(data.bar$Classes)
-classes <- c("Forest_Pasture", "Forest_Soy", "Soy_After_2008", "Soy_Before_2008", "Pasture_Soy") #
+classes <- c("Forest_Pasture", "Forest_Soy", "Soy_After_2008", "Soy_Before_2008") #, "Pasture_Soy") #
 my_data <- data.bar[(data.bar$Classes %in% classes),]
 my_data
 
-lucC_plot_bar_events(data_frequency = my_data, custom_palette = FALSE, pixel_resolution = 231.656, side_by_side = TRUE)
+#lucC_plot_bar_events(data_frequency = my_data, custom_palette = FALSE, pixel_resolution = 231.656, side_by_side = TRUE)
+#lucC_plot_bar_events(data_frequency = my_data, custom_palette = TRUE, RGB_color = c("magenta", "#1a9641", "#000080", "#d7191c", "#daa520"), pixel_resolution = 231.656, side_by_side = TRUE, relabel = TRUE, original_labels = c("Forest_Pasture", "Forest_Soy", "Pasture_Soy", "Soy_After_2008", "Soy_Before_2008"), new_labels = c("Forest to Pasture", "Forest to Soy", "Pasture to Soy", "Pasture to Soy, deforested after 2008", "Pasture to Soy, deforested before 2008"))
+
+png(filename = "~/Desktop/fig_TESE/fig_MT_bar_soy.png", width = 7.0, height = 4.2, units = 'in', res = 300)
+lucC_plot_bar_events(data_frequency = my_data, custom_palette = TRUE, RGB_color = c("#1a9641", "#000080", "#d7191c", "#daa520"), pixel_resolution = 231.656, side_by_side = TRUE, relabel = TRUE, original_labels = c("Forest_Pasture", "Forest_Soy", "Soy_After_2008", "Soy_Before_2008"), new_labels = c("Forest to Pasture", "Forest to Soy", "Pasture to Soy, deforested after 2008", "Pasture to Soy, deforested before 2008"), legend_text = "Land use transitions: ")
+dev.off()
+
 lucC_plot_frequency_events(data_frequency = my_data, custom_palette = FALSE, pixel_resolution = 231.656)
 
 # land use transitions
@@ -398,6 +405,16 @@ lucC_plot_bar_events(data_frequency = my_data2, custom_palette = FALSE, pixel_re
 lucC_plot_frequency_events(data_frequency = my_data2, custom_palette = FALSE, pixel_resolution = 231.656)
 
 
+# forest x secondary vegetation
+unique(data.bar$Classes)
+classes <- c("Forest", "Secondary_Vegetation") #
+my_data2 <- data.bar[(data.bar$Classes %in% classes),]
+my_data2
 
+png(filename = "~/Desktop/fig_TESE/fig_MT_for_sv.png", width = 7.0, height = 4.2, units = 'in', res = 300)
+lucC_plot_bar_events(data_frequency = my_data2, custom_palette = TRUE, RGB_color = c("#228b22", "#7ecfa4"), pixel_resolution = 231.656, legend_text = "Legend:", side_by_side = TRUE, relabel = TRUE, original_labels = c("Forest", "Secondary_Vegetation"), new_labels = c("Forest", "Secondary Vegetation")) # c("#7ecfa4", "#228b22") c("gray60", "black")
+dev.off()
+
+lucC_plot_frequency_events(data_frequency = my_data2, custom_palette = FALSE, pixel_resolution = 231.656)
 
 

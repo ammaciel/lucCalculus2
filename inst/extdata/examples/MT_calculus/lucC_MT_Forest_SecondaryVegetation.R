@@ -75,7 +75,14 @@ for (i in 1:length(all.the.files)) {
 
   message("Save image in provided path ...\n")
   # save result of secondary vegetation
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = Forest_secondary.mtx, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/MT_SecVeg/", file_name, sep = ""))
+
+  message("Prepare image 1 ...\n")
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = Forest_secondary.mtx, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/HoldsForestSecVeg/", file_name, sep = ""), as_RasterBrick = FALSE)
+
+  message("Prepare image 2 ...\n")
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = Forest_secondary.mtx, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/HoldsForestSecVeg/", file_name, sep = ""), as_RasterBrick = TRUE)
+
+
 
   # clear environment, except these elements
   rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "end.time", "number_SV_For", "i"))])
@@ -133,5 +140,24 @@ save(measuresFor_Sec, file = "~/TESTE/MT/HoldsForestSecVeg/measuresFor_Sec.rda")
 print(Sys.time() - start.time)
 
 
-#-----------------------------
+
+#----------------------------------------------------
+# Merge all blocks and then generate image exit for each band
+#----------------------------------------------------
+
+library(lucCalculus)
+
+options(digits = 12)
+
+# start time
+start.time <- Sys.time()
+
+# merge blocks into a single image
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/HoldsForestSecVeg/All_blocks_For_SV", number_raster = 4, pattern_name = "New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+# save each layer of brick as images
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/HoldsForestSecVeg/All_blocks_For_SV/Mosaic_New_New_Raster_Splitted_.tif")
+
+
+# end time
+print(Sys.time() - start.time)
 
