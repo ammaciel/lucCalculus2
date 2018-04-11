@@ -388,6 +388,14 @@ my_data
 lucC_plot_bar_events(data_frequency = my_data, custom_palette = FALSE, pixel_resolution = 231.656, side_by_side = TRUE)
 lucC_plot_frequency_events(data_frequency = my_data, custom_palette = FALSE, pixel_resolution = 231.656)
 
+# land use transitions
+unique(data.bar$Classes)
+classes <- c("Cerrado_Pasture", "Cerrado_Secondary_Vegetation", "Cerrado_Soy", "Forest_Cerrado", "Forest_Pasture", "Forest_Soy", "Pasture_Cerrado", "Pasture_Secondary_Vegetation", "Pasture_Soy", "Secondary_Vegetation_Cerrado", "Secondary_Vegetation_Pasture", "Secondary_Vegetation_Soy", "Soy_Cerrado", "Soy_Pasture", "Soy_Secondary_Vegetation") #
+my_data2 <- data.bar[(data.bar$Classes %in% classes),]
+my_data2
+
+lucC_plot_bar_events(data_frequency = my_data2, custom_palette = FALSE, pixel_resolution = 231.656, side_by_side = TRUE, column_legend = 5)
+lucC_plot_frequency_events(data_frequency = my_data2, custom_palette = FALSE, pixel_resolution = 231.656)
 
 
 
