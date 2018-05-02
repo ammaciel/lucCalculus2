@@ -35,7 +35,8 @@
 #' @examples \dontrun{
 #'
 #' # save RasterBrick in path
-#' lucC_create_RasterBrick (path_open_GeoTIFFs = "~/Desktop/raster", path_save_RasterBrick = "~/Desktop")
+#' lucC_create_RasterBrick (path_open_GeoTIFFs = "~/Desktop/raster",
+#'                          path_save_RasterBrick = "~/Desktop")
 #'
 #'}
 #'

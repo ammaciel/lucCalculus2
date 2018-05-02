@@ -37,7 +37,7 @@ label
 
 # colors
 #colors_1 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
-colors_1 <- c("#b3cc33", "#cd6155", "#e6b0aa", "#228b22", "#7ecfa4", "#afe3c8",  "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
+colors_1 <- c("#BEEE53", "#cd6155", "#e6b0aa", "#228b22", "#7ecfa4", "#afe3c8",  "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
 colors_1
 
 # plot raster brick
@@ -63,12 +63,16 @@ rb_sits_2years
 timeline_n <- lubridate::as_date(c("2001-09-01", "2003-09-01", "2005-09-01", "2007-09-01", "2009-09-01", "2011-09-01", "2013-09-01", "2015-09-01"))
 timeline_n
 
-png(filename = "~/Desktop/fig_TESE/ita_land_use.png", width = 6.8, height = 5.5, units = 'in', res = 300)
+png(filename = "~/Desktop/fig_TESE/fig_ita_land_use2D.png", width = 6.7, height = 5.4, units = 'in', res = 300)
 lucC_plot_raster(raster_obj = rb_sits_2years,
                  timeline = timeline_n, label = label,
-                 custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 3)
+                 custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 3,
+                 relabel = TRUE, original_labels = c("Cerrado", "Double_cropping", "Single_cropping", "Forest", "Pasture"), new_labels =  c("Degradation", "Double cropping", "Single cropping", "Forest", "Pasture") )
 dev.off()
 
+# number of cells
+myraster <- rb_sits_2years$rasterItanhangaSecVeg.1
+length(myraster[raster::values(myraster)!="NA"] )
 
 #----------------------------
 # IJGIS
@@ -176,7 +180,7 @@ head(forest_sec)
 
 # forest evolved and recur
 #png(filename = "~/Desktop/fig_TESE/ita_bar_for_recur_evolve.png", width = 6.5, height = 4.5, units = 'in', res = 300)
-png(filename = "~/Desktop/fig_TESE/ita_bar_for_recur_evolve.png", width = 7.0, height = 4.2, units = 'in', res = 300)
+png(filename = "~/Desktop/fig_TESE/fig_ita_bar_for_recur_evolve.png", width = 6.8, height = 4.0, units = 'in', res = 300)
 lucC_plot_bar_events(forest_sec, custom_palette = TRUE, RGB_color = c("gray60", "black"), pixel_resolution = 231.656, legend_text = "Legend:", side_by_side = TRUE, relabel = TRUE, original_labels = c("Forest_Evolved", "Forest_Recurred"), new_labels = c("Forest evolved", "Forest recurred")) # c("#7ecfa4", "#228b22")
 dev.off()
 
@@ -382,16 +386,17 @@ lucC_plot_frequency_events(data_frequency = data.bar, custom_palette = FALSE, pi
 
 # soy moratorium
 unique(data.bar$Classes)
-classes <- c("Forest_Pasture", "Forest_Soy", "Soy_After_2008", "Soy_Before_2008") #, "Pasture_Soy") #
+classes <- c("Forest_Pasture", "Forest_Cerrado", "Soy_After_2008_Pasture", "Soy_Before_2008_Pasture", "Soy_After_2008_Cerrado", "Soy_Before_2008_Cerrado") #, "Pasture_Soy") #
 my_data <- data.bar[(data.bar$Classes %in% classes),]
 my_data
 
 #lucC_plot_bar_events(data_frequency = my_data, custom_palette = FALSE, pixel_resolution = 231.656, side_by_side = TRUE)
 #lucC_plot_bar_events(data_frequency = my_data, custom_palette = TRUE, RGB_color = c("magenta", "#1a9641", "#000080", "#d7191c", "#daa520"), pixel_resolution = 231.656, side_by_side = TRUE, relabel = TRUE, original_labels = c("Forest_Pasture", "Forest_Soy", "Pasture_Soy", "Soy_After_2008", "Soy_Before_2008"), new_labels = c("Forest to Pasture", "Forest to Soy", "Pasture to Soy", "Pasture to Soy, deforested after 2008", "Pasture to Soy, deforested before 2008"))
 
-png(filename = "~/Desktop/fig_TESE/fig_MT_bar_soy.png", width = 7.0, height = 4.2, units = 'in', res = 300)
-lucC_plot_bar_events(data_frequency = my_data, custom_palette = TRUE, RGB_color = c("#1a9641", "#000080", "#d7191c", "#daa520"), pixel_resolution = 231.656, side_by_side = TRUE, relabel = TRUE, original_labels = c("Forest_Pasture", "Forest_Soy", "Soy_After_2008", "Soy_Before_2008"), new_labels = c("Forest to Pasture", "Forest to Soy", "Pasture to Soy, deforested after 2008", "Pasture to Soy, deforested before 2008"), legend_text = "Land use transitions: ")
+png(filename = "~/Desktop/fig_TESE/fig_MT_bar_soy.png", width = 9.8, height = 6.2, units = 'in', res = 300)
+lucC_plot_bar_events(data_frequency = my_data, custom_palette = TRUE, RGB_color = c("#1a9641", "#9cecc4", "#c7011a", "#000d92", "#f6546a", "#4169e1"), pixel_resolution = 231.656, side_by_side = TRUE, relabel = TRUE, original_labels = c("Forest_Pasture", "Forest_Cerrado", "Soy_After_2008_Cerrado", "Soy_After_2008_Pasture", "Soy_Before_2008_Cerrado", "Soy_Before_2008_Pasture" ), new_labels = c("Forest to Pasture", "Forest to Degradation", "Degradation to Soy, deforested after 2008", "Pasture to Soy, deforested after 2008", "Degradation to Soy, deforested before 2008", "Pasture to Soy, deforested before 2008"), legend_text = "Land use transitions: ", column_legend = 3)
 dev.off()
+#"#1a9641", "#000080", "#d7191c", "#daa520", "magenta", "black"
 
 lucC_plot_frequency_events(data_frequency = my_data, custom_palette = FALSE, pixel_resolution = 231.656)
 
@@ -416,5 +421,24 @@ lucC_plot_bar_events(data_frequency = my_data2, custom_palette = TRUE, RGB_color
 dev.off()
 
 lucC_plot_frequency_events(data_frequency = my_data2, custom_palette = FALSE, pixel_resolution = 231.656)
+
+
+
+#---------------------
+library(ggplot2)
+
+dfTab <- as.data.frame((my_data))
+colnames(dfTab)[1] <- "x"
+dfTab$lab <- as.character(100 * dfTab$Freq / sum(dfTab$Freq))
+
+ggplot(df) + geom_bar(aes(x,fill=x)) +
+  geom_text(data=dfTab,aes(x=x,y=Freq,label=lab),vjust=0) +
+  theme(axis.text.x=element_blank(),axis.ticks=element_blank(),
+       axis.title.x=element_blank(),legend.title=element_blank(),
+       axis.title.y=element_blank())
+
+dfTab$lab <- paste(dfTab$Freq,paste("(",dfTab$lab,"%)",sep=""),sep=" ")
+
+
 
 

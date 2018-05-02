@@ -149,6 +149,30 @@ label2 <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "P
 label2
 
 
+# ------------- define variables to plot raster -------------
+# original label - see QML file, same order
+#label <- as.character(c("Cerrado", "Crop_Cotton", "Fallow_Cotton", "Forest", "Pasture1", "Pasture2", "Pasture3", "Soybean_Cotton", "Soybean_Crop1", "Soybean_Crop2", "Soybean_Crop3", "Soybean_Crop4", "Soybean_Fallow1", "Soybean_Fallow2", "Water", "Water_mask"))
+label <- as.character(c("Cerrado", "Double_cropping", "Single_cropping", "Forest", "Pasture", "Pasture", "Pasture", "Double_cropping", "Double_cropping", "Double_cropping", "Double_cropping", "Double_cropping", "Single_cropping", "Single_cropping", "Water", "Water", "Secondary_vegetation"))
+label
+
+# colors
+#colors_1 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
+
+colors_1 <- c("#9b7447", "#e59300", "#f5e7a1", "#1b791f", "#929e6e", "#284fcc", "#66CC00",  "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
+#colors_1 <- c("#BEEE53", "#cd6155", "#e6b0aa", "#228b22", "#7ecfa4", "#0000ff", "#afe3c8",  "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
+
+# plot raster brick
+png(filename = "~/Desktop/fig_TESE/zfig_ita_land_use2D.png", width = 5, height = 6.6, units = 'in', res = 300)
+lucC_plot_raster(raster_obj = rb_Juruena2,
+                 timeline = timeline, label = label,
+                 custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 4, relabel = TRUE,
+                 original_labels = c("Cerrado", "Double_cropping", "Single_cropping", "Forest", "Pasture", "Water", "Secondary_vegetation"),
+                 new_labels = c("Degradation", "Double cropping", "Single cropping", "Forest", "Pasture", "Water", "Secondary vegetation"),
+                 columns_legend = 3)
+dev.off()
+.
+
+
 #----------------------------
 # 5- Discover Forest and Secondary vegetation - LUC Calculus
 #----------------------------

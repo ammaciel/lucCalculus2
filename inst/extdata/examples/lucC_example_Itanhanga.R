@@ -37,7 +37,7 @@ label
 
 # colors
 #colors_1 <- c("#b3cc33", "#d1f0f7", "#8ddbec", "#228b22", "#afe3c8", "#7ecfa4", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
-colors_1 <- c("#b3cc33", "#cd6155", "#e6b0aa", "#228b22", "#7ecfa4", "#afe3c8",  "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
+colors_1 <- c("#BEEE53", "#cd6155", "#e6b0aa", "#228b22", "#7ecfa4", "#afe3c8",  "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff")
 colors_1
 
 # plot raster brick
@@ -52,6 +52,24 @@ rb_sits
 lucC_plot_raster(raster_obj = rb_sits,
                  timeline = timeline, label = label,
                  custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 5)
+
+# select some layers
+rb_sits
+layers <- c(1, 3, 5, 7, 9, 11, 13, 15)
+rb_sits_2years <- raster::subset(rb_sits, layers)
+rb_sits_2years
+
+# create timeline with classified data from SVM method
+timeline_n <- lubridate::as_date(c("2001-09-01", "2003-09-01", "2005-09-01", "2007-09-01", "2009-09-01", "2011-09-01", "2013-09-01", "2015-09-01"))
+timeline_n
+
+png(filename = "~/Desktop/fig_TESE/fig_ita_land_use2D.png", width = 6.7, height = 5.4, units = 'in', res = 300)
+lucC_plot_raster(raster_obj = rb_sits_2years,
+                 timeline = timeline_n, label = label,
+                 custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 3,
+                 relabel = TRUE, original_labels = c("Cerrado", "Double_cropping", "Single_cropping", "Forest", "Pasture"), new_labels =  c("Degradation", "Double cropping", "Single cropping", "Forest", "Pasture") )
+dev.off()
+
 
 
 #----------------------------
@@ -184,7 +202,7 @@ label2 <- as.character(c("Cerrado", "Double_cropping", "Single_cropping", "Fores
 label2
 
 # colors
-colors_2 <- c("#b3cc33", "#cd6155", "#e6b0aa", "#228b22", "#7ecfa4", "#1e174d", "#afe3c8", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff") # "#228b22", "#7ecfa4", "blue"
+colors_2 <- c("#BEEE53" , "#cd6155", "#e6b0aa", "#228b22", "#7ecfa4", "#1e174d", "#afe3c8", "#64b376", "#e1cdb6", "#b6a896", "#b69872", "#b68549", "#9c6f38", "#e5c6a0", "#e5a352", "#0000ff", "#3a3aff") # "#b3cc33" "#228b22", "#7ecfa4", "blue"
 
 # plot raster brick
 lucC_plot_raster(raster_obj = rb_sits2,
@@ -201,10 +219,11 @@ rb_sits_2years
 timeline_n <- lubridate::as_date(c("2001-09-01", "2003-09-01", "2005-09-01", "2007-09-01", "2009-09-01", "2011-09-01", "2013-09-01", "2015-09-01"))
 timeline_n
 
-png(filename = "~/Desktop/fig_TESE/ita_land_use_SV.png", width = 6.8, height = 5.5, units = 'in', res = 300)
+png(filename = "~/Desktop/fig_TESE/fig_ita_land_use_SV2D.png", width = 6.7, height = 5.4, units = 'in', res = 300)
 lucC_plot_raster(raster_obj = rb_sits_2years,
                  timeline = timeline_n, label = label2,
-                 custom_palette = TRUE, RGB_color = colors_2, plot_ncol = 3)
+                 custom_palette = TRUE, RGB_color = colors_2, plot_ncol = 3,
+                 relabel = TRUE, original_labels = c("Cerrado", "Double_cropping", "Single_cropping", "Forest", "Pasture", "Secondary_vegetation"), new_labels =  c("Degradation", "Double cropping", "Single cropping", "Forest", "Pasture", "Secondary vegetation"))
 dev.off()
 
 
