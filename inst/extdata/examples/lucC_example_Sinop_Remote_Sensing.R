@@ -102,17 +102,17 @@ rb_sits
 #rb_sits
 #rb_sits[is.na(rb_sits)] <- 0
 
-label <- as.character(c("NA", "Single_cropping", "NA", "NA","Double_cropping"))
+label <- as.character(c("NA","Single_cropping", "NA", "NA", "Double_cropping"))
 
 # colors
-colors_1 <- c("green","blue", "purple","green","green")
+colors_1 <- c("green","blue")
 
 
 # raster::plot(rb_sits)
 # plot raster brick
 lucC_plot_raster(raster_obj = rb_sits,
                  timeline = timeline, label = label,
-                 custom_palette = TRUE, RGB_color = colors_1, plot_ncol = 4)
+                 custom_palette = FALSE, RGB_color = colors_1, plot_ncol = 4)
 
 rb_sits$New_Sinop_2005_2016.11
 

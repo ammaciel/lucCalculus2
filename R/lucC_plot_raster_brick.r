@@ -76,7 +76,7 @@ lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, c
 
   #-------------------- start: rasterBrick --------------------------------
   # remove values with 0 as class
-  raster_obj <- raster::reclassify(rb_sits, cbind(0, NA))
+  raster_obj <- raster::reclassify(raster_obj, cbind(0, NA))
 
   # make the points a dataframe for ggplot
   df <- raster::rasterToPoints(raster_obj) %>%
@@ -108,7 +108,7 @@ lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, c
     } else {
       # select only colors that match with legend
       names(RGB_color) <- as.character(c(1:length(label)))
-      my_palette <- RGB_color[names(RGB_color) %in% as.character(classes_n)]
+      my_palette <- as.character(RGB_color[names(RGB_color) %in% as.character(classes_n)])
     }
   } else {
     # more colors
