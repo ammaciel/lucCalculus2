@@ -378,27 +378,33 @@ all.the.files <- list.files("~/Desktop/MT_Chronos/Measures_DLUC", full=TRUE, pat
 all.the.files
 
 files.list <- lapply(all.the.files, data.table::fread, sep=";")
-data <- data.table::rbindlist(files.list)
-data.bar <- data[,1:3]
+data <- data.table::rbindlist(files.list, fill = TRUE)
+data$Hectare <- ifelse(is.na(data$Hectare) == TRUE, (data$Pixel_number*(231.656^2))/(10000), data$Hectare)
+data
 
-lucC_plot_bar_events(data_frequency = data.bar, custom_palette = FALSE, pixel_resolution = 231.656, side_by_side = TRUE, column_legend = 3)
+data.bar <- data[,c("Years","Classes","Hectare")] # data[,1:3]
+
+lucC_plot_bar_events2(data_frequency = data.bar, custom_palette = FALSE, pixel_resolution = 231.656, side_by_side = TRUE, column_legend = 3)
 lucC_plot_frequency_events(data_frequency = data.bar, custom_palette = FALSE, pixel_resolution = 231.656, column_legend = 3)
 
 # soy moratorium
 unique(data.bar$Classes)
-classes <- c("Forest_Pasture", "Forest_Cerrado", "Soy_After_2008_Pasture", "Soy_Before_2008_Pasture", "Soy_After_2008_Cerrado", "Soy_Before_2008_Cerrado") #, "Pasture_Soy") #
+#classes <- c("Forest_Pasture", "Forest_Cerrado", "Soy_After_2008_Pasture", "Soy_Before_2008_Pasture", "Soy_After_2008_Cerrado", "Soy_Before_2008_Cerrado") #, "Pasture_Soy") #
+classes <- c("Soy_After_2008_Pasture", "Soy_Before_2008_Pasture", "Soy_After_2008_Cerrado", "Soy_Before_2008_Cerrado", "Mato Grosso (Soja em grao)", "Soy") #, "Pasture_Soy") #
 my_data <- data.bar[(data.bar$Classes %in% classes),]
 my_data
 
 #lucC_plot_bar_events(data_frequency = my_data, custom_palette = FALSE, pixel_resolution = 231.656, side_by_side = TRUE)
 #lucC_plot_bar_events(data_frequency = my_data, custom_palette = TRUE, RGB_color = c("magenta", "#1a9641", "#000080", "#d7191c", "#daa520"), pixel_resolution = 231.656, side_by_side = TRUE, relabel = TRUE, original_labels = c("Forest_Pasture", "Forest_Soy", "Pasture_Soy", "Soy_After_2008", "Soy_Before_2008"), new_labels = c("Forest to Pasture", "Forest to Soy", "Pasture to Soy", "Pasture to Soy, deforested after 2008", "Pasture to Soy, deforested before 2008"))
 
-png(filename = "~/Desktop/fig_TESE/fig_MT_bar_soy.png", width = 9.8, height = 6.2, units = 'in', res = 300)
-lucC_plot_bar_events(data_frequency = my_data, custom_palette = TRUE, RGB_color = c("#1a9641", "#9cecc4", "#c7011a", "#000d92", "#f6546a", "#4169e1"), pixel_resolution = 231.656, side_by_side = TRUE, relabel = TRUE, original_labels = c("Forest_Pasture", "Forest_Cerrado", "Soy_After_2008_Cerrado", "Soy_After_2008_Pasture", "Soy_Before_2008_Cerrado", "Soy_Before_2008_Pasture" ), new_labels = c("Forest to Pasture", "Forest to Degradation", "Degradation to Soy, deforested after 2008", "Pasture to Soy, deforested after 2008", "Degradation to Soy, deforested before 2008", "Pasture to Soy, deforested before 2008"), legend_text = "Land use transitions: ", column_legend = 3)
-dev.off()
+my <- my_data[!Years %in% c(2000, 2001, 2002, 2003, 2004, 2005)]
+
+#png(filename = "~/Desktop/fig_TESE/fig_MT_bar_soy.png", width = 9.8, height = 6.2, units = 'in', res = 300)
+lucC_plot_bar_events(data_frequency = my, custom_palette = FALSE, RGB_color = c("#1a9641", "#9cecc4", "#c7011a", "#000d92", "#f6546a", "#4169e1"), pixel_resolution = 231.656, side_by_side = TRUE, relabel = FALSE, original_labels = c("Forest_Pasture", "Forest_Cerrado", "Soy_After_2008_Cerrado", "Soy_After_2008_Pasture", "Soy_Before_2008_Cerrado", "Soy_Before_2008_Pasture" ), new_labels = c("Forest to Pasture", "Forest to Degradation", "Degradation to Soy, deforested after 2008", "Pasture to Soy, deforested after 2008", "Degradation to Soy, deforested before 2008", "Pasture to Soy, deforested before 2008"), legend_text = "Land use transitions: ", column_legend = 3)
+#dev.off()
 #"#1a9641", "#000080", "#d7191c", "#daa520", "magenta", "black"
 
-lucC_plot_frequency_events(data_frequency = my_data, custom_palette = FALSE, pixel_resolution = 231.656)
+lucC_plot_frequency_events(data_frequency = my, custom_palette = FALSE, pixel_resolution = 231.656)
 
 # land use transitions
 unique(data.bar$Classes)

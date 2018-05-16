@@ -46,7 +46,7 @@
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom lubridate year
 #' @importFrom dplyr mutate
-#' @importFrom stats setNames
+#' @importFrom plyr mapvalues
 #' @importFrom raster rasterToPoints
 #' @importFrom tidyr gather
 #' @export
@@ -75,6 +75,9 @@ lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, c
                        err_desc = "relabel must be defined, if wants use its own legend text setting! Default is FALSE")
 
   #-------------------- start: rasterBrick --------------------------------
+  # remove values with 0 as class
+  raster_obj <- raster::reclassify(rb_sits, cbind(0, NA))
+
   # make the points a dataframe for ggplot
   df <- raster::rasterToPoints(raster_obj) %>%
     data.frame()
@@ -87,13 +90,13 @@ lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, c
   #raster_df <- reshape2::melt(df, id = c("x","y"))
   raster_df <- tidyr::gather(df, variable, value, -x, -y) # other way
 
+  classes_n <- sort(unique(raster_df$value))
   # replace legend's number by text
-  from <- as.character(sort(unique(raster_df$value)))
+  from <- seq(1:length(label))
   to <- label
   # The map serves as a look-up, associating 'from' names with 'to' values.
   # The assignment preserves matrix dimensions and dimnames.
-  map <- stats::setNames(to, from)
-  raster_df$value <- map[raster_df$value]
+  raster_df$value <- plyr::mapvalues(raster_df$value, from, to)
 
   #-------------------- end: rasterBrick --------------------------------
 
@@ -104,12 +107,8 @@ lucC_plot_raster <- function(raster_obj = NULL, timeline = NULL, label = NULL, c
       cat("\nProvide a list of colors with the same length of the number of legend!\n")
     } else {
       # select only colors that match with legend
-      my_palette <- RGB_color %>%
-        data.frame() %>%
-        dplyr::mutate(id = c(1:length(.))) %>%
-        .[.$id %in% from,] %>%
-        .[,1] %>%
-        as.character()
+      names(RGB_color) <- as.character(c(1:length(label)))
+      my_palette <- RGB_color[names(RGB_color) %in% as.character(classes_n)]
     }
   } else {
     # more colors
