@@ -1,4 +1,4 @@
-# Forest to Pasture, Cerrado and Soy
+# Degradation to Pasture, Soy and Secondary vegetation
 
 library(lucCalculus)
 
@@ -25,7 +25,7 @@ all.the.files
 # start time
 start.time <- Sys.time()
 
-number_F_P_Soy <- list(NULL)
+number_Degradation_others <- list(NULL)
 
 #convert.df <- foreach(y = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar% {
 for (y in 1:length(all.the.files)) {
@@ -49,10 +49,10 @@ for (y in 1:length(all.the.files)) {
 
   # ------------- define variables to plot raster -------------
   # original label - see QML file, same order
-  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation", "Degradation"))
+  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation","Degradation"))
 
-  class1 <- c("Forest")
-  classes <- c("Pasture", "Soy", "Cerrado", "Degradation", "Secondary_Vegetation") #
+  class1 <- c("Degradation")
+  classes <- c("Pasture", "Soy", "Secondary_Vegetation", "Cerrado") #
 
   direct_transi.df <- NULL
 
@@ -60,29 +60,29 @@ for (y in 1:length(all.the.files)) {
   # along of all classes
   # system.time(
   for(x in 2:length(timeline)){
-      t_1 <- timeline[x-1]
-      t_2 <- timeline[x]
-      cat(paste0(t_1, ", ", t_2, sep = ""), "\n")
+    t_1 <- timeline[x-1]
+    t_2 <- timeline[x]
+    cat(paste0(t_1, ", ", t_2, sep = ""), "\n")
 
-      # moves across all classes
-      for(i in seq_along(classes)){
-        cat(classes[i], collapse = " ", "\n")
-        temp <- lucC_pred_convert(raster_obj = rb_sits, raster_class1 = class1,
-                                  time_interval1 = c(t_1,t_1), relation_interval1 = "equals",
-                                  raster_class2 = classes[i],
-                                  time_interval2 = c(t_2,t_2), relation_interval2 = "equals",
-                                  label = label2, timeline = timeline)
+    # moves across all classes
+    for(i in seq_along(classes)){
+      cat(classes[i], collapse = " ", "\n")
+      temp <- lucC_pred_convert(raster_obj = rb_sits, raster_class1 = class1,
+                                time_interval1 = c(t_1,t_1), relation_interval1 = "equals",
+                                raster_class2 = classes[i],
+                                time_interval2 = c(t_2,t_2), relation_interval2 = "equals",
+                                label = label2, timeline = timeline)
 
-        if (!is.null(temp)) {
-          temp <- lucC_remove_columns(data_mtx = temp, name_columns = as.character(t_1))
-        } else{
-          temp <- temp
-        }
-
-        direct_transi.df <- lucC_merge(direct_transi.df, temp)
+      if (!is.null(temp)) {
+        temp <- lucC_remove_columns(data_mtx = temp, name_columns = as.character(t_1))
+      } else{
+        temp <- temp
       }
-      cat("\n")
+
+      direct_transi.df <- lucC_merge(direct_transi.df, temp)
     }
+    cat("\n")
+  }
   #)
 
   #Forest_Pasture <- direct_transi.df
@@ -93,16 +93,16 @@ for (y in 1:length(all.the.files)) {
   #head(Forest_Pasture)
   message("Add to list index ", y, "... \n")
 
-  number_F_P_Soy[[y]] <- direct_transi.df
+  number_Degradation_others[[y]] <- direct_transi.df
 
   message("Prepare image 1 ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCForPasSoy/", file_name, sep = ""), as_RasterBrick = FALSE)
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCDegradationOthers/", file_name, sep = ""), as_RasterBrick = FALSE)
 
   message("Prepare image 2 ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCForPasSoy/", file_name, sep = ""), as_RasterBrick = TRUE)
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCDegradationOthers/", file_name, sep = ""), as_RasterBrick = TRUE)
 
   # clear environment, except these elements
-  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_F_P_Soy"))])
+  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_Degradation_others"))])
   gc()
 
   message("--------------------------------------------------\n")
@@ -110,7 +110,7 @@ for (y in 1:length(all.the.files)) {
 
 message("Save data as list in .rda file ...\n")
 #save to rda file
-save(number_F_P_Soy, file = "~/TESTE/MT/DLUCForPasSoy/number_F_P_Soy.rda")
+save(number_Degradation_others, file = "~/TESTE/MT/DLUCDegradationOthers/number_Degradation_others.rda")
 
 # #Stop clusters
 # parallel::stopCluster(cl)
@@ -118,7 +118,7 @@ save(number_F_P_Soy, file = "~/TESTE/MT/DLUCForPasSoy/number_F_P_Soy.rda")
 # end time
 print(Sys.time() - start.time)
 
-rm(number_F_P_Soy)
+rm(number_Degradation_others)
 gc()
 
 #----------------------------------------------------
@@ -130,9 +130,9 @@ gc()
 start.time <- Sys.time()
 
 
-load(file = "~/TESTE/MT/DLUCForPasSoy/number_F_P_Soy.rda")
+load(file = "~/TESTE/MT/DLUCDegradationOthers/number_Degradation_others.rda")
 
-output_freq <- lucC_extract_frequency(data_mtx.list = number_F_P_Soy, cores_in_parallel = 6)
+output_freq <- lucC_extract_frequency(data_mtx.list = number_Degradation_others, cores_in_parallel = 6)
 output_freq
 
 #----------------------
@@ -144,12 +144,12 @@ output_freq
 #                      pixel_resolution = 231.656, custom_palette = FALSE)
 
 # Compute values
-measuresFor_PastSoy <- lucC_result_measures(data_frequency = output_freq, pixel_resolution = 231.656)
-measuresFor_PastSoy
+measuresDegradation_others <- lucC_result_measures(data_frequency = output_freq, pixel_resolution = 231.656)
+measuresDegradation_others
 
-write.table(x = measuresFor_PastSoy, file = "~/TESTE/MT/DLUCForPasSoy/measuresFor_PastSoy.csv", quote = FALSE, sep = ";", row.names = FALSE)
+write.table(x = measuresDegradation_others, file = "~/TESTE/MT/DLUCDegradationOthers/measuresDegradation_others.csv", quote = FALSE, sep = ";", row.names = FALSE)
 
-save(measuresFor_PastSoy, file = "~/TESTE/MT/DLUCForPasSoy/measuresFor_PastSoy.rda")
+save(measuresDegradation_others, file = "~/TESTE/MT/DLUCDegradationOthers/measuresDegradation_others.rda")
 
 
 # end time

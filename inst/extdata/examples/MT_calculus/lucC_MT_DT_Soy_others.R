@@ -5,7 +5,8 @@ library(lucCalculus)
 options(digits = 12)
 
 # all files in folder
-all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
+#all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
+all.the.files <- list.files("~/TESTE/MT/MT_Degratation", full=TRUE, pattern = ".tif")
 all.the.files
 
 # #-------------
@@ -48,10 +49,10 @@ for (y in 1:length(all.the.files)) {
 
   # ------------- define variables to plot raster -------------
   # original label - see QML file, same order
-  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation"))
+  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation", "Degradation"))
 
   class1 <- c("Soy")
-  classes <- c("Pasture", "Secondary_Vegetation", "Cerrado") #
+  classes <- c("Pasture", "Secondary_Vegetation", "Cerrado", "Degradation") #
 
   direct_transi.df <- NULL
 
