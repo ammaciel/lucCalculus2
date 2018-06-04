@@ -150,10 +150,9 @@ lucC_plot_raster_result(raster_obj = rb_sits,
                         RGB_color = colors_1, relabel = FALSE) #, shape_point = ".")
 
 # create images output
-rb_sits_new <- lucC_save_raster_result(raster_obj = rb_sits,
-                                  data_mtx = forest_sec,       # without 2001
-                                  timeline = timeline, label = label, path_raster_folder = "~/Desktop/For_sec")         # new pixel value
-rb_sits_new
+lucC_save_raster_result(raster_obj = rb_sits,
+                        data_mtx = forest_sec,       # without 2001
+                        timeline = timeline, label = label, path_raster_folder = "~/Desktop/For_sec")         # new pixel value
 
 
 #----------------------------

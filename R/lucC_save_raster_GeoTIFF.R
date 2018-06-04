@@ -169,6 +169,10 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   raster_df$value <- 0
 
   #-------------------- prepare matrix with events --------------------------------
+  # x and y as factor
+  data_mtx$x <- as.factor(data_mtx$x)
+  data_mtx$y <- as.factor(data_mtx$y)
+
   # replace new clase by new pixel value
   class_name <- unique(data_mtx[3:ncol(data_mtx)][!duplicated(as.vector(data_mtx[3:ncol(data_mtx)])) & !is.na(data_mtx[3:ncol(data_mtx)])] )
 
@@ -212,8 +216,13 @@ lucC_save_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
   rm(a, b)
   gc()
 
+  # remove duplicates
+  raster_rows_both <- raster_rows_both[!duplicated(raster_rows_both), ]
+
   #raster_rows_both <- dplyr::mutate(raster_rows_both, row = 1:nrow(raster_rows_both))
-  raster_df_update <- reshape2::dcast(raster_rows_both, x + y ~ variable, value.var= 'value', fun.aggregate = sum)
+  #raster_df_update <- reshape2::dcast(raster_rows_both, x + y ~ variable, value.var= 'value', fun.aggregate = mean)
+  raster_df_update <- reshape2::dcast(raster_rows_both, x + y ~ variable, value.var= 'value')
+  #raster_df_update <- tidyr::spread(raster_rows_both, variable, value, -x, -y)
   # raster_df_update <- raster_rows_both %>%
   #   dplyr::mutate(row = 1:nrow(.)) %>%  # because error "Error: Duplicate identifiers for rows..."
   #   tidyr::spread(variable, value) %>%

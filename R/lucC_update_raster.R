@@ -77,6 +77,10 @@ lucC_raster_update <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
   gc()
 
   #-------------------- prepare matrix with events --------------------------------
+  # x and y as factor
+  data_mtx$x <- as.factor(data_mtx$x)
+  data_mtx$y <- as.factor(data_mtx$y)
+
   # data matrix to new raster
   new_df <- data_mtx
   colnames(new_df)[c(3:ncol(new_df))] <- as.character(lubridate::year(colnames(new_df)[c(3:ncol(new_df))]))
