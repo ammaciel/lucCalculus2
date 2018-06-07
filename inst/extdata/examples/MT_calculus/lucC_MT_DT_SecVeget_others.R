@@ -6,7 +6,7 @@ options(digits = 12)
 
 # all files in folder
 #all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
-all.the.files <- list.files("~/TESTE/MT/MT_Degratation", full=TRUE, pattern = ".tif")
+all.the.files <- list.files("~/TESTE/MT/MT_Degradation", full=TRUE, pattern = ".tif")
 all.the.files
 
 # #-------------
@@ -96,10 +96,10 @@ for (y in 1:length(all.the.files)) {
   number_SecVeg_others[[y]] <- direct_transi.df
 
   message("Prepare image 1 ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCSeconVegetOthers/", file_name, sep = ""), as_RasterBrick = FALSE)
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCSeconVegetOthers/", file_name, sep = ""), as_RasterBrick = TRUE)
 
   message("Prepare image 2 ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCSeconVegetOthers/", file_name, sep = ""), as_RasterBrick = TRUE)
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCSeconVegetOthers/", file_name, sep = ""), as_RasterBrick = FALSE)
 
   # clear environment, except these elements
   rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_SecVeg_others"))])
@@ -154,6 +154,29 @@ save(measuresSecVeg_others, file = "~/TESTE/MT/DLUCSeconVegetOthers/measuresSecV
 
 # end time
 print(Sys.time() - start.time)
+
+
+
+#----------------------------------------------------
+# Merge all blocks and then generate image exit for each band
+#----------------------------------------------------
+
+library(lucCalculus)
+
+options(digits = 12)
+
+# start time
+start.time <- Sys.time()
+
+# merge blocks into a single image
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/DLUCSeconVegetOthers/All_blocks_SecVeg_others", number_raster = 4, pattern_name = "New_New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+# save each layer of brick as images
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/DLUCSeconVegetOthers/All_blocks_SecVeg_others/Mosaic_New_New_New_Raster_Splitted_.tif")
+
+
+# end time
+print(Sys.time() - start.time)
+
 
 
 

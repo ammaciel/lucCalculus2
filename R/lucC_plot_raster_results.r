@@ -180,7 +180,7 @@ lucC_plot_raster_result <- function(raster_obj = NULL, data_mtx = NULL, timeline
     scale_y_discrete(expand = c(0, 0), breaks = NULL) +
     scale_x_discrete(expand = c(0, 0), breaks = NULL) +
     theme_bw() +
-    facet_wrap("variable", ncol = 6) +
+    facet_wrap("variable", ncol = plot_ncol) +
     #coord_equal() +
     coord_fixed(ratio = 1) +
     #theme(legend.position = "bottom") +#, strip.text = element_text(size=10)) +

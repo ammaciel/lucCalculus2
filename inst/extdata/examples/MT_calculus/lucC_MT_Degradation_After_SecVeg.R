@@ -137,16 +137,9 @@ for (y in 1:length(all.the.files)) {
   degradation <- Cerrado %>%
     tidyr::spread(variable, value)
 
-  # as.factor
-  str(degradation)
-  # degradation$x <- as.factor(degradation$x)
-  # degradation$y <- as.factor(degradation$y)
-  #str(degradation)
-
   # remove
   rm(CerVS_2.mtx, CerrFor_evolve2, Cerrado)
   gc()
-
 
   #----------------------------
   # 3 - Update original raster to add new pixel value
@@ -161,25 +154,26 @@ for (y in 1:length(all.the.files)) {
                                     class_to_replace = "Cerrado",  # only class Forest
                                     new_pixel_value = n_label)         # new pixel value
 
-  #head(rb_sits_new)
-  message("Updated pixel in RasterBrick ok! ...\n")
-  #head(rb_sits_new)
-
   #lucC_plot_bar_events(data_mtx = rb_sits_new, pixel_resolution = 232, custom_palette = FALSE)
 
   # new name
   new_file_name <- paste0(dirname(file),"/", file_name, "_new", sep = "")
 
-  result.list[[i]] <- rb_sits_new
+  message("Add to list index ", y, "... \n")
+  result.list[[y]] <- rb_sits_new
+
+  message("Save image pixel in RasterBrick ok! ...\n")
 
   # 2. save the update matrix as GeoTIFF RasterBrick
-  lucC_save_GeoTIFF(raster_obj = rb_sits,
-                    data_mtx = rb_sits_new,
-                    path_raster_folder = new_file_name, as_RasterBrick = TRUE ) # FALSE before
-
+  message("Prepare image 1 ...\n")
   lucC_save_GeoTIFF(raster_obj = rb_sits,
                     data_mtx = rb_sits_new,
                     path_raster_folder = new_file_name, as_RasterBrick = FALSE ) # FALSE before
+
+  message("Prepare image 2 ...\n")
+  lucC_save_GeoTIFF(raster_obj = rb_sits,
+                    data_mtx = rb_sits_new,
+                    path_raster_folder = new_file_name, as_RasterBrick = TRUE ) # FALSE before
 
 
   message("--------------------------------------------------\n")
@@ -194,4 +188,27 @@ for (y in 1:length(all.the.files)) {
 
 # end time
 print(Sys.time() - start.time)
+
+
+
+#----------------------------------------------------
+# Merge all blocks and then generate image exit for each band
+#----------------------------------------------------
+
+library(lucCalculus)
+
+options(digits = 12)
+
+# start time
+start.time <- Sys.time()
+
+# merge blocks into a single image
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/MT_Degradation/All_blocks_Degradation", number_raster = 4, pattern_name = "New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+# save each layer of brick as images
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/MT_Degradation/All_blocks_Degradation/Mosaic_New_New_Raster_Splitted_.tif")
+
+
+# end time
+print(Sys.time() - start.time)
+
 

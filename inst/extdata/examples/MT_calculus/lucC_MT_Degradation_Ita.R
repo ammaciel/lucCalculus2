@@ -3,10 +3,12 @@ library(lucCalculus)
 
 options(digits = 12) # always put this element
 
-file <- c("inst/extdata/raster/raster_sampleSecVeg1/New_raster_sampleSecVeg1.tif")
+#file <- c("inst/extdata/raster/raster_sampleSecVeg1/New_raster_sampleSecVeg1.tif")
+file <- c("~/Desktop/Samples_test/mt_sam2.tif")
 
 # create timeline with classified data from SVM method
-timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
+#timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2004-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
+timeline <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
 
 # library(sits)
 # create a RasterBrick metadata file based on the information about the files
@@ -29,7 +31,7 @@ colors <- c("#b3cc33", "#8ddbec", "#228b22", "#afe3c8", "#b6a896", "#e1cdb6", "#
 # plot
 lucC_plot_raster(raster_obj = rb_sits, timeline = timeline,
                  label = label, custom_palette = TRUE,
-                 RGB_color = colors, relabel = FALSE, plot_ncol = 6)
+                 RGB_color = colors, relabel = FALSE, plot_ncol = 5)
 
 #-----------------------------------
 # 2. EVOLVE to verify Cerrado class that occurs after a different class in 2001
@@ -62,7 +64,7 @@ cer.mtx <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Cerrado",
 
 # lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = cer.mtx, timeline = timeline,
 #                         label = label, custom_palette = TRUE,
-#                         RGB_color = colors, relabel = FALSE, plot_ncol = 6)
+#                         RGB_color = colors, relabel = FALSE, plot_ncol = 4)
 
 message("Start Secondary_vegetation holds ...\n")
 vsec.mtx <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Secondary_Vegetation", #### <- font secondary with V ou v
@@ -70,9 +72,9 @@ vsec.mtx <- lucC_pred_holds(raster_obj = rb_sits, raster_class = "Secondary_Vege
                             relation_interval = "contains", label = label, timeline = timeline)
 #head(vsec.mtx)
 
-lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = vsec.mtx, timeline = timeline,
-                        label = label, custom_palette = TRUE,
-                        RGB_color = colors, relabel = FALSE, plot_ncol = 6)
+# lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = vsec.mtx, timeline = timeline,
+#                         label = label, custom_palette = TRUE,
+#                         RGB_color = colors, relabel = FALSE, plot_ncol = 4, size_point = 0.2)
 
 message("Start Cerrado and Secondary occurs ...\n")
 CerVS.mtx <- lucC_relation_occurs(first_raster = cer.mtx, second_raster = vsec.mtx)
@@ -113,6 +115,7 @@ rm(CerrFor_evolve, CerVS.mtx, VS_only.mtx, cer.mtx, cer_only.mtx, vsec.mtx)
 gc()
 
 Cerrado <- dplyr::bind_rows(CerVS_2.mtx, CerrFor_evolve2)
+
 # remove duplicated lines
 Cerrado <- Cerrado[!duplicated(Cerrado), ]
 
@@ -120,24 +123,20 @@ Cerrado <- Cerrado[!duplicated(Cerrado), ]
 degradation <- Cerrado %>%
   tidyr::spread(variable, value)
 
-# as.factor
-str(degradation)
-# degradation$x <- as.factor(degradation$x)
-# degradation$y <- as.factor(degradation$y)
 #str(degradation)
 
 # remove
-rm(CerVS_2.mtx, CerrFor_evolve2, Cerrado)
-gc()
+#rm(CerVS_2.mtx, CerrFor_evolve2, Cerrado)
+#gc()
 
 lucC_plot_raster_result(raster_obj = rb_sits, data_mtx = degradation, timeline = timeline,
                         label = label, custom_palette = TRUE,
-                        RGB_color = colors, relabel = FALSE, plot_ncol = 5) #, shape_point = ".")
+                        RGB_color = colors, relabel = FALSE, plot_ncol = 5, size_point = 0.02) #, shape_point = ".")
 
-# create images output
-lucC_save_raster_result(raster_obj = rb_sits,
-                        data_mtx = degradation,       # all years
-                        timeline = timeline, label = label, path_raster_folder = "~/Desktop/Sample_Degrad")         # new pixel value
+# # create images output
+# lucC_save_raster_result(raster_obj = rb_sits,
+#                         data_mtx = degradation,       # all years
+#                         timeline = timeline, label = label, path_raster_folder = "~/Desktop/Sample_Degrad")         # new pixel value
 
 #----------------------------
 # 3- Update original raster to add new pixel value
@@ -157,9 +156,9 @@ rb_sits_new <- lucC_raster_update(raster_obj = rb_sits,
 lucC_plot_bar_events(data_mtx = rb_sits_new, pixel_resolution = 232, custom_palette = FALSE)
 
 # 2. save the update matrix as GeoTIFF RasterBrick
-lucC_save_GeoTIFF(raster_obj = rb_sits,
-                  data_mtx = rb_sits_new,
-                  path_raster_folder = "~/Desktop/Sample_Degra_Brick", as_RasterBrick = TRUE ) # FALSE before
+# lucC_save_GeoTIFF(raster_obj = rb_sits,
+#                   data_mtx = rb_sits_new,
+#                   path_raster_folder = "~/Desktop/Sample_Degra_Brick", as_RasterBrick = TRUE ) # FALSE before
 
 
 lucC_save_GeoTIFF(raster_obj = rb_sits,

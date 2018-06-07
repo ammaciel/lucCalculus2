@@ -6,7 +6,7 @@ options(digits = 12)
 
 # all files in folder
 #all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
-all.the.files <- list.files("~/TESTE/MT/MT_Degratation", full=TRUE, pattern = ".tif")
+all.the.files <- list.files("~/TESTE/MT/MT_Degradation", full=TRUE, pattern = ".tif")
 all.the.files
 
 # #-------------
@@ -150,6 +150,27 @@ measuresFor_PastSoy
 write.table(x = measuresFor_PastSoy, file = "~/TESTE/MT/DLUCForPasSoy/measuresFor_PastSoy.csv", quote = FALSE, sep = ";", row.names = FALSE)
 
 save(measuresFor_PastSoy, file = "~/TESTE/MT/DLUCForPasSoy/measuresFor_PastSoy.rda")
+
+
+# end time
+print(Sys.time() - start.time)
+
+
+#----------------------------------------------------
+# Merge all blocks and then generate image exit for each band
+#----------------------------------------------------
+
+library(lucCalculus)
+
+options(digits = 12)
+
+# start time
+start.time <- Sys.time()
+
+# merge blocks into a single image
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/DLUCForPasSoy/All_blocks_Forest_others", number_raster = 4, pattern_name = "New_New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+# save each layer of brick as images
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/DLUCForPasSoy/All_blocks_Forest_others/Mosaic_New_New_New_Raster_Splitted_.tif")
 
 
 # end time

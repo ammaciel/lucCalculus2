@@ -60,12 +60,17 @@ lucC_raster_update <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
   ensurer::ensure_that(class_to_replace, !is.null(class_to_replace),
                        err_desc = "class_to_replace must be defined!")
 
+  options(digits = 12)
+
   #-------------------- prepare rasterBrick --------------------------------
   df <- raster::rasterToPoints(raster_obj) %>%
     as.data.frame()
 
   rm(raster_obj)
   gc()
+
+  # make column headings
+  colnames(df) <- c("x", "y")
 
   # replace colnames to timeline
   colnames(df)[c(3:ncol(df))] <- as.character(lubridate::year(timeline))
@@ -77,7 +82,6 @@ lucC_raster_update <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
   gc()
 
   #-------------------- prepare matrix with events --------------------------------
-  # x and y as factor
   data_mtx$x <- as.factor(data_mtx$x)
   data_mtx$y <- as.factor(data_mtx$y)
 
@@ -91,42 +95,48 @@ lucC_raster_update <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
   # replace new clase by new pixel value
   new_df[c(3:ncol(new_df))] <- ifelse(new_df[c(3:ncol(new_df))] == class_to_replace, new_pixel_value, "")
 
-  #point_df <- reshape2::melt(new_df, id.vars = c("x","y"), na.rm = TRUE)
-  point_df <- new_df %>%
+  #points_df <- reshape2::melt(new_df, id.vars = c("x","y"), na.rm = TRUE)
+  points_df <- new_df %>%
     tidyr::gather(variable, value, -x, -y, na.rm = TRUE)
 
   rm(new_df)
   gc()
 
-  # remove factors
-  point_df$x = as.numeric(levels(point_df$x))[point_df$x]
-  point_df$y = as.numeric(levels(point_df$y))[point_df$y]
+  # remove factor
+  points_df$x = as.numeric(as.character(points_df$x)) #as.numeric(levels(points_df$x))[points_df$x]
+  points_df$y = as.numeric(as.character(points_df$y))
 
-  # ------------------ replace point_df in raster_df ---------------------
+  # ------------------ replace points_df in raster_df ---------------------
   a <- as.matrix(raster_df)
-  b <- as.matrix(point_df)
+  b <- as.matrix(points_df)
 
-  rm(raster_df, point_df)
+  rm(raster_df, points_df)
   gc()
 
   # change original by new values - ok
   rows_both <- base::merge(a, b, by = c("x","y","variable"))
   rows_both[,] <- lapply(rows_both, function(x) {as.numeric(as.character(x))}) # remove factor
 
-  rows_both <- rows_both %>%
+  rm(b)
+  gc()
+
+  rows_both2 <- rows_both %>%
     dplyr::mutate(value = .$value.y) %>%
     dplyr::select(-value.x, -value.y) %>%
     .[order(.$variable),] %>%
     as.matrix()
 
-  rm(b)
-  gc()
+  # remove duplicated lines
+  rows_both2 <- rows_both2[!duplicated(rows_both2), ]
+  a <- as.data.frame(a)
+  a[,] <- lapply(a, function(x) {as.numeric(as.character(x))}) # remove factor
+  b <- as.data.frame(rows_both2)
 
   # replace in entire raster
-  raster_rows_both <- merge(a, rows_both, by = c("x" = "x", "y" = "y", "variable" = "variable"), all.x = TRUE)
+  raster_rows_both <- merge(a, b, by = c("x" = "x", "y" = "y", "variable" = "variable"), all.x = TRUE)
   raster_rows_both[,] <- lapply(raster_rows_both, function(x) {as.numeric(as.character(x))}) # remove factor
 
-  rm(a, rows_both)
+  rm(a, b, rows_both, rows_both2)
   gc()
 
   raster_rows_both <- raster_rows_both %>%
@@ -194,28 +204,28 @@ lucC_raster_update <- function(raster_obj = NULL, data_mtx = NULL, timeline = NU
 #   # replace new clase by new pixel value
 #   new_df[c(3:ncol(new_df))] <- ifelse(new_df[c(3:ncol(new_df))] == class_to_replace, new_pixel_value, "")
 #
-#   # point_df <- reshape2::melt(new_df, id.vars = c("x","y")) %>%
+#   # points_df <- reshape2::melt(new_df, id.vars = c("x","y")) %>%
 #   #   stats::na.omit()
-#   point_df <- new_df %>%
+#   points_df <- new_df %>%
 #     tidyr::gather(variable, value, -x, -y) %>%
 #     stats::na.omit()
 #
 #   # remove factors
-#   point_df$x = as.numeric(as.character(point_df$x)) # as.numeric(levels(point_df$x))[point_df$x]
-#   point_df$y = as.numeric(as.character(point_df$y))
-#   point_df$variable = as.character(as.character(point_df$variable))
+#   points_df$x = as.numeric(as.character(points_df$x)) # as.numeric(levels(points_df$x))[points_df$x]
+#   points_df$y = as.numeric(as.character(points_df$y))
+#   points_df$variable = as.character(as.character(points_df$variable))
 #
 #   rm(new_df)
 #   gc()
-#   # ------------------ replace point_df in raster_df ---------------------
+#   # ------------------ replace points_df in raster_df ---------------------
 #
 #   # change original by new values - ok
-#   raster_df_temp0 <- base::merge(raster_df, point_df, by = c("x","y","variable")) %>%
+#   raster_df_temp0 <- base::merge(raster_df, points_df, by = c("x","y","variable")) %>%
 #     dplyr::mutate(value = .$value.y) %>%
 #     dplyr::select(-value.x, -value.y) %>%
 #     .[order(.$variable),]
 #
-#   rm(point_df)
+#   rm(points_df)
 #   gc()
 #
 #   # replace in entire raster
