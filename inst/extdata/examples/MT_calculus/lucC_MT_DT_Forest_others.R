@@ -6,7 +6,8 @@ options(digits = 12)
 
 # all files in folder
 #all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
-all.the.files <- list.files("~/TESTE/MT/MT_Degradation", full=TRUE, pattern = ".tif")
+#all.the.files <- list.files("~/TESTE/MT/MT_Degradation", full=TRUE, pattern = ".tif")
+all.the.files <- list.files("~/TESTE/MT/MT_SecCerrado", full=TRUE, pattern = ".tif")
 all.the.files
 
 # #-------------
@@ -49,10 +50,10 @@ for (y in 1:length(all.the.files)) {
 
   # ------------- define variables to plot raster -------------
   # original label - see QML file, same order
-  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation", "Degradation"))
+  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation", "Degradation", "Secondary_Cerrado"))
 
   class1 <- c("Forest")
-  classes <- c("Pasture", "Soy", "Cerrado", "Degradation", "Secondary_Vegetation") #
+  classes <- c("Pasture", "Soy", "Cerrado", "Degradation", "Secondary_Vegetation", "Secondary_Cerrado") #
 
   direct_transi.df <- NULL
 
@@ -96,10 +97,10 @@ for (y in 1:length(all.the.files)) {
   number_F_P_Soy[[y]] <- direct_transi.df
 
   message("Prepare image 1 ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCForPasSoy/", file_name, sep = ""), as_RasterBrick = FALSE)
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCForestOthers/", file_name, sep = ""), as_RasterBrick = TRUE)
 
   message("Prepare image 2 ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCForPasSoy/", file_name, sep = ""), as_RasterBrick = TRUE)
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCForestOthers/", file_name, sep = ""), as_RasterBrick = FALSE)
 
   # clear environment, except these elements
   rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_F_P_Soy"))])
@@ -110,7 +111,7 @@ for (y in 1:length(all.the.files)) {
 
 message("Save data as list in .rda file ...\n")
 #save to rda file
-save(number_F_P_Soy, file = "~/TESTE/MT/DLUCForPasSoy/number_F_P_Soy.rda")
+save(number_F_P_Soy, file = "~/TESTE/MT/DLUCForestOthers/number_F_P_Soy.rda")
 
 # #Stop clusters
 # parallel::stopCluster(cl)
@@ -130,7 +131,7 @@ gc()
 start.time <- Sys.time()
 
 
-load(file = "~/TESTE/MT/DLUCForPasSoy/number_F_P_Soy.rda")
+load(file = "~/TESTE/MT/DLUCForestOthers/number_F_P_Soy.rda")
 
 output_freq <- lucC_extract_frequency(data_mtx.list = number_F_P_Soy, cores_in_parallel = 6)
 output_freq
@@ -147,9 +148,9 @@ output_freq
 measuresFor_PastSoy <- lucC_result_measures(data_frequency = output_freq, pixel_resolution = 231.656)
 measuresFor_PastSoy
 
-write.table(x = measuresFor_PastSoy, file = "~/TESTE/MT/DLUCForPasSoy/measuresFor_PastSoy.csv", quote = FALSE, sep = ";", row.names = FALSE)
+write.table(x = measuresFor_PastSoy, file = "~/TESTE/MT/DLUCForestOthers/measuresFor_PastSoy.csv", quote = FALSE, sep = ";", row.names = FALSE)
 
-save(measuresFor_PastSoy, file = "~/TESTE/MT/DLUCForPasSoy/measuresFor_PastSoy.rda")
+save(measuresFor_PastSoy, file = "~/TESTE/MT/DLUCForestOthers/measuresFor_PastSoy.rda")
 
 
 # end time
@@ -168,9 +169,9 @@ options(digits = 12)
 start.time <- Sys.time()
 
 # merge blocks into a single image
-lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/DLUCForPasSoy/All_blocks_Forest_others", number_raster = 4, pattern_name = "New_New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/DLUCForestOthers/All_blocks_Forest_others", number_raster = 4, pattern_name = "New_New_New_Raster_Splitted_", is.rasterBrick = TRUE)
 # save each layer of brick as images
-lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/DLUCForPasSoy/All_blocks_Forest_others/Mosaic_New_New_New_Raster_Splitted_.tif")
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/DLUCForestOthers/All_blocks_Forest_others/Mosaic_New_New_New_Raster_Splitted_.tif")
 
 
 # end time

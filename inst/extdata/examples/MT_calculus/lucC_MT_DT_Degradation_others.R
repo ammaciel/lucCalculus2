@@ -6,7 +6,8 @@ options(digits = 12)
 
 # all files in folder
 #all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
-all.the.files <- list.files("~/TESTE/MT/MT_Degradation", full=TRUE, pattern = ".tif")
+#all.the.files <- list.files("~/TESTE/MT/MT_Degradation", full=TRUE, pattern = ".tif")
+all.the.files <- list.files("~/TESTE/MT/MT_SecCerrado", full=TRUE, pattern = ".tif")
 all.the.files
 
 # #-------------
@@ -49,10 +50,10 @@ for (y in 1:length(all.the.files)) {
 
   # ------------- define variables to plot raster -------------
   # original label - see QML file, same order
-  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation","Degradation"))
+  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation","Degradation", "Secondary_Cerrado"))
 
   class1 <- c("Degradation")
-  classes <- c("Pasture", "Soy", "Secondary_Vegetation", "Cerrado") #
+  classes <- c("Pasture", "Soy", "Forest", "Secondary_Vegetation", "Cerrado", "Secondary_Cerrado") #
 
   direct_transi.df <- NULL
 
@@ -96,10 +97,10 @@ for (y in 1:length(all.the.files)) {
   number_Degradation_others[[y]] <- direct_transi.df
 
   message("Prepare image 1 ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCDegradationOthers/", file_name, sep = ""), as_RasterBrick = FALSE)
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCDegradationOthers/", file_name, sep = ""), as_RasterBrick = TRUE)
 
   message("Prepare image 2 ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCDegradationOthers/", file_name, sep = ""), as_RasterBrick = TRUE)
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCDegradationOthers/", file_name, sep = ""), as_RasterBrick = FALSE)
 
   # clear environment, except these elements
   rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_Degradation_others"))])

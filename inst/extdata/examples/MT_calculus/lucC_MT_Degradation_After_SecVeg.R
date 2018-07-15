@@ -168,12 +168,12 @@ for (y in 1:length(all.the.files)) {
   message("Prepare image 1 ...\n")
   lucC_save_GeoTIFF(raster_obj = rb_sits,
                     data_mtx = rb_sits_new,
-                    path_raster_folder = new_file_name, as_RasterBrick = FALSE ) # FALSE before
+                    path_raster_folder = new_file_name, as_RasterBrick = TRUE ) # FALSE before
 
   message("Prepare image 2 ...\n")
   lucC_save_GeoTIFF(raster_obj = rb_sits,
                     data_mtx = rb_sits_new,
-                    path_raster_folder = new_file_name, as_RasterBrick = TRUE ) # FALSE before
+                    path_raster_folder = new_file_name, as_RasterBrick = FALSE ) # FALSE before
 
 
   message("--------------------------------------------------\n")

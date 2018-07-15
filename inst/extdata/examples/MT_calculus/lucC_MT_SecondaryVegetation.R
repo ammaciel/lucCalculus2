@@ -124,7 +124,7 @@ for (i in 1:length(all.the.files)) {
   #system.time(
   forest_recur <- lucC_pred_recur(raster_obj = rb_sits, raster_class = "Forest",
                                   time_interval1 = c("2001-09-01","2001-09-01"),
-                                  time_interval2 = c("2003-09-01","2016-09-01"),
+                                  time_interval2 = c("2002-09-01","2016-09-01"),
                                   label = label, timeline = timeline)
   #)
   #head(forest_recur)
@@ -205,6 +205,10 @@ for (i in 1:length(all.the.files)) {
                     data_mtx = rb_sits_new,
                     path_raster_folder = new_file_name, as_RasterBrick = FALSE ) # FALSE before
 
+  lucC_save_GeoTIFF(raster_obj = rb_sits,
+                    data_mtx = rb_sits_new,
+                    path_raster_folder = new_file_name, as_RasterBrick = TRUE ) # FALSE before
+
 
   message("--------------------------------------------------\n")
   # clear environment, except these elements
@@ -215,6 +219,28 @@ for (i in 1:length(all.the.files)) {
 
 #Stop clusters
 #parallel::stopCluster(cl)
+
+# end time
+print(Sys.time() - start.time)
+
+
+
+#----------------------------------------------------
+# Merge all blocks and then generate image exit for each band
+#----------------------------------------------------
+
+library(lucCalculus)
+
+options(digits = 12)
+
+# start time
+start.time <- Sys.time()
+
+# merge blocks into a single image
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/MT_SecVeg/All_blocks_SecVeg", number_raster = 4, pattern_name = "New_Raster_Splitted_", is.rasterBrick = TRUE)
+# save each layer of brick as images
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/MT_SecVeg/All_blocks_SecVeg/Mosaic_New_Raster_Splitted_.tif")
+
 
 # end time
 print(Sys.time() - start.time)

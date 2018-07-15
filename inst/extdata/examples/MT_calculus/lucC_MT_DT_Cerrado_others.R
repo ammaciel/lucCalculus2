@@ -6,7 +6,8 @@ options(digits = 12)
 
 # all files in folder
 #all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
-all.the.files <- list.files("~/TESTE/MT/MT_Degradation", full=TRUE, pattern = ".tif")
+#all.the.files <- list.files("~/TESTE/MT/MT_Degradation", full=TRUE, pattern = ".tif")
+all.the.files <- list.files("~/TESTE/MT/MT_SecCerrado", full=TRUE, pattern = ".tif")
 all.the.files
 
 # #-------------
@@ -49,10 +50,10 @@ for (y in 1:length(all.the.files)) {
 
   # ------------- define variables to plot raster -------------
   # original label - see QML file, same order
-  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation", "Degradation"))
+  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation", "Degradation", "Secondary_Cerrado"))
 
   class1 <- c("Cerrado")
-  classes <- c("Pasture", "Soy", "Secondary_Vegetation", "Degradation") #
+  classes <- c("Pasture", "Soy", "Forest", "Secondary_Vegetation", "Degradation", "Secondary_Cerrado") #
 
   direct_transi.df <- NULL
 

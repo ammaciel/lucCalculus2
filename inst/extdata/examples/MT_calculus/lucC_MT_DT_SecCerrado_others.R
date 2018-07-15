@@ -1,4 +1,4 @@
-# Pasture to Soy and Secondary Vegetation
+# Degradation to Pasture, Soy and Secondary vegetation
 
 library(lucCalculus)
 
@@ -6,7 +6,8 @@ options(digits = 12)
 
 # all files in folder
 #all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
-all.the.files <- list.files("~/TESTE/MT/MT_Degradation", full=TRUE, pattern = ".tif")
+#all.the.files <- list.files("~/TESTE/MT/MT_Degradation", full=TRUE, pattern = ".tif")
+all.the.files <- list.files("~/TESTE/MT/MT_SecCerrado", full=TRUE, pattern = ".tif")
 all.the.files
 
 # #-------------
@@ -25,7 +26,7 @@ all.the.files
 # start time
 start.time <- Sys.time()
 
-number_P_Soy_SV <- list()
+number_SecCerrado_others <- list(NULL)
 
 #convert.df <- foreach(y = 1:length(all.the.files), .combine=rbind, .packages= c("lucCalculus")) %dopar% {
 for (y in 1:length(all.the.files)) {
@@ -49,10 +50,10 @@ for (y in 1:length(all.the.files)) {
 
   # ------------- define variables to plot raster -------------
   # original label - see QML file, same order
-  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation", "Degradation"))
+  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation","Degradation", "Secondary_Cerrado"))
 
-  class1 <- c("Pasture")
-  classes <- c("Soy", "Secondary_Vegetation", "Cerrado", "Degradation") #
+  class1 <- c("Secondary_Cerrado")
+  classes <- c("Pasture", "Soy", "Secondary_Vegetation", "Cerrado", "Degradation") #
 
   direct_transi.df <- NULL
 
@@ -60,29 +61,29 @@ for (y in 1:length(all.the.files)) {
   # along of all classes
   # system.time(
   for(x in 2:length(timeline)){
-      t_1 <- timeline[x-1]
-      t_2 <- timeline[x]
-      cat(paste0(t_1, ", ", t_2, sep = ""), "\n")
+    t_1 <- timeline[x-1]
+    t_2 <- timeline[x]
+    cat(paste0(t_1, ", ", t_2, sep = ""), "\n")
 
-      # moves across all classes
-      for(i in seq_along(classes)){
-        cat(classes[i], collapse = " ", "\n")
-        temp <- lucC_pred_convert(raster_obj = rb_sits, raster_class1 = class1,
-                                  time_interval1 = c(t_1,t_1), relation_interval1 = "equals",
-                                  raster_class2 = classes[i],
-                                  time_interval2 = c(t_2,t_2), relation_interval2 = "equals",
-                                  label = label2, timeline = timeline)
+    # moves across all classes
+    for(i in seq_along(classes)){
+      cat(classes[i], collapse = " ", "\n")
+      temp <- lucC_pred_convert(raster_obj = rb_sits, raster_class1 = class1,
+                                time_interval1 = c(t_1,t_1), relation_interval1 = "equals",
+                                raster_class2 = classes[i],
+                                time_interval2 = c(t_2,t_2), relation_interval2 = "equals",
+                                label = label2, timeline = timeline)
 
-        if (!is.null(temp)) {
-          temp <- lucC_remove_columns(data_mtx = temp, name_columns = as.character(t_1))
-        } else{
-          temp <- temp
-        }
-
-        direct_transi.df <- lucC_merge(direct_transi.df, temp)
+      if (!is.null(temp)) {
+        temp <- lucC_remove_columns(data_mtx = temp, name_columns = as.character(t_1))
+      } else{
+        temp <- temp
       }
-      cat("\n")
+
+      direct_transi.df <- lucC_merge(direct_transi.df, temp)
     }
+    cat("\n")
+  }
   #)
 
   #Forest_Pasture <- direct_transi.df
@@ -93,16 +94,16 @@ for (y in 1:length(all.the.files)) {
   #head(Forest_Pasture)
   message("Add to list index ", y, "... \n")
 
-  number_P_Soy_SV[[y]] <- direct_transi.df
+  number_SecCerrado_others[[y]] <- direct_transi.df
 
   message("Prepare image 1 ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCPastSoySV/", file_name, sep = ""), as_RasterBrick = FALSE)
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCSecCerradoOthers/", file_name, sep = ""), as_RasterBrick = TRUE)
 
   message("Prepare image 2 ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCPastSoySV/", file_name, sep = ""), as_RasterBrick = TRUE)
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = direct_transi.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/DLUCSecCerradoOthers/", file_name, sep = ""), as_RasterBrick = FALSE)
 
   # clear environment, except these elements
-  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_P_Soy_SV"))])
+  rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_SecCerrado_others"))])
   gc()
 
   message("--------------------------------------------------\n")
@@ -110,17 +111,15 @@ for (y in 1:length(all.the.files)) {
 
 message("Save data as list in .rda file ...\n")
 #save to rda file
-save(number_P_Soy_SV, file = "~/TESTE/MT/DLUCPastSoySV/number_P_Soy_SV.rda")
+save(number_SecCerrado_others, file = "~/TESTE/MT/DLUCSecCerradoOthers/number_SecCerrado_others.rda")
 
-# #-------------
 # #Stop clusters
 # parallel::stopCluster(cl)
-# #-------------
 
 # end time
 print(Sys.time() - start.time)
 
-rm(number_P_Soy_SV)
+rm(number_SecCerrado_others)
 gc()
 
 #----------------------------------------------------
@@ -132,9 +131,9 @@ gc()
 start.time <- Sys.time()
 
 
-load(file = "~/TESTE/MT/DLUCPastSoySV/number_P_Soy_SV.rda")
+load(file = "~/TESTE/MT/DLUCSecCerradoOthers/number_SecCerrado_others.rda")
 
-output_freq <- lucC_extract_frequency(data_mtx.list = number_P_Soy_SV, cores_in_parallel = 6)
+output_freq <- lucC_extract_frequency(data_mtx.list = number_SecCerrado_others, cores_in_parallel = 6)
 output_freq
 
 #----------------------
@@ -146,12 +145,12 @@ output_freq
 #                      pixel_resolution = 231.656, custom_palette = FALSE)
 
 # Compute values
-measuresPast_SoySV <- lucC_result_measures(data_frequency = output_freq, pixel_resolution = 231.656)
-measuresPast_SoySV
+measuresSecCerrado_others <- lucC_result_measures(data_frequency = output_freq, pixel_resolution = 231.656)
+measuresSecCerrado_others
 
-write.table(x = measuresPast_SoySV, file = "~/TESTE/MT/DLUCPastSoySV/measuresPast_SoySV.csv", quote = FALSE, sep = ";", row.names = FALSE)
+write.table(x = measuresSecCerrado_others, file = "~/TESTE/MT/DLUCSecCerradoOthers/measuresSecCerrado_others.csv", quote = FALSE, sep = ";", row.names = FALSE)
 
-save(measuresPast_SoySV, file = "~/TESTE/MT/DLUCPastSoySV/measuresPast_SoySV.rda")
+save(measuresSecCerrado_others, file = "~/TESTE/MT/DLUCSecCerradoOthers/measuresSecCerrado_others.rda")
 
 
 # end time
@@ -171,12 +170,11 @@ options(digits = 12)
 start.time <- Sys.time()
 
 # merge blocks into a single image
-lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/DLUCPastSoySV/All_blocks_Pasture_others", number_raster = 4, pattern_name = "New_New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/DLUCSecCerradoOthers/All_blocks_SecCerrado_others", number_raster = 4, pattern_name = "New_New_New_Raster_Splitted_", is.rasterBrick = TRUE)
 # save each layer of brick as images
-lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/DLUCPastSoySV/All_blocks_Pasture_others/Mosaic_New_New_New_Raster_Splitted_.tif")
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/DLUCSecCerradoOthers/All_blocks_SecCerrado_others/Mosaic_New_New_New_Raster_Splitted_.tif")
 
 
 # end time
 print(Sys.time() - start.time)
-
 
