@@ -14,7 +14,8 @@ library(lucCalculus)
 options(digits = 12)
 
 # all files in folder
-all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
+#all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
+all.the.files <- list.files("~/TESTE/MT/MT_SecCerrado", full=TRUE, pattern = ".tif")
 all.the.files
 
 # #-------------
@@ -57,7 +58,7 @@ for (y in 1:length(all.the.files)) {
 
   # ------------- define variables to plot raster -------------
   # original label - see QML file, same order
-  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation"))
+  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation", "Degradation", "Secondary_Cerrado"))
 
   # create timeline with classified data from SVM method
   timeline2 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2009-09-01", "2010-09-01", "2011-09-01", "2012-09-01", "2013-09-01", "2014-09-01", "2015-09-01", "2016-09-01"))
@@ -65,7 +66,7 @@ for (y in 1:length(all.the.files)) {
   # soy moratorium
   timeline1 <- lubridate::as_date(c("2001-09-01", "2002-09-01", "2003-09-01", "2005-09-01", "2006-09-01", "2007-09-01", "2008-09-01", "2008-09-01", "2008-09-01", "2008-09-01", "2008-09-01", "2008-09-01", "2008-09-01", "2008-09-01", "2008-09-01"))
 
-
+  #classesDegPas <- c("Degradation", "Pasture")
   # intereting classes
   soybean_before.df <- NULL
 
@@ -78,28 +79,32 @@ for (y in 1:length(all.the.files)) {
     t_2 <- timeline2[x]
     cat(paste0(t_1, ", ", t_2, sep = ""), "\n")
 
-    soybean.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = "Soy",
-                                  time_interval = c(t_2,t_2),
-                                  relation_interval = "equals", label = label2, timeline = timeline)
+    # for( z in 1:length(classesDegPas)){
+    #   cat(classesDegPas[z], "\n")
 
-    pasture.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = "Cerrado", ### Pasture
-                                  time_interval = c(timeline1[1],t_1),
-                                  relation_interval = "contains", label = label2, timeline = timeline)
+      soybean.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = "Soy",
+                                    time_interval = c(t_2,t_2),
+                                    relation_interval = "equals", label = label2, timeline = timeline)
 
-    forest.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = "Forest",
-                                 time_interval = c(timeline1[1],t_1),
-                                 relation_interval = "contains", label = label2, timeline = timeline)
+      pasture.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = "Degradation",  # Pasture, # classesDegPas[z]  # <---- CHANGE HERE
+                                    time_interval = c(timeline1[1],t_1),
+                                    relation_interval = "contains", label = label2, timeline = timeline)
 
-    fores_past.temp <- lucC_relation_occurs(pasture.df, forest.df)
+      forest.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = "Forest",
+                                   time_interval = c(timeline1[1],t_1),
+                                   relation_interval = "contains", label = label2, timeline = timeline)
 
-    temp <- lucC_relation_precedes(soybean.df, fores_past.temp)
+      fores_past.temp <- lucC_relation_occurs(pasture.df, forest.df)
 
-    if (!is.null(temp)) {
-      tempF <- lucC_select_columns(data_mtx = temp, name_columns = t_2)
-    } else {
-      tempF <- NULL
-    }
-    soybean_before.df <- lucC_merge(soybean_before.df, tempF)
+      temp <- lucC_relation_precedes(soybean.df, fores_past.temp)
+
+      if (!is.null(temp)) {
+        tempF <- lucC_select_columns(data_mtx = temp, name_columns = t_2)
+      } else {
+        tempF <- NULL
+      }
+      soybean_before.df <- lucC_merge(soybean_before.df, tempF)
+    #}
   }
   cat("\n")
   # )
@@ -112,10 +117,10 @@ for (y in 1:length(all.the.files)) {
   number_Soy_before_2008[[y]] <- soybean_before.df
 
   message("Prepare image 1 ...\n")
-  lucC_save_raster_result(raster_obj = raster.data, data_mtx = soybean_before.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/Calc_Soybean_Before_2008/", file_name, sep = ""), as_RasterBrick = FALSE)
-
-  message("Prepare image 2 ...\n")
   lucC_save_raster_result(raster_obj = raster.data, data_mtx = soybean_before.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/Calc_Soybean_Before_2008/", file_name, sep = ""), as_RasterBrick = TRUE)
+
+  message("\nPrepare image 2 ...\n")
+  lucC_save_raster_result(raster_obj = raster.data, data_mtx = soybean_before.df, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/Calc_Soybean_Before_2008/", file_name, sep = ""), as_RasterBrick = FALSE)
 
   # clear environment, except these elements
   rm(list=ls()[!(ls() %in% c('all.the.files', "start.time", "number_Soy_before_2008"))])
@@ -185,9 +190,9 @@ options(digits = 12)
 start.time <- Sys.time()
 
 # merge blocks into a single image
-lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/Calc_Soybean_Before_2008/All_blocks_Soy_Before", number_raster = 4, pattern_name = "New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/Calc_Soybean_Before_2008/All_blocks_Soy_Before", number_raster = 4, pattern_name = "New_New_New_Raster_Splitted_", is.rasterBrick = TRUE)
 # save each layer of brick as images
-lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/Calc_Soybean_Before_2008/All_blocks_Soy_Before/Mosaic_New_New_Raster_Splitted_.tif")
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/Calc_Soybean_Before_2008/All_blocks_Soy_Before/Mosaic_New_New_New_Raster_Splitted_.tif")
 
 
 # end time
