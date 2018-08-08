@@ -3,7 +3,8 @@ library(lucCalculus)
 options(digits = 12)
 
 # all files in folder
-all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
+#all.the.files <- list.files("~/TESTE/MT/MT_SecVeg", full=TRUE, pattern = ".tif")
+all.the.files <- list.files("~/TESTE/MT/MT_SecCerrado", full=TRUE, pattern = ".tif")
 all.the.files
 
 #-------------
@@ -48,7 +49,7 @@ for (i in 1:length(all.the.files)) {
   # ------------- define variables to plot raster -------------
   # original label - see QML file, same order
   # label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy_Corn", "Soy_Cotton", "Soy_Fallow", "Soy_Millet", "Soy_Sunflower", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation"))
-  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation"))
+  label2 <- as.character(c("Cerrado", "Fallow_Cotton", "Forest", "Pasture", "Soy", "Soy", "Soy", "Soy", "Soy", "Sugarcane", "Urban_Area", "Water", "Secondary_Vegetation", "Degradation", "Secondary_Cerrado"))
 
   # original colors set - see QML file, same order
   # colors_2 <- c("#b3cc33", "#8ddbec", "#228b22", "#afe3c8", "#b6a896", "#e1cdb6", "#e5c6a0", "#b69872", "#b68549", "#dec000", "#cc18b4", "#0000f1", "red" )
@@ -78,10 +79,10 @@ for (i in 1:length(all.the.files)) {
   # save result of secondary vegetation
 
   message("Prepare image 1 ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = Forest_secondary.mtx, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/HoldsPastureSoy/", file_name, sep = ""), as_RasterBrick = FALSE)
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = Forest_secondary.mtx, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/HoldsPastureSoy/", file_name, sep = ""), as_RasterBrick = TRUE)
 
   message("Prepare image 2 ...\n")
-  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = Forest_secondary.mtx, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/HoldsPastureSoy/", file_name, sep = ""), as_RasterBrick = TRUE)
+  lucC_save_raster_result(raster_obj = rb_sits, data_mtx = Forest_secondary.mtx, timeline = timeline, label = label2, path_raster_folder = paste0("~/TESTE/MT/HoldsPastureSoy/", file_name, sep = ""), as_RasterBrick = FALSE)
 
 
 
@@ -154,9 +155,9 @@ options(digits = 12)
 start.time <- Sys.time()
 
 # merge blocks into a single image
-lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/HoldsPastureSoy/All_blocks_Pas_Soy", number_raster = 4, pattern_name = "New_New_Raster_Splitted_", is.rasterBrick = TRUE)
+lucC_merge_rasters(path_open_GeoTIFFs = "~/TESTE/MT/HoldsPastureSoy/All_blocks_Pas_Soy", number_raster = 4, pattern_name = "New_New_New_Raster_Splitted_", is.rasterBrick = TRUE)
 # save each layer of brick as images
-lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/HoldsPastureSoy/All_blocks_Pas_Soy/Mosaic_New_New_Raster_Splitted_.tif")
+lucC_save_rasterBrick_layers(path_name_GeoTIFF_Brick = "~/TESTE/MT/HoldsPastureSoy/All_blocks_Pas_Soy/Mosaic_New_New_New_Raster_Splitted_.tif")
 
 
 # end time

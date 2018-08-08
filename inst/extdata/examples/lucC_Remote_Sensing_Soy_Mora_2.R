@@ -108,8 +108,8 @@ lucC_plot_bar_events2 <- function(data_mtx = NULL, data_frequency = NULL, custom
           panel.grid.major = element_line(color = "#b2b2b2", linetype="dashed", size = 0.2),
           panel.grid.major.x = element_blank()) +
 
-  #draws x and y axis line
-  theme(axis.line = element_line(color = 'black'))
+    #draws x and y axis line
+    theme(axis.line = element_line(color = 'black'))
 
   print(g)
 
@@ -122,11 +122,12 @@ library(lucCalculus)
 options(digits = 12)
 
 # all files in folder
-all.the.files <- list.files("~/Desktop/MT_Chronos_2/Measures_DLUC", full=TRUE, pattern = ".csv")
+all.the.files <- list.files("~/Desktop/MT_Chronos_SecCerrado/Measures_DLUC/", full=TRUE, pattern = ".csv")
 all.the.files
 
 files.list <- lapply(all.the.files, data.table::fread, sep=";")
 data <- data.table::rbindlist(files.list, fill = TRUE)
+# data SoybeanMT contains Hectare value to Brazil
 
 # replace by hectare value
 for (i in 1:nrow(data)){
@@ -147,7 +148,7 @@ lucC_plot_bar_events2(data_frequency = data.bar, custom_palette = FALSE, pixel_r
 unique(data.bar$Classes)
 #classes <- c("Forest_Pasture", "Forest_Cerrado", "Soy_After_2008_Pasture", "Soy_Before_2008_Pasture", "Soy_After_2008_Cerrado", "Soy_Before_2008_Cerrado") #, "Pasture_Soy") #
 #classes <- c("Soy_After_2008_Pasture", "Soy_Before_2008_Pasture", "Soy_After_2008_Cerrado", "Soy_Before_2008_Cerrado", "Mato Grosso (Soja em grao)", "Soy") #, "Pasture_Soy") #
-classes1 <- c("Soy_After_2008_Pasture", "Soy_After_2008_Cerrado") #, "Pasture_Soy") #
+classes1 <- c("Soy_After_2008_Pasture", "Soy_After_2008_Degrad") #, "Pasture_Soy") #
 my_data1 <- data.bar[(data.bar$Classes %in% classes1),]
 my_data1
 
@@ -160,7 +161,7 @@ result_after <- my_data1 %>%
   as.data.frame()
 result_after
 
-classes1 <- c("Soy_Before_2008_Pasture", "Soy_Before_2008_Cerrado") #, "Pasture_Soy") #
+classes1 <- c("Soy_Before_2008_Pasture", "Soy_Before_2008_Degrad") #, "Pasture_Soy") #
 my_data2 <- data.bar[(data.bar$Classes %in% classes1),]
 my_data2
 
@@ -176,7 +177,7 @@ result_before
 unique(data.bar$Classes)
 #-------------
 #classes <- c("Forest_Pasture", "Forest_Cerrado", "Soy_After_2008_Pasture", "Soy_Before_2008_Pasture", "Soy_After_2008_Cerrado", "Soy_Before_2008_Cerrado") #, "Pasture_Soy") #
-classes <- c("Soy_After_2008", "Soy_Before_2008", "Forest_Cerrado", "Forest_Pasture") #
+classes <- c("Soy_After_2008", "Soy_Before_2008", "Forest_Degradation", "Forest_Pasture") #
 my_data <- data.bar[(data.bar$Classes %in% classes),]
 my_data
 
@@ -191,8 +192,8 @@ my_data2
 
 
 # figure bar plot
-#png(filename = "~/Desktop/fig_TESE/fig_MT_bar_soy33.png", width = 8.5, height = 5.4, units = 'in', res = 300) #"#1a9641", "#9cecc4", "#c7011a", "#000d92", "#f6546a", "#4169e1"
-lucC_plot_bar_events2(data_frequency = my, custom_palette = TRUE, RGB_color = c("#005900", "#66b266", "#CC2D25", "#968a8e"), pixel_resolution = 231.656, side_by_side = TRUE, relabel = TRUE, original_labels = c("Forest_Cerrado", "Forest_Pasture", "Soy_After_2008", "Soy_Before_2008"), new_labels = c("Forest to Degradation", "Forest to Pasture", "Pasture and Degradation to Soy, deforested after 2008", "Pasture and Degradation to Soy, deforested before 2008"), legend_text = "Land use transitions: ", column_legend = 2)
+#png(filename = "~/Desktop/fig_TESE/fig_MT_bar_soy331.png", width = 8.5, height = 5.4, units = 'in', res = 300) #"#1a9641", "#9cecc4", "#c7011a", "#000d92", "#f6546a", "#4169e1"
+lucC_plot_bar_events2(data_frequency = my, custom_palette = TRUE, RGB_color = c("#005900", "#66b266", "#CC2D25", "#968a8e"), pixel_resolution = 231.656, side_by_side = TRUE, relabel = TRUE, original_labels = c("Forest_Degradation", "Forest_Pasture", "Soy_After_2008", "Soy_Before_2008"), new_labels = c("Forest to Degradation", "Forest to Pasture", "Pasture and Degradation to Soy, deforested after 2008", "Pasture and Degradation to Soy, deforested before 2008"), legend_text = "Land use transitions: ", column_legend = 2)
 # "#968a8e", "#ff7f44", "#CC2D25", "#47258B"
 # "#78D283", "#00510A", "#CC2D25", "#47258B"
 #dev.off()
@@ -248,7 +249,7 @@ data.bar[data.bar$Classes == "Soy",]
 GR_class <- "Soy"
 # soy
 GR <- (((data.bar[data.bar$Classes == GR_class & data.bar$Years == 2016, "Hectare"]) -
-        (data.bar[data.bar$Classes == GR_class & data.bar$Years == 2001, "Hectare"])) /
+          (data.bar[data.bar$Classes == GR_class & data.bar$Years == 2001, "Hectare"])) /
          data.bar[data.bar$Classes == GR_class & data.bar$Years == 2001, "Hectare"]) * 100
 GR
 
@@ -258,7 +259,7 @@ GR_class <- "Soy_Before_2008"
 df[df$Classes == GR_class,]
 
 GAGR <- (((df[df$Classes == GR_class & df$Years == 2007, "Hectare"])/
-          (df[df$Classes == GR_class & df$Years == 2003, "Hectare"])) ^ (1/(2007-2003)) -1) * 100
+            (df[df$Classes == GR_class & df$Years == 2003, "Hectare"])) ^ (1/(2007-2003)) -1) * 100
 GAGR
 
 #------------- GR
@@ -266,7 +267,7 @@ data.bar[data.bar$Classes == "Soy",]
 GR_class <- "Soy"
 # soy
 GR <- (((df[df$Classes == GR_class & df$Years == 2016, "Hectare"]) -
-        (df[df$Classes == GR_class & df$Years == 2001, "Hectare"])) /
+          (df[df$Classes == GR_class & df$Years == 2001, "Hectare"])) /
          df[df$Classes == GR_class & df$Years == 2001, "Hectare"]) * 100
 GR
 

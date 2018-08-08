@@ -86,7 +86,7 @@ for (y in 1:length(all.the.files)) {
                                     time_interval = c(t_2,t_2),
                                     relation_interval = "equals", label = label2, timeline = timeline)
 
-      pasture.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = "Degradation",  # Pasture, # classesDegPas[z]  # <---- CHANGE HERE
+      pasture.df <- lucC_pred_holds(raster_obj = raster.data, raster_class = "Pasture",  # Degradation, # classesDegPas[z]  # <---- CHANGE HERE
                                     time_interval = c(timeline1[1],t_1),
                                     relation_interval = "contains", label = label2, timeline = timeline)
 
