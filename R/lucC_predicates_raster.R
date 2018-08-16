@@ -84,10 +84,10 @@ lucC_pred_holds <- function(raster_obj = NULL, raster_class = NULL, time_interva
       lubridate::int_standardize()
 
     # define time interval initial
-    date_start <- match(lubridate::as_date(format(lubridate::int_start(t), format = '%Y-%m-%d')), timeline)
+    date_start <- match(as.character(lubridate::as_date(format(lubridate::int_start(t), format = '%Y-%m-%d'))), as.character(timeline))
 
     # define time interval final
-    date_end <- match(lubridate::as_date(format(lubridate::int_end(t), format = '%Y-%m-%d')), timeline)
+    date_end <- match(as.character(lubridate::as_date(format(lubridate::int_end(t), format = '%Y-%m-%d'))), as.character(timeline))
 
   } else {
     stop("\nParameters:\n

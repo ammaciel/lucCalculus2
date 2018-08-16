@@ -2,7 +2,6 @@
 % Please edit documentation in R/lucC_data.R
 \name{timeline_SVM_mt}
 \alias{timeline_SVM_mt}
-\alias{timeline_SVM_mt}
 \title{Example CSV with a timeline}
 \usage{
 data(timeline_SVM_mt)

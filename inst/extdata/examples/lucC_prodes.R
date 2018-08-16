@@ -20,7 +20,7 @@ options(digits = 12)
 # ------------- define variables to use in sits -------------
 # open files
 #file <- c("~/Desktop/INPE_2018/SBSR_2019/raster2007-2017/raster2007-2017.tif")
-file <- c("~/TESTE/PRODES/raster2007-2017/raster2007-2017.tif")
+file <- c("~/Desktop/INPE_2018/SBSR_2019/raster2007-2017/raster2007-2017.tif")
 file
 
 # create timeline with classified data from SVM method

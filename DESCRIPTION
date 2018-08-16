@@ -1,8 +1,8 @@
-Package: lucCalculus
+Package: lucCalculus2
 Type: Package
 Title: Land Use Change Calculus
-Version: 0.6.04
-Date: 2018-03-10
+Version: 0.8.16
+Date: 2018-08-16
 Authors@R: person("Adeline", "Maciel", role = c("aut", "cre"), email = "adelsud6@gmail.com")
 Author: Adeline Maciel [aut, cre]
 Maintainer: Adeline Maciel <adelsud6@gmail.com>
@@ -10,7 +10,8 @@ Description: Land Use Change Calculus (lucCalculus) search for events in classif
 License: file LICENSE
 LazyData: TRUE
 Depends: R (>= 3.1.2)
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
+Encoding: UTF-8 
 Imports: dplyr,
       ensurer,
       ggplot2,
@@ -29,4 +30,3 @@ Remotes:
       e-sensing/sits
 URL: https://github.com/ammaciel/lucCalculus
 BugReports: https://github.com/ammaciel/lucCalculus
-
