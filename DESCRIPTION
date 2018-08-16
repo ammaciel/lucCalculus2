@@ -1,6 +1,6 @@
 Package: lucCalculus2
 Type: Package
-Title: Land Use Change Calculus
+Title: Land Use Change Calculus2
 Version: 0.8.16
 Date: 2018-08-16
 Authors@R: person("Adeline", "Maciel", role = c("aut", "cre"), email = "adelsud6@gmail.com")
